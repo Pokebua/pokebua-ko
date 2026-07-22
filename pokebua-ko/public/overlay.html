@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pokebua kø-overlay</title>
+  <style>
+    html, body { margin: 0; width: 100%; min-height: 100%; background: transparent; overflow: hidden; }
+    body { font-family: Arial, sans-serif; color: white; }
+    .box {
+      width: 430px;
+      margin: 24px;
+      padding: 18px;
+      border: 3px solid #facc15;
+      border-radius: 18px;
+      background: rgba(10, 15, 30, 0.88);
+      box-shadow: 0 0 24px rgba(0,0,0,.55);
+    }
+    h1 { margin: 0 0 14px; font-size: 27px; color: #facc15; text-align: center; }
+    .label { font-size: 14px; letter-spacing: 1.5px; color: #d1d5db; margin-bottom: 5px; }
+    .current { padding: 12px; border-radius: 12px; background: rgba(250, 204, 21, .16); margin-bottom: 15px; }
+    .current-name { font-size: 25px; font-weight: bold; }
+    .details { color: #e5e7eb; font-size: 14px; margin-top: 4px; }
+    ol { margin: 7px 0 0; padding-left: 28px; }
+    li { padding: 5px 0; font-size: 19px; }
+    .empty { color: #9ca3af; font-style: italic; }
+  </style>
+</head>
+<body>
+  <section class="box">
+    <h1>🔥 POKEBUA-KØ 🔥</h1>
+    <div class="label">ÅPNES NÅ</div>
+    <div class="current" id="current"><span class="empty">Ingen akkurat nå</span></div>
+    <div class="label">VENTER</div>
+    <div id="queue"><span class="empty">Køen er tom</span></div>
+  </section>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[c]));
+  }
+
+  function render(data) {
+    const current = document.getElementById("current");
+    const queue = document.getElementById("queue");
+
+    current.innerHTML = data.current
+      ? `<div class="current-name">▶ ${escapeHtml(data.current.name)}</div>
+         <div class="details">${escapeHtml(data.current.order)} ${escapeHtml(data.current.items)}</div>`
+      : `<span class="empty">Ingen akkurat nå</span>`;
+
+    if (!data.queue.length) {
+      queue.innerHTML = `<span class="empty">Køen er tom</span>`;
+    } else {
+      queue.innerHTML = `<ol>${data.queue.slice(0, 8).map(item =>
+        `<li>${escapeHtml(item.name)} <span class="details">${escapeHtml(item.order)}</span></li>`
+      ).join("")}</ol>`;
+    }
+  }
+
+  socket.on("queue:update", render);
+  fetch("/api/queue").then(r => r.json()).then(render);
+</script>
+</body>
+</html>
