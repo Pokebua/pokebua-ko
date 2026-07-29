@@ -54,7 +54,8 @@ function render(data){
  if(current){currentEl.className="current-name";currentEl.textContent=(current.skipTheLine?"⚡ ":current.giveaway?"🎁 ":"")+clean(current.name,"Ukjent")}
  else{currentEl.className="empty";currentEl.textContent="Ingen akkurat nå"}
  listEl.innerHTML="";
- queue.slice(0,MAX_VISIBLE).forEach(entry=>{const li=document.createElement("li");if(entry.skipTheLine||entry.priority)li.className="skip";else if(entry.giveaway)li.className="giveaway";li.textContent=((entry.skipTheLine||entry.priority)?"⚡ ":entry.giveaway?"🎁 ":"")+clean(entry.name,"Ukjent");listEl.appendChild(li)});
+queue.slice(0,MAX_VISIBLE).forEach((entry,index)=>{const li=document.createElement("li");if(entry.skipTheLine||entry.priority)li.className="skip";else if(entry.giveaway)li.className="giveaway";const badge=(entry.skipTheLine||entry.priority)?"⚡ ":entry.giveaway?"🎁 ":"";
+li.textContent=`${index+1}. ${badge}${clean(entry.name,"Ukjent")}`;
  const hidden=Math.max(queue.length-MAX_VISIBLE,0);moreEl.textContent=hidden?`+ ${hidden} ${hidden===1?"annen":"andre"} i kø`:"";
 }
 function addAlert(type,p={}){alerts.push({type,name:clean(p.name,"Ukjent"),items:clean(p.items),order:clean(p.order)});playNext()}
