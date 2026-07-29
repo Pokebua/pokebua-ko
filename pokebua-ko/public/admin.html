@@ -4,141 +4,614 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pokebua køkontroll</title>
+
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, sans-serif; background: #111827; color: #f9fafb; }
-    main { max-width: 900px; margin: 0 auto; padding: 24px; }
-    h1 { margin-top: 0; }
-    .panel { background: #1f2937; border: 1px solid #374151; border-radius: 14px; padding: 18px; margin-bottom: 18px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .full { grid-column: 1 / -1; }
-    input { width: 100%; padding: 12px; border-radius: 9px; border: 1px solid #4b5563; background: #111827; color: white; font-size: 16px; }
-    button { border: 0; border-radius: 9px; padding: 10px 14px; cursor: pointer; font-weight: bold; }
-    .primary { background: #facc15; color: #111827; }
-    .success { background: #22c55e; color: #052e16; }
-    .danger { background: #ef4444; color: white; }
-    .muted { background: #374151; color: white; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; }
-    .current { font-size: 24px; font-weight: bold; color: #facc15; }
-    .queue-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #374151; }
-    .queue-item:last-child { border-bottom: 0; }
-    .queue-actions { display: flex; gap: 6px; }
-    .small { padding: 7px 10px; }
-    .details { color: #d1d5db; font-size: 14px; margin-top: 4px; }
-    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .full { grid-column: auto; } }
+    :root {
+      --background: #0f172a;
+      --panel: #1e293b;
+      --panel-light: #273449;
+      --border: #3b4a61;
+      --yellow: #facc15;
+      --green: #22c55e;
+      --red: #ef4444;
+      --blue: #38bdf8;
+      --purple: #c084fc;
+      --white: #f8fafc;
+      --muted: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--background);
+      color: var(--white);
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1,
+    h2 {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #4b5563;
+      border-radius: 9px;
+      background: #111827;
+      color: white;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: 2px solid rgba(250, 204, 21, 0.35);
+      border-color: var(--yellow);
+    }
+
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 0.1s ease, opacity 0.1s ease;
+    }
+
+    button:hover {
+      opacity: 0.92;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .primary {
+      background: var(--yellow);
+      color: #111827;
+    }
+
+    .success {
+      background: var(--green);
+      color: #052e16;
+    }
+
+    .danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .muted {
+      background: #475569;
+      color: white;
+    }
+
+    .blue {
+      background: var(--blue);
+      color: #082f49;
+    }
+
+    .skip {
+      background: var(--yellow);
+      color: #111827;
+    }
+
+    .purple {
+      background: var(--purple);
+      color: #2e1065;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .current {
+      min-height: 84px;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(250, 204, 21, 0.08);
+      border: 1px solid rgba(250, 204, 21, 0.25);
+    }
+
+    .current-name {
+      font-size: 25px;
+      font-weight: 900;
+      color: var(--yellow);
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .queue-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .queue-count {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--yellow);
+    }
+
+    .queue-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel-light);
+    }
+
+    .queue-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .queue-item.priority {
+      border-color: rgba(250, 204, 21, 0.65);
+      box-shadow: inset 4px 0 0 var(--yellow);
+    }
+
+    .queue-item.giveaway {
+      border-color: rgba(192, 132, 252, 0.65);
+      box-shadow: inset 4px 0 0 var(--purple);
+    }
+
+    .queue-title {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .details {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .queue-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      max-width: 390px;
+    }
+
+    .small {
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #64748b;
+    }
+
+    .status-dot.connected {
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.55);
+    }
+
+    @media (max-width: 800px) {
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .queue-item {
+        grid-template-columns: 1fr;
+      }
+
+      .queue-actions {
+        justify-content: flex-start;
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 14px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+
+      .queue-actions button {
+        flex: 1 1 auto;
+      }
+    }
   </style>
 </head>
+
 <body>
-<main>
-  <h1>Pokebua Rip & Ship-kø</h1>
+  <main>
+    <h1>Pokebua Rip & Ship-kø</h1>
 
-  <section class="panel">
-    <h2>Legg til manuelt</h2>
-    <div class="form-grid">
-      <input id="name" placeholder="Navn på stream">
-      <input id="order" placeholder="Ordrenummer, f.eks. #1842">
-      <input class="full" id="items" placeholder="Produkter, f.eks. 6x booster">
-      <button class="primary full" id="add">Legg i kø</button>
+    <div class="status">
+      <span id="statusDot" class="status-dot"></span>
+      <span id="statusText">Kobler til serveren...</span>
     </div>
-  </section>
 
-  <section class="panel">
-    <h2>Åpnes nå</h2>
-    <div id="current" class="current">Ingen ordre åpnes nå</div>
-    <div class="actions" style="margin-top:14px">
-      <button class="success" id="next">Start neste ordre</button>
-      <button class="danger" id="finish">Marker ferdig</button>
-    </div>
-  </section>
+    <div class="top-grid">
+      <section class="panel">
+        <h2>Legg til manuelt</h2>
 
-  <section class="panel">
-    <h2>Venteliste</h2>
-    <div id="queue">Køen er tom.</div>
-  </section>
-</main>
+        <div class="form-grid">
+          <input id="name" placeholder="Navn på stream">
+          <input id="order" placeholder="Ordrenummer, f.eks. #1842">
+          <input class="full" id="items" placeholder="Produkter, f.eks. 6x booster">
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
-  const currentEl = document.getElementById("current");
-  const queueEl = document.getElementById("queue");
-
-  async function post(url, body) {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: body ? JSON.stringify(body) : undefined
-    });
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      alert(data.error || "Noe gikk galt");
-    }
-  }
-
-  function render(data) {
-    if (data.current) {
-      currentEl.innerHTML = `${escapeHtml(data.current.name)} <div class="details">${escapeHtml(data.current.order)} ${escapeHtml(data.current.items)}</div>`;
-    } else {
-      currentEl.textContent = "Ingen ordre åpnes nå";
-    }
-
-    if (!data.queue.length) {
-      queueEl.textContent = "Køen er tom.";
-      return;
-    }
-
-    queueEl.innerHTML = "";
-    data.queue.forEach((item, index) => {
-      const row = document.createElement("div");
-      row.className = "queue-item";
-      row.innerHTML = `
-        <div>
-          <strong>${index + 1}. ${escapeHtml(item.name)}</strong>
-          <div class="details">${escapeHtml(item.order)} ${escapeHtml(item.items)}</div>
+          <button class="primary full" id="add">
+            Legg i kø
+          </button>
         </div>
-        <div class="queue-actions">
-          <button class="muted small" data-action="up" data-id="${item.id}">↑</button>
-          <button class="muted small" data-action="down" data-id="${item.id}">↓</button>
-          <button class="danger small" data-action="delete" data-id="${item.id}">Fjern</button>
-        </div>`;
-      queueEl.appendChild(row);
-    });
-  }
+      </section>
 
-  function escapeHtml(value) {
-    return String(value || "").replace(/[&<>"']/g, c => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-    }[c]));
-  }
+      <section class="panel">
+        <h2>Åpnes nå</h2>
 
-  document.getElementById("add").addEventListener("click", async () => {
-    const name = document.getElementById("name").value.trim();
-    const order = document.getElementById("order").value.trim();
-    const items = document.getElementById("items").value.trim();
-    if (!name) return alert("Skriv inn navn.");
-    await post("/api/queue", { name, order, items });
-    document.getElementById("name").value = "";
-    document.getElementById("order").value = "";
-    document.getElementById("items").value = "";
-  });
+        <div id="current" class="current">
+          <div class="empty">Ingen ordre åpnes nå</div>
+        </div>
 
-  document.getElementById("next").addEventListener("click", () => post("/api/next"));
-  document.getElementById("finish").addEventListener("click", () => post("/api/finish"));
+        <div class="actions" style="margin-top: 14px;">
+          <button class="success" id="next">
+            ▶ Start neste ordre
+          </button>
 
-  queueEl.addEventListener("click", async event => {
-    const button = event.target.closest("button[data-action]");
-    if (!button) return;
-    const id = button.dataset.id;
-    const action = button.dataset.action;
-    if (action === "delete") {
-      await fetch(`/api/queue/${id}`, { method: "DELETE" });
-    } else {
-      await post(`/api/queue/${id}/${action}`);
+          <button class="danger" id="finish">
+            ✓ Marker ferdig
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="queue-toolbar">
+        <div>
+          <h2 style="margin-bottom: 5px;">Venteliste</h2>
+          <div id="queueCount" class="queue-count">0 i kø</div>
+        </div>
+
+        <div class="actions">
+          <button class="danger" id="clearQueue">
+            Tøm venteliste
+          </button>
+        </div>
+      </div>
+
+      <div id="queue">Køen er tom.</div>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io();
+
+    const currentEl = document.getElementById("current");
+    const queueEl = document.getElementById("queue");
+    const queueCountEl = document.getElementById("queueCount");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Noe gikk galt");
+      }
+
+      if (response.status === 204) {
+        return null;
+      }
+
+      return response.json().catch(() => null);
     }
-  });
 
-  socket.on("queue:update", render);
-  fetch("/api/queue").then(r => r.json()).then(render);
-</script>
+    async function post(url, body) {
+      try {
+        return await request(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: body ? JSON.stringify(body) : undefined
+        });
+      } catch (error) {
+        alert(error.message);
+        throw error;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[character]));
+    }
+
+    function render(data) {
+      renderCurrent(data.current);
+      renderQueue(data.queue || []);
+    }
+
+    function renderCurrent(current) {
+      if (!current) {
+        currentEl.innerHTML = '<div class="empty">Ingen ordre åpnes nå</div>';
+        return;
+      }
+
+      const badge = current.skipTheLine
+        ? "⚡ "
+        : current.giveaway
+          ? "🎁 "
+          : "";
+
+      currentEl.innerHTML = `
+        <div class="current-name">
+          ${badge}${escapeHtml(current.name)}
+        </div>
+
+        <div class="details">
+          ${escapeHtml(current.order)}
+          ${escapeHtml(current.items)}
+        </div>
+      `;
+    }
+
+    function renderQueue(queue) {
+      queueCountEl.textContent =
+        `${queue.length} ${queue.length === 1 ? "ordre" : "ordrer"} i kø`;
+
+      if (!queue.length) {
+        queueEl.textContent = "Køen er tom.";
+        return;
+      }
+
+      queueEl.innerHTML = "";
+
+      queue.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "queue-item";
+
+        if (item.skipTheLine || item.priority) {
+          row.classList.add("priority");
+        } else if (item.giveaway) {
+          row.classList.add("giveaway");
+        }
+
+        const badge =
+          item.skipTheLine || item.priority
+            ? "⚡ "
+            : item.giveaway
+              ? "🎁 "
+              : "";
+
+        row.innerHTML = `
+          <div>
+            <div class="queue-title">
+              ${index + 1}. ${badge}${escapeHtml(item.name)}
+            </div>
+
+            <div class="details">
+              ${escapeHtml(item.order)}
+              ${escapeHtml(item.items)}
+            </div>
+          </div>
+
+          <div class="queue-actions">
+            <button class="success small" data-action="open" data-id="${item.id}">
+              ▶ Åpne nå
+            </button>
+
+            <button class="blue small" data-action="top" data-id="${item.id}">
+              Til topp
+            </button>
+
+            <button class="skip small" data-action="skip" data-id="${item.id}">
+              ⚡ Skip
+            </button>
+
+            <button class="muted small" data-action="up" data-id="${item.id}">
+              ↑
+            </button>
+
+            <button class="muted small" data-action="down" data-id="${item.id}">
+              ↓
+            </button>
+
+            <button class="danger small" data-action="delete" data-id="${item.id}">
+              Fjern
+            </button>
+          </div>
+        `;
+
+        queueEl.appendChild(row);
+      });
+    }
+
+    document.getElementById("add").addEventListener("click", async () => {
+      const nameInput = document.getElementById("name");
+      const orderInput = document.getElementById("order");
+      const itemsInput = document.getElementById("items");
+
+      const name = nameInput.value.trim();
+      const order = orderInput.value.trim();
+      const items = itemsInput.value.trim();
+
+      if (!name) {
+        alert("Skriv inn navn.");
+        return;
+      }
+
+      await post("/api/queue", {
+        name,
+        order,
+        items
+      });
+
+      nameInput.value = "";
+      orderInput.value = "";
+      itemsInput.value = "";
+
+      nameInput.focus();
+    });
+
+    document.getElementById("next").addEventListener("click", async () => {
+      await post("/api/next");
+    });
+
+    document.getElementById("finish").addEventListener("click", async () => {
+      await post("/api/finish");
+    });
+
+    document.getElementById("clearQueue").addEventListener("click", async () => {
+      const confirmed = confirm(
+        "Er du sikker på at du vil tømme hele ventelisten?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await request("/api/queue", {
+          method: "DELETE"
+        });
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    queueEl.addEventListener("click", async event => {
+      const button = event.target.closest("button[data-action]");
+
+      if (!button) {
+        return;
+      }
+
+      const id = button.dataset.id;
+      const action = button.dataset.action;
+
+      try {
+        if (action === "delete") {
+          const confirmed = confirm("Vil du fjerne denne ordren fra køen?");
+
+          if (!confirmed) {
+            return;
+          }
+
+          await request(`/api/queue/${id}`, {
+            method: "DELETE"
+          });
+
+          return;
+        }
+
+        if (action === "open") {
+          await post(`/api/queue/${id}/top`);
+          await post("/api/next");
+          return;
+        }
+
+        await post(`/api/queue/${id}/${action}`);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    socket.on("connect", () => {
+      statusDot.classList.add("connected");
+      statusText.textContent = "Tilkoblet";
+    });
+
+    socket.on("disconnect", () => {
+      statusDot.classList.remove("connected");
+      statusText.textContent = "Frakoblet";
+    });
+
+    socket.on("queue:update", render);
+
+    fetch("/api/queue")
+      .then(response => response.json())
+      .then(render)
+      .catch(error => {
+        console.error("Kunne ikke hente køen:", error);
+        statusText.textContent = "Kunne ikke hente køen";
+      });
+  </script>
 </body>
 </html>
