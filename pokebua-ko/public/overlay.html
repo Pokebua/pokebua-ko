@@ -3,10 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Pokebua kø-overlay</title>
+
   <style>
-    html, body { margin: 0; width: 100%; min-height: 100%; background: transparent; overflow: hidden; }
-    body { font-family: Arial, sans-serif; color: white; }
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: transparent;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
     .box {
       width: 430px;
       margin: 24px;
@@ -14,57 +28,302 @@
       border: 3px solid #facc15;
       border-radius: 18px;
       background: rgba(10, 15, 30, 0.88);
-      box-shadow: 0 0 24px rgba(0,0,0,.55);
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.55);
+      position: relative;
     }
-    h1 { margin: 0 0 14px; font-size: 27px; color: #facc15; text-align: center; }
-    .label { font-size: 14px; letter-spacing: 1.5px; color: #d1d5db; margin-bottom: 5px; }
-    .current { padding: 12px; border-radius: 12px; background: rgba(250, 204, 21, .16); margin-bottom: 15px; }
-    .current-name { font-size: 25px; font-weight: bold; }
-    .details { color: #e5e7eb; font-size: 14px; margin-top: 4px; }
-    ol { margin: 7px 0 0; padding-left: 28px; }
-    li { padding: 5px 0; font-size: 19px; }
-    .empty { color: #9ca3af; font-style: italic; }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: 27px;
+      color: #facc15;
+      text-align: center;
+    }
+
+    .label {
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      color: #d1d5db;
+      margin-bottom: 5px;
+    }
+
+    .current {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(250, 204, 21, 0.16);
+      margin-bottom: 15px;
+    }
+
+    .current-name {
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .details {
+      color: #e5e7eb;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    ol {
+      margin: 7px 0 0;
+      padding-left: 28px;
+    }
+
+    li {
+      padding: 5px 0;
+      font-size: 19px;
+    }
+
+    .empty {
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .more {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #facc15;
+    }
+
+    .skip-item {
+      color: #facc15;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(250, 204, 21, 0.7);
+    }
+
+    .skip-alert {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 24px;
+      border-radius: 15px;
+      text-align: center;
+      background:
+        radial-gradient(circle, rgba(250, 204, 21, 0.35), rgba(10, 15, 30, 0.98));
+      z-index: 10;
+    }
+
+    .skip-alert.show {
+      display: flex;
+      animation: skipFlash 4.5s ease forwards;
+    }
+
+    .skip-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: #facc15;
+      text-shadow:
+        0 0 10px #facc15,
+        0 0 24px rgba(250, 204, 21, 0.9);
+      animation: bounce 0.6s ease-in-out infinite alternate;
+    }
+
+    .skip-name {
+      margin-top: 14px;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .skip-text {
+      margin-top: 8px;
+      font-size: 18px;
+      color: #e5e7eb;
+    }
+
+    .box.skip-glow {
+      animation: boxGlow 1s ease-in-out 4;
+    }
+
+    @keyframes skipFlash {
+      0% {
+        opacity: 0;
+        transform: scale(0.75);
+      }
+
+      12% {
+        opacity: 1;
+        transform: scale(1.04);
+      }
+
+      82% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(1.1);
+      }
+    }
+
+    @keyframes bounce {
+      from {
+        transform: translateY(-4px) scale(1);
+      }
+
+      to {
+        transform: translateY(4px) scale(1.05);
+      }
+    }
+
+    @keyframes boxGlow {
+      0%,
+      100% {
+        box-shadow: 0 0 24px rgba(0, 0, 0, 0.55);
+      }
+
+      50% {
+        box-shadow:
+          0 0 18px #facc15,
+          0 0 45px rgba(250, 204, 21, 0.9);
+      }
+    }
   </style>
 </head>
+
 <body>
-  <section class="box">
+  <section class="box" id="box">
+    <div class="skip-alert" id="skipAlert">
+      <div class="skip-title">⚡ SKIP THE LINE! ⚡</div>
+      <div class="skip-name" id="skipName"></div>
+      <div class="skip-text">hopper fram i køen!</div>
+    </div>
+
     <h1>🔥 POKEBUA-KØ 🔥</h1>
+
     <div class="label">ÅPNES NÅ</div>
-    <div class="current" id="current"><span class="empty">Ingen akkurat nå</span></div>
+
+    <div class="current" id="current">
+      <span class="empty">Ingen akkurat nå</span>
+    </div>
+
     <div class="label">VENTER</div>
-    <div id="queue"><span class="empty">Køen er tom</span></div>
+
+    <div id="queue">
+      <span class="empty">Køen er tom</span>
+    </div>
   </section>
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const socket = io();
+  <script src="/socket.io/socket.io.js"></script>
 
-  function escapeHtml(value) {
-    return String(value || "").replace(/[&<>"']/g, c => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-    }[c]));
-  }
+  <script>
+    const socket = io();
+    const maxVisible = 14;
 
-  function render(data) {
-    const current = document.getElementById("current");
-    const queue = document.getElementById("queue");
-
-    current.innerHTML = data.current
-      ? `<div class="current-name">▶ ${escapeHtml(data.current.name)}</div>
-         <div class="details">${escapeHtml(data.current.order)} ${escapeHtml(data.current.items)}</div>`
-      : `<span class="empty">Ingen akkurat nå</span>`;
-
-    if (!data.queue.length) {
-      queue.innerHTML = `<span class="empty">Køen er tom</span>`;
-    } else {
-      queue.innerHTML = `<ol>${data.queue.slice(0, 8).map(item =>
-        `<li>${escapeHtml(item.name)} <span class="details">${escapeHtml(item.order)}</span></li>`
-      ).join("")}</ol>`;
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[character]));
     }
-  }
 
-  socket.on("queue:update", render);
-  fetch("/api/queue").then(r => r.json()).then(render);
-</script>
+    function isSkipItem(item) {
+      return Boolean(
+        item &&
+        (
+          item.skip === true ||
+          item.skipTheLine === true ||
+          item.priority === true
+        )
+      );
+    }
+
+    function render(data) {
+      const current = document.getElementById("current");
+      const queue = document.getElementById("queue");
+
+      const currentItem = data.current || null;
+      const queueItems = Array.isArray(data.queue) ? data.queue : [];
+
+      current.innerHTML = currentItem
+        ? `
+          <div class="current-name">
+            ▶ ${escapeHtml(currentItem.name)}
+          </div>
+
+          <div class="details">
+            ${escapeHtml(currentItem.order)}
+            ${escapeHtml(currentItem.items)}
+          </div>
+        `
+        : `<span class="empty">Ingen akkurat nå</span>`;
+
+      if (queueItems.length === 0) {
+        queue.innerHTML = `<span class="empty">Køen er tom</span>`;
+        return;
+      }
+
+      const visibleQueue = queueItems.slice(0, maxVisible);
+      const remaining = Math.max(queueItems.length - maxVisible, 0);
+
+      queue.innerHTML = `
+        <ol>
+          ${visibleQueue.map(item => {
+            const skipClass = isSkipItem(item) ? "skip-item" : "";
+            const icon = isSkipItem(item) ? "⚡ " : "";
+
+            return `
+              <li class="${skipClass}">
+                ${icon}${escapeHtml(item.name)}
+                <span class="details">
+                  ${escapeHtml(item.order)}
+                </span>
+              </li>
+            `;
+          }).join("")}
+        </ol>
+
+        ${
+          remaining > 0
+            ? `<div class="more">+ ${remaining} andre i kø</div>`
+            : ""
+        }
+      `;
+    }
+
+    function showSkipAlert(data) {
+      const box = document.getElementById("box");
+      const alert = document.getElementById("skipAlert");
+      const name = document.getElementById("skipName");
+
+      name.textContent = data && data.name
+        ? data.name
+        : "En kunde";
+
+      alert.classList.remove("show");
+      box.classList.remove("skip-glow");
+
+      void alert.offsetWidth;
+      void box.offsetWidth;
+
+      alert.classList.add("show");
+      box.classList.add("skip-glow");
+
+      setTimeout(() => {
+        alert.classList.remove("show");
+        box.classList.remove("skip-glow");
+      }, 4600);
+    }
+
+    socket.on("queue:update", render);
+    socket.on("skip:alert", showSkipAlert);
+
+    fetch("/api/queue")
+      .then(response => response.json())
+      .then(render)
+      .catch(error => {
+        console.error("Kunne ikke hente køen:", error);
+      });
+  </script>
 </body>
 </html>
