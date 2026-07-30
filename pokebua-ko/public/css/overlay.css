@@ -199,43 +199,6 @@ body{padding:8px}
 .item-icon{color:var(--blue);font-size:16px;line-height:1.2}
 .qty{color:var(--yellow)}
 
-.timer-wrap{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top:15px;
-  padding-top:12px;
-  border-top:1px solid rgba(89,183,255,.17);
-}
-
-.clock{
-  width:39px;height:39px;
-  display:grid;place-items:center;
-  border:3px solid var(--yellow);
-  border-radius:50%;
-  color:var(--yellow);
-  font-size:19px;
-  font-weight:900;
-}
-
-.timer-copy{display:flex;flex-direction:column;line-height:1}
-
-.timer-label{
-  margin-bottom:4px;
-  color:var(--yellow);
-  font-size:11px;
-  font-weight:950;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-.timer{
-  font-size:27px;
-  line-height:1;
-  font-weight:950;
-  letter-spacing:.02em;
-  font-variant-numeric:tabular-nums;
-}
 
 .badge{
   margin-left:auto;
