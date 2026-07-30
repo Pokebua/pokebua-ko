@@ -106,23 +106,49 @@
 
   <!-- Fullskjerm Skip the Line-animasjon -->
   <div
-    id="dragonEvent"
-    aria-hidden="true"
-  >
-    <video
-      id="dragonVideo"
-      preload="auto"
-      muted
-      playsinline
-    >
-      <source
-        src="/assets/infernos.webm"
-        type="video/webm"
-      />
-    </video>
+  id="skipCardEvent"
+  aria-hidden="true"
+>
+  <div class="skip-card-backdrop"></div>
+  <div class="skip-card-flash"></div>
+  <div class="skip-card-shockwave"></div>
 
-    <div id="dragonName"></div>
+  <div class="skip-card-stage">
+    <div class="skip-card-wrap">
+      <img
+        class="skip-card-image"
+        src="/assets/skip-card.png"
+        alt=""
+      />
+
+      <div class="skip-card-portal"></div>
+    </div>
+
+    <div class="skip-character-wrap">
+      <img
+        class="skip-character-image"
+        src="/assets/skip-character.png"
+        alt=""
+      />
+    </div>
+
+    <div class="skip-sign-wrap">
+      <div class="skip-sign">
+        <div class="skip-sign-title">
+          SKIP THE LINE
+        </div>
+
+        <div id="skipCardName"></div>
+      </div>
+    </div>
+
+    <div
+      id="skipCardParticles"
+      class="skip-card-particles"
+      aria-hidden="true"
+    ></div>
   </div>
+</div>
 
   <!-- JavaScript skal ligge helt nederst -->
   <script src="/js/overlay.js"></script>
