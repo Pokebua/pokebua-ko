@@ -95,37 +95,179 @@
         </section>
 
         <section class="dashboard-grid">
-          <article class="panel">
-            <div class="section-head">
-              <div><strong>Køkontroll</strong><small>Dra kortene for å endre rekkefølge</small></div>
-              <button class="text-button" data-view-link="queue">Åpne full kø</button>
+  <article class="panel">
+    <div class="section-head">
+      <div>
+        <strong>Køkontroll</strong>
+        <small>Dra kortene for å endre rekkefølge</small>
+      </div>
+
+      <button class="text-button" data-view-link="queue">
+        Åpne full kø
+      </button>
+    </div>
+
+    <div id="dashboardQueue" class="queue-list"></div>
+  </article>
+
+  <div class="right-stack">
+
+    <!-- KØSTENGING -->
+    <article class="panel queue-closing-panel" id="queueClosingPanel">
+      <div class="section-head">
+        <div>
+          <strong>Køstatus</strong>
+          <small>Automatisk stenging av køen</small>
+        </div>
+
+        <div class="queue-status-badge open" id="queueStatusBadge">
+          <i></i>
+          <span id="queueStatusText">ÅPEN</span>
+        </div>
+      </div>
+
+      <div class="queue-closing-content">
+
+        <div class="queue-closing-idle" id="queueClosingIdle">
+          <div class="queue-closing-message">
+            <span class="queue-closing-icon">◷</span>
+
+            <div>
+              <strong>Planlegg køstenging</strong>
+              <small>
+                Et rødt «KØ STENGT»-kort legges automatisk nederst
+                i køen når tiden går ut.
+              </small>
             </div>
-            <div id="dashboardQueue" class="queue-list"></div>
-          </article>
-
-          <div class="right-stack">
-            <article class="panel">
-              <div class="section-head"><div><strong>Legg til manuelt</strong><small>Twitch-navn overstyrer fornavn</small></div></div>
-              <div class="form-grid">
-                <label>Navn<input id="manualName" placeholder="F.eks. Jørgen Hansen"></label>
-                <label>Twitch-navn <span>(valgfritt)</span><input id="manualTwitch" placeholder="F.eks. pokebuafan"></label>
-                <label>Ordrenummer<input id="manualOrder" placeholder="#5832"></label>
-                <label class="full">Produkter<textarea id="manualItems" rows="3" placeholder="6x Journey Together"></textarea></label>
-                <div class="toggle-row full">
-                  <label><input id="manualSkip" type="checkbox"> Skip the Line</label>
-                  <label><input id="manualGive" type="checkbox"> Giveaway</label>
-                </div>
-                <button id="addManual" class="button gold full">+ Legg i kø</button>
-              </div>
-            </article>
-
-            <article class="panel activity-panel">
-              <div class="section-head"><div><strong>Live Activity</strong><small>Siste handlinger i Studio</small></div><button id="clearFeed" class="text-button">Tøm</button></div>
-              <div id="activityFeed" class="activity-feed empty-state">Ingen aktivitet ennå.</div>
-            </article>
           </div>
-        </section>
-      </section>
+
+          <div class="queue-closing-controls">
+            <label>
+              Køen stenger om
+
+              <div class="minutes-input">
+                <input
+                  id="queueClosingMinutes"
+                  type="number"
+                  min="1"
+                  max="1440"
+                  step="1"
+                  value="30"
+                  inputmode="numeric"
+                >
+
+                <span>minutter</span>
+              </div>
+            </label>
+
+            <button id="startQueueClosing" class="button danger">
+              ◷ Start nedtelling
+            </button>
+          </div>
+        </div>
+
+        <div class="queue-closing-running" id="queueClosingRunning" hidden>
+          <div class="queue-countdown-display">
+            <span>STENGER OM</span>
+            <strong id="queueClosingCountdown">30:00</strong>
+            <small id="queueClosingClock">Køen stenger snart</small>
+          </div>
+
+          <button id="cancelQueueClosing" class="button secondary">
+            Avbryt nedtelling
+          </button>
+        </div>
+
+        <div class="queue-closing-closed" id="queueClosingClosed" hidden>
+          <div class="queue-closed-display">
+            <span class="queue-closed-icon">⛔</span>
+
+            <div>
+              <strong>KØEN ER STENGT</strong>
+              <small>Det røde kortet ligger nederst i køen.</small>
+            </div>
+          </div>
+
+          <button id="reopenQueue" class="button success">
+            Åpne køen igjen
+          </button>
+        </div>
+
+      </div>
+    </article>
+
+    <!-- MANUELL ORDRE -->
+    <article class="panel">
+      <div class="section-head">
+        <div>
+          <strong>Legg til manuelt</strong>
+          <small>Twitch-navn overstyrer fornavn</small>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label>
+          Navn
+          <input id="manualName" placeholder="F.eks. Jørgen Hansen">
+        </label>
+
+        <label>
+          Twitch-navn <span>(valgfritt)</span>
+          <input id="manualTwitch" placeholder="F.eks. pokebuafan">
+        </label>
+
+        <label>
+          Ordrenummer
+          <input id="manualOrder" placeholder="#5832">
+        </label>
+
+        <label class="full">
+          Produkter
+          <textarea
+            id="manualItems"
+            rows="3"
+            placeholder="6x Journey Together"
+          ></textarea>
+        </label>
+
+        <div class="toggle-row full">
+          <label>
+            <input id="manualSkip" type="checkbox">
+            Skip the Line
+          </label>
+
+          <label>
+            <input id="manualGive" type="checkbox">
+            Giveaway
+          </label>
+        </div>
+
+        <button id="addManual" class="button gold full">
+          + Legg i kø
+        </button>
+      </div>
+    </article>
+
+    <!-- AKTIVITET -->
+    <article class="panel activity-panel">
+      <div class="section-head">
+        <div>
+          <strong>Live Activity</strong>
+          <small>Siste handlinger i Studio</small>
+        </div>
+
+        <button id="clearFeed" class="text-button">
+          Tøm
+        </button>
+      </div>
+
+      <div id="activityFeed" class="activity-feed empty-state">
+        Ingen aktivitet ennå.
+      </div>
+    </article>
+
+  </div>
+</section>
 
       <section class="view" id="view-queue">
         <article class="panel full-height">
