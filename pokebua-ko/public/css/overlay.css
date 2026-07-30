@@ -64,16 +64,16 @@ body{padding:8px}
 }
 
 .logo-wrap{
-  position:absolute;
-  top:-68px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:100;
+    position:absolute;
+    top:-92px;      /* var -68px */
+    left:50%;
+    transform:translateX(-50%);
+    z-index:100;
 
-  width:100%;
-  display:flex;
-  justify-content:center;
-  pointer-events:none;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    pointer-events:none;
 }
 
 .logo{
