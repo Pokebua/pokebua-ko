@@ -328,8 +328,41 @@ body{padding:8px}
 }
 
 .queue-item.priority{
-  border-color:rgba(255,189,22,.25);
-  background:linear-gradient(90deg,rgba(255,189,22,.10),rgba(7,18,33,.92));
+  position:relative;
+  min-height:46px;
+
+  border:1px solid rgba(89,183,255,.75);
+
+  background:
+    radial-gradient(circle at 85% 50%,rgba(22,140,255,.18),transparent 42%),
+    linear-gradient(90deg,rgba(22,140,255,.22),rgba(7,18,33,.96));
+
+  box-shadow:
+    0 0 16px rgba(22,140,255,.22),
+    inset 0 0 14px rgba(22,140,255,.08);
+
+  transform:scale(1.015);
+  z-index:2;
+}
+
+.queue-item.priority::before{
+  content:"NESTE";
+  position:absolute;
+  top:-7px;
+  right:8px;
+
+  padding:2px 7px;
+  border:1px solid rgba(89,183,255,.65);
+  border-radius:999px;
+
+  color:#d8efff;
+  background:#0879dc;
+
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.1em;
+
+  box-shadow:0 0 10px rgba(22,140,255,.35);
 }
 
 .queue-item.giveaway{
@@ -344,7 +377,15 @@ body{padding:8px}
   font-variant-numeric:tabular-nums;
 }
 
-.queue-item.priority .position{color:var(--yellow)}
+.queue-item.priority .position{
+  color:var(--blue-soft);
+  text-shadow:0 0 10px rgba(22,140,255,.55);
+}
+
+.queue-item.priority .q-name{
+  color:var(--white);
+  font-size:17px;
+}
 
 .q-name{
   overflow:hidden;
