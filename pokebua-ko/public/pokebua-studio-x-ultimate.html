@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pokebua Studio X</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root{
+  --bg:#050913;--bg2:#091224;--panel:rgba(14,27,50,.78);--panel2:rgba(20,38,68,.88);
+  --line:rgba(124,164,224,.18);--text:#f7f9ff;--muted:#8fa3c2;
+  --gold:#ffcf35;--gold2:#ff9f1c;--blue:#4ea3ff;--red:#ff4d62;--green:#43e08d;
+  --purple:#b57cff;--shadow:0 24px 70px rgba(0,0,0,.42);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial;color:var(--text);background:
+radial-gradient(circle at 12% 0%,rgba(78,163,255,.14),transparent 28%),
+radial-gradient(circle at 100% 15%,rgba(255,207,53,.11),transparent 28%),
+linear-gradient(135deg,var(--bg),var(--bg2));}
+body{overflow-x:hidden}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.app{display:grid;grid-template-columns:278px minmax(0,1fr);min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;padding:18px 15px;background:rgba(4,9,19,.82);border-right:1px solid var(--line);backdrop-filter:blur(22px);z-index:40}
+.brand{display:flex;align-items:center;gap:13px;padding:12px 10px 22px}
+.ball{width:48px;height:48px;border-radius:50%;position:relative;flex:none;background:linear-gradient(#ff4458 0 46%,#172033 46% 54%,#f8fbff 54%);box-shadow:0 0 30px rgba(255,207,53,.22),inset 0 0 0 3px #101827}
+.ball:before{content:"";position:absolute;width:15px;height:15px;border-radius:50%;background:#fff;border:5px solid #172033;left:50%;top:50%;transform:translate(-50%,-50%)}
+.brand h1{font-size:20px;line-height:1;margin:0;font-weight:1000;letter-spacing:-.5px}
+.brand h1 span{color:var(--gold)}
+.brand p{margin:7px 0 0;color:var(--muted);font-size:10px;letter-spacing:1.7px;font-weight:900}
+.nav-label{padding:16px 12px 8px;color:#607696;font-size:10px;font-weight:1000;letter-spacing:1.7px;text-transform:uppercase}
+.nav{display:grid;gap:6px}
+.nav-btn{width:100%;display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid transparent;border-radius:13px;background:transparent;color:#aebbd0;text-align:left;font-weight:850;transition:.2s}
+.nav-btn:hover{background:rgba(255,255,255,.045);color:#fff;transform:translateX(2px)}
+.nav-btn.active{color:#fff;border-color:rgba(255,207,53,.25);background:linear-gradient(90deg,rgba(255,207,53,.16),rgba(78,163,255,.06));box-shadow:inset 3px 0 0 var(--gold)}
+.nav-ico{width:23px;text-align:center;font-size:17px}.nav-badge{margin-left:auto;min-width:24px;padding:3px 7px;border-radius:999px;background:rgba(255,207,53,.14);color:var(--gold);font-size:11px;text-align:center}
+.side-foot{position:absolute;left:15px;right:15px;bottom:16px;padding:13px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.connection{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:850}.dot{width:9px;height:9px;border-radius:50%;background:#58657a}.dot.on{background:var(--green);box-shadow:0 0 13px rgba(67,224,141,.9)}
+.server-note{margin-top:7px;color:#61728e;font-size:10px}
+.main{min-width:0;padding:22px 24px 104px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.top-left{display:flex;align-items:flex-start;gap:12px}.mobile{display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:#fff}
+.topbar h2{margin:0;font-size:clamp(27px,3vw,41px);letter-spacing:-1.4px}
+.topbar p{margin:5px 0 0;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:10px}.icon-btn{width:43px;height:43px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:#fff;font-size:20px}
+.live{display:flex;align-items:center;gap:9px;padding:11px 15px;border-radius:999px;border:1px solid rgba(255,77,98,.28);background:rgba(255,77,98,.09);color:#ffb6c0;font-weight:950;font-size:12px;letter-spacing:.7px}
+.live i{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 6px rgba(255,77,98,.1);animation:pulse 1.7s infinite}
+.view{display:none}.view.active{display:block;animation:viewIn .28s ease}
+@keyframes viewIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(255,77,98,0)}}
+.hero{position:relative;overflow:hidden;min-height:340px;padding:28px;border-radius:26px;border:1px solid rgba(255,207,53,.23);background:
+linear-gradient(135deg,rgba(255,207,53,.09),transparent 42%),
+radial-gradient(circle at 90% 10%,rgba(78,163,255,.18),transparent 35%),
+linear-gradient(145deg,rgba(17,34,61,.95),rgba(8,17,32,.95));box-shadow:var(--shadow)}
+.hero:before{content:"";position:absolute;right:-80px;bottom:-150px;width:360px;height:360px;border-radius:50%;border:42px solid rgba(255,255,255,.025)}
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.75fr);gap:26px;align-items:stretch}
+.kicker{color:var(--gold);font-weight:1000;font-size:11px;letter-spacing:2px;text-transform:uppercase}
+.hero-name{margin:16px 0 12px;font-size:clamp(42px,6vw,78px);line-height:.95;font-weight:1000;letter-spacing:-3px;overflow-wrap:anywhere;text-shadow:0 10px 35px rgba(0,0,0,.25)}
+.hero-meta{max-width:740px;white-space:pre-wrap;color:#c8d5e9;font-size:17px;line-height:1.65}.hero-empty{color:var(--muted);font-size:16px}
+.actions{display:flex;flex-wrap:wrap;gap:9px}.hero .actions{margin-top:24px}
+.btn,.small{border:0;border-radius:12px;font-weight:950;transition:.18s;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.btn{min-height:46px;padding:11px 16px}.small{min-height:35px;padding:7px 10px;font-size:11px}
+.btn:hover,.small:hover{transform:translateY(-2px);filter:brightness(1.07)}.btn:active,.small:active{transform:scale(.97)}
+.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#171007}.green{background:var(--green);color:#062419}.red{background:var(--red);color:#fff}.blue{background:var(--blue);color:#06172b}.muted-btn{background:#243654;color:#d9e5f7}.purple{background:var(--purple);color:#160d28}
+.preview{padding:18px;border-radius:20px;border:1px solid var(--line);background:rgba(2,8,18,.38);backdrop-filter:blur(12px)}
+.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.panel-title h3{margin:0;font-size:17px}.hint{color:var(--muted);font-size:12px}
+.mini-list{display:grid;gap:9px}.mini{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid rgba(255,255,255,.06);border-radius:13px;background:rgba(255,255,255,.035)}
+.mini-no{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:rgba(78,163,255,.12);color:#9bcbff;font-weight:1000;font-size:12px}
+.mini strong{display:block}.mini span{display:block;color:var(--muted);font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:17px 0}
+.stat,.panel{background:linear-gradient(180deg,rgba(20,39,70,.78),rgba(10,21,40,.82));border:1px solid var(--line);border-radius:20px;box-shadow:0 16px 44px rgba(0,0,0,.18)}
+.stat{position:relative;overflow:hidden;padding:18px;min-height:126px}.stat:after{content:"";position:absolute;right:-24px;top:-24px;width:90px;height:90px;border-radius:50%;background:var(--accent,rgba(78,163,255,.1));filter:blur(2px)}
+.stat-label{color:var(--muted);font-size:11px;font-weight:1000;letter-spacing:1.1px;text-transform:uppercase}.stat-value{margin-top:9px;font-size:36px;font-weight:1000;letter-spacing:-1.5px}.stat-note{margin-top:5px;color:#6f84a3;font-size:11px}
+.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(330px,.75fr);gap:17px}.panel{padding:19px;min-width:0}.panel+.panel{margin-top:17px}
+.feed{display:grid;gap:8px}.feed-item{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.045)}.feed-time{color:var(--gold);font-size:11px;font-weight:900}.feed-text{font-size:12px;color:#becce0}
+.queue-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}.toolbar-controls{display:flex;flex-wrap:wrap;gap:8px}
+input,select,textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:11px;border:1px solid var(--line);outline:none;background:rgba(4,12,25,.7);color:#fff}
+input:focus,select:focus,textarea:focus{border-color:rgba(78,163,255,.65);box-shadow:0 0 0 3px rgba(78,163,255,.09)}select{width:auto}
+.search{width:min(350px,60vw)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.full{grid-column:1/-1}
+.checks{display:flex;gap:16px;align-items:center;flex-wrap:wrap;color:#c5d2e5;font-size:12px}.checks label{display:flex;align-items:center;gap:7px}.checks input{width:auto;min-height:auto}
+.queue-list{display:grid;gap:10px}.queue-card{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:15px;padding:15px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,rgba(24,44,76,.75),rgba(9,19,36,.82));transition:.2s;overflow:hidden}
+.queue-card:hover{transform:translateY(-2px);border-color:rgba(78,163,255,.34);box-shadow:0 15px 35px rgba(0,0,0,.25)}
+.queue-card.priority{border-color:rgba(255,207,53,.42);box-shadow:inset 4px 0 0 var(--gold)}.queue-card.giveaway{border-color:rgba(181,124,255,.42);box-shadow:inset 4px 0 0 var(--purple)}
+.queue-top{display:flex;align-items:center;gap:10px}.queue-no{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:10px;background:#142642;color:#88bdf5;font-weight:1000}
+.queue-name{font-size:17px;font-weight:1000}.queue-details{margin:6px 0 0 44px;color:var(--muted);font-size:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.tags{display:flex;gap:6px;margin:8px 0 0 44px;flex-wrap:wrap}.tag{padding:5px 8px;border-radius:999px;font-size:10px;font-weight:1000}.tag.skip{background:rgba(255,207,53,.13);color:var(--gold)}.tag.give{background:rgba(181,124,255,.13);color:#d7b7ff}
+.queue-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;max-width:455px}.empty{padding:24px;color:var(--muted);text-align:center;font-style:italic}
+.module-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.module{padding:20px;min-height:190px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(24,44,76,.62),rgba(8,18,34,.82))}
+.module-icon{font-size:31px}.module h3{margin:14px 0 8px}.module p{margin:0;color:var(--muted);line-height:1.55;font-size:13px}.module .btn{margin-top:17px}
+.sound-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.sound{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px;border-radius:15px;background:rgba(255,255,255,.035);border:1px solid var(--line)}.sound strong{display:block}.sound span{color:var(--muted);font-size:11px}
+.settings{display:grid;gap:10px}.setting{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}.setting p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.switch{width:44px;height:24px;position:relative}.switch input{display:none}.slider{position:absolute;inset:0;border-radius:999px;background:#273852}.slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#fff;transition:.2s}.switch input:checked+.slider{background:var(--green)}.switch input:checked+.slider:before{transform:translateX(20px)}
+.bottom{position:fixed;left:278px;right:0;bottom:0;z-index:30;display:flex;justify-content:center;gap:9px;padding:11px 16px;background:rgba(4,10,21,.84);border-top:1px solid var(--line);backdrop-filter:blur(18px)}
+.toast{position:fixed;right:22px;bottom:88px;z-index:100;max-width:380px;padding:13px 16px;border-radius:13px;background:#111f36;border:1px solid var(--line);box-shadow:var(--shadow);opacity:0;transform:translateY(15px);pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:none}
+.boot{position:fixed;inset:0;z-index:999;display:grid;place-items:center;background:#030711;transition:.55s}.boot.hide{opacity:0;visibility:hidden}.boot-box{text-align:center}.boot .ball{width:74px;height:74px;margin:0 auto 22px;animation:spin 1.25s cubic-bezier(.5,.05,.3,1) infinite}.boot h1{font-size:34px;margin:0}.boot h1 span{color:var(--gold)}.boot p{color:var(--muted);font-size:12px;letter-spacing:2px}.loader{width:280px;height:5px;margin-top:22px;border-radius:999px;background:#132039;overflow:hidden}.loader i{display:block;height:100%;width:45%;background:linear-gradient(90deg,var(--gold),var(--blue));animation:load 1.1s infinite}@keyframes spin{to{transform:rotate(360deg)}}@keyframes load{from{transform:translateX(-110%)}to{transform:translateX(230%)}}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,1fr)}.dashboard-grid,.hero-grid{grid-template-columns:1fr}.module-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:850px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:0;width:278px;transform:translateX(-105%);transition:.25s}.sidebar.open{transform:none}.main{padding:16px 16px 104px}.mobile{display:grid;place-items:center}.live{display:none}.bottom{left:0}.queue-card{grid-template-columns:1fr}.queue-actions{justify-content:flex-start;max-width:none}}
+@media(max-width:650px){.stats,.module-grid,.sound-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.queue-toolbar{align-items:stretch;flex-direction:column}.toolbar-controls{flex-direction:column}.search,select{width:100%}.hero{padding:20px}.hero-name{font-size:43px}.bottom{justify-content:flex-start;overflow:auto}}
+</style>
+</head>
+<body>
+<div id="boot" class="boot"><div class="boot-box"><div class="ball"></div><h1>POKEBUA <span>STUDIO X</span></h1><p>INITIALIZING RIP & SHIP CONTROL CENTER</p><div class="loader"><i></i></div></div></div>
+
+<div class="app">
+<aside id="sidebar" class="sidebar">
+  <div class="brand"><div class="ball"></div><div><h1>Pokebua <span>Studio X</span></h1><p>RIP & SHIP CONTROL CENTER</p></div></div>
+  <div class="nav-label">Studio</div>
+  <nav class="nav">
+    <button class="nav-btn active" data-view="dashboard"><span class="nav-ico">◈</span>Dashboard</button>
+    <button class="nav-btn" data-view="queue"><span class="nav-ico">▣</span>Kø <span id="queueBadge" class="nav-badge">0</span></button>
+    <button class="nav-btn" data-view="giveaway"><span class="nav-ico">✦</span>Giveaways</button>
+    <button class="nav-btn" data-view="overlay"><span class="nav-ico">◉</span>Overlay</button>
+  </nav>
+  <div class="nav-label">Kontroll</div>
+  <nav class="nav">
+    <button class="nav-btn" data-view="sounds"><span class="nav-ico">♫</span>Soundboard</button>
+    <button class="nav-btn" data-view="analytics"><span class="nav-ico">▥</span>Analytics</button>
+    <button class="nav-btn" data-view="settings"><span class="nav-ico">⚙</span>Innstillinger</button>
+  </nav>
+  <div class="side-foot"><div class="connection"><span id="statusDot" class="dot"></span><span id="statusText">Kobler til...</span></div><div class="server-note">Railway • Socket.IO live sync</div></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div class="top-left"><button id="mobileMenu" class="mobile">☰</button><div><h2 id="pageTitle">Dashboard</h2><p id="pageSubtitle">Kontrollrommet for hele streamen.</p></div></div>
+  <div class="top-actions"><button id="refresh" class="icon-btn" title="Oppdater">↻</button><div class="live"><i></i> POKEBUA LIVE</div></div>
+</header>
+
+<section id="view-dashboard" class="view active">
+  <section class="hero">
+    <div class="hero-grid">
+      <div><div class="kicker">● Åpnes nå</div><div id="heroName" class="hero-name">Ingen aktiv ordre</div><div id="heroMeta" class="hero-empty">Start neste kunde når du er klar.</div>
+        <div class="actions"><button class="btn green" data-global="next">▶ Start neste</button><button class="btn red" data-global="finish">✓ Ferdig</button><button class="btn blue" data-go="queue">Se hele køen</button></div>
+      </div>
+      <aside class="preview"><div class="panel-title"><div><h3>Neste kunder</h3><div class="hint">Live forhåndsvisning</div></div><span id="previewCount" class="nav-badge">0</span></div><div id="miniQueue" class="mini-list"><div class="empty">Køen er tom.</div></div></aside>
+    </div>
+  </section>
+  <div class="stats">
+    <article class="stat" style="--accent:rgba(78,163,255,.13)"><div class="stat-label">I kø</div><div id="statQueue" class="stat-value">0</div><div class="stat-note">Ventende ordre</div></article>
+    <article class="stat" style="--accent:rgba(255,207,53,.13)"><div class="stat-label">Skip the Line</div><div id="statSkip" class="stat-value">0</div><div class="stat-note">Prioriterte ordre</div></article>
+    <article class="stat" style="--accent:rgba(181,124,255,.13)"><div class="stat-label">Giveaways</div><div id="statGive" class="stat-value">0</div><div class="stat-note">I aktiv kø</div></article>
+    <article class="stat" style="--accent:rgba(67,224,141,.13)"><div class="stat-label">Status</div><div id="statStatus" class="stat-value" style="font-size:25px">KLAR</div><div class="stat-note">Studio connection</div></article>
+  </div>
+  <div class="dashboard-grid">
+    <section class="panel"><div class="panel-title"><div><h3>Køkontroll</h3><div class="hint">De ti første ordrene</div></div><button class="small blue" data-go="queue">Full kø</button></div><div id="dashboardQueue" class="queue-list"></div></section>
+    <div>
+      <section class="panel"><div class="panel-title"><div><h3>Legg til manuelt</h3><div class="hint">Ordre utenfor Shopify</div></div></div>
+        <div class="form-grid"><input id="manualName" placeholder="Streamnavn"><input id="manualOrder" placeholder="Ordrenummer"><textarea id="manualItems" class="full" rows="3" placeholder="Produkter, f.eks. 6x Journey Together"></textarea><div class="checks full"><label><input id="manualSkip" type="checkbox"> Skip the Line</label><label><input id="manualGive" type="checkbox"> Giveaway</label></div><button id="addManual" class="btn gold full">+ Legg i kø</button></div>
+      </section>
+      <section class="panel"><div class="panel-title"><div><h3>Aktivitetsfeed</h3><div class="hint">Siste handlinger i Studio</div></div></div><div id="feed" class="feed"><div class="empty">Ingen aktivitet ennå.</div></div></section>
+    </div>
+  </div>
+</section>
+
+<section id="view-queue" class="view">
+  <section class="panel"><div class="queue-toolbar"><div><h3 style="margin:0">Venteliste</h3><div id="queueCount" class="hint">0 ordre i kø</div></div><div class="toolbar-controls"><input id="queueSearch" class="search" placeholder="Søk navn, ordre eller produkt"><select id="queueFilter"><option value="all">Alle ordre</option><option value="skip">Skip the Line</option><option value="giveaway">Giveaway</option><option value="normal">Vanlige</option></select><button id="clearQueue" class="btn red">Tøm kø</button></div></div><div id="fullQueue" class="queue-list"></div></section>
+</section>
+
+<section id="view-giveaway" class="view">
+  <div class="dashboard-grid">
+    <section class="panel"><div class="panel-title"><div><h3>Giveaway Center</h3><div class="hint">Opprett og styr giveaways fra samme sted</div></div></div>
+      <div class="form-grid"><input id="giveName" placeholder="Navn, f.eks. Pokebua Giveaway"><input id="giveOrder" placeholder="Referanse / runde"><textarea id="giveItems" class="full" rows="4" placeholder="Premie"></textarea><button id="addGiveaway" class="btn purple full">✦ Legg giveaway i kø</button></div>
+    </section>
+    <section class="panel"><div class="panel-title"><div><h3>Aktive giveaways</h3><div class="hint">Registrert i køsystemet</div></div></div><div id="giveawayList" class="queue-list"></div></section>
+  </div>
+</section>
+
+<section id="view-overlay" class="view"><div class="module-grid">
+  <article class="module"><div class="module-icon">◉</div><h3>Kø-overlay</h3><p>Bruk eksisterende <b>/overlay.html</b> som Browser Source i OBS. Studio oppdaterer overlayet automatisk.</p><button class="btn blue" onclick="window.open('/overlay.html','_blank')">Åpne overlay</button></article>
+  <article class="module"><div class="module-icon">✦</div><h3>Event Alerts</h3><p>Ny ordre, Skip the Line og giveaway bruker Socket.IO-hendelsene fra serveren din.</p><button class="btn gold" id="testAlert">Test Studio-effekt</button></article>
+  <article class="module"><div class="module-icon">▣</div><h3>OBS-oppsett</h3><p>Legg overlay-URL-en inn som Browser Source. Anbefalt størrelse er 1920 × 1080.</p><button class="btn muted-btn" onclick="navigator.clipboard?.writeText(location.origin+'/overlay.html');toast('Overlay-lenke kopiert')">Kopier URL</button></article>
+</div></section>
+
+<section id="view-sounds" class="view"><section class="panel"><div class="panel-title"><div><h3>Soundboard</h3><div class="hint">Raske lydeffekter under stream</div></div></div><div class="sound-grid">
+  <div class="sound"><div><strong>Ny ordre</strong><span>To toner</span></div><button class="btn blue" data-sound="order">▶ Spill</button></div>
+  <div class="sound"><div><strong>Skip the Line</strong><span>Rask energilyd</span></div><button class="btn gold" data-sound="skip">▶ Spill</button></div>
+  <div class="sound"><div><strong>Giveaway</strong><span>Tre stigende toner</span></div><button class="btn purple" data-sound="giveaway">▶ Spill</button></div>
+  <div class="sound"><div><strong>Ferdig</strong><span>Kort bekreftelse</span></div><button class="btn green" data-sound="finish">▶ Spill</button></div>
+</div></section></section>
+
+<section id="view-analytics" class="view"><div class="stats">
+  <article class="stat"><div class="stat-label">Ordre i økt</div><div id="analyticsOrders" class="stat-value">0</div><div class="stat-note">Registrert lokalt i nettleseren</div></article>
+  <article class="stat"><div class="stat-label">Fullført</div><div id="analyticsFinished" class="stat-value">0</div><div class="stat-note">Denne Studio-økten</div></article>
+  <article class="stat"><div class="stat-label">Skip</div><div id="analyticsSkip" class="stat-value">0</div><div class="stat-note">Aktiv kø akkurat nå</div></article>
+  <article class="stat"><div class="stat-label">Giveaways</div><div id="analyticsGive" class="stat-value">0</div><div class="stat-note">Aktiv kø akkurat nå</div></article>
+</div><section class="panel"><div class="panel-title"><div><h3>Analytics-modul</h3><div class="hint">Klar for permanent historikk når serveren får database</div></div></div><p style="color:var(--muted);line-height:1.7">Denne versjonen viser live-data og øktdata. Omsetning, produkter, ventetid og kundehistorikk krever at serveren lagrer fullførte ordre i en database.</p></section></section>
+
+<section id="view-settings" class="view"><section class="panel"><div class="panel-title"><div><h3>Studio-innstillinger</h3><div class="hint">Lagres lokalt i nettleseren</div></div></div><div class="settings">
+  <div class="setting"><div><strong>Bekreft før ferdig</strong><p>Unngå at aktive ordre avsluttes ved feil.</p></div><label class="switch"><input id="confirmFinish" type="checkbox" checked><span class="slider"></span></label></div>
+  <div class="setting"><div><strong>Studio-lyder</strong><p>Spill en kort lyd ved handlinger.</p></div><label class="switch"><input id="studioSounds" type="checkbox" checked><span class="slider"></span></label></div>
+  <div class="setting"><div><strong>Kompakt kø</strong><p>Vis flere ordre på skjermen samtidig.</p></div><label class="switch"><input id="compactQueue" type="checkbox"><span class="slider"></span></label></div>
+</div></section></section>
+</main>
+</div>
+
+<div class="bottom"><button class="btn green" data-global="next">▶ Neste</button><button class="btn red" data-global="finish">✓ Ferdig</button><button class="btn gold" data-go="queue">▣ Kø</button><button class="btn purple" data-go="giveaway">✦ Giveaway</button></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id), socket=io();
+const state={current:null,queue:[],activities:[],finished:Number(sessionStorage.getItem("pxFinished")||0),seen:new Set()};
+const settings=JSON.parse(localStorage.getItem("pxSettings")||'{"confirmFinish":true,"sounds":true,"compact":false}');
+const pageInfo={
+ dashboard:["Dashboard","Kontrollrommet for hele streamen."],queue:["Kø","Administrer alle kunder og ordre."],
+ giveaway:["Giveaways","Opprett og styr giveaway-ordre."],overlay:["Overlay","Koble Studio til OBS."],
+ sounds:["Soundboard","Raske lydeffekter under stream."],analytics:["Analytics","Live statistikk fra Studio."],
+ settings:["Innstillinger","Tilpass arbeidsflyten din."]
+};
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove("show"),2200)}
+function addActivity(text){state.activities.unshift({time:new Date().toLocaleTimeString("no-NO",{hour:"2-digit",minute:"2-digit"}),text});state.activities=state.activities.slice(0,8);$("feed").innerHTML=state.activities.map(x=>`<div class="feed-item"><div class="feed-time">${x.time}</div><div class="feed-text">${esc(x.text)}</div></div>`).join("")}
+function saveSettings(){settings.confirmFinish=$("confirmFinish").checked;settings.sounds=$("studioSounds").checked;settings.compact=$("compactQueue").checked;localStorage.setItem("pxSettings",JSON.stringify(settings));document.body.classList.toggle("compact",settings.compact)}
+function sound(type){if(!settings.sounds)return;try{const AC=window.AudioContext||window.webkitAudioContext,ctx=new AC(),n=ctx.currentTime,maps={order:[[520,0,.1],[680,.12,.13]],skip:[[320,0,.08],[650,.09,.09],[980,.18,.15]],giveaway:[[520,0,.09],[690,.1,.09],[880,.21,.16]],finish:[[620,0,.09],[420,.1,.13]]};(maps[type]||maps.order).forEach(([f,d,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type==="skip"?"sawtooth":"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,n+d);g.gain.exponentialRampToValueAtTime(.11,n+d+.015);g.gain.exponentialRampToValueAtTime(.0001,n+d+t);o.connect(g);g.connect(ctx.destination);o.start(n+d);o.stop(n+d+t+.03)});setTimeout(()=>ctx.close(),900)}catch(e){}}
+async function request(url,options={}){const r=await fetch(url,options);if(!r.ok){const d=await r.json().catch(()=>({}));throw Error(d.error||"Noe gikk galt")}return r.status===204?null:r.json().catch(()=>null)}
+const post=(url,body)=>request(url,{method:"POST",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
+function switchView(name){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===name));$("view-"+name).classList.add("active");$("pageTitle").textContent=pageInfo[name][0];$("pageSubtitle").textContent=pageInfo[name][1];$("sidebar").classList.remove("open");if(name==="queue")setTimeout(()=>$("queueSearch").focus(),80)}
+function badge(x){return x.skipTheLine||x.priority?"⚡ ":x.giveaway?"✦ ":""}
+function tags(x){let a=[];if(x.skipTheLine||x.priority)a.push('<span class="tag skip">⚡ Skip the Line</span>');if(x.giveaway)a.push('<span class="tag give">✦ Giveaway</span>');return a.length?`<div class="tags">${a.join("")}</div>`:""}
+function queueCard(x,index,compact=false){return `<article class="queue-card ${x.skipTheLine||x.priority?"priority":x.giveaway?"giveaway":""}"><div><div class="queue-top"><span class="queue-no">${index+1}</span><span class="queue-name">${badge(x)}${esc(x.name)}</span></div><div class="queue-details">${esc([x.order,x.items].filter(Boolean).join(" • "))}</div>${tags(x)}</div><div class="queue-actions"><button class="small green" data-action="open" data-id="${x.id}">▶ Åpne</button>${compact?"":`<button class="small blue" data-action="top" data-id="${x.id}">Topp</button><button class="small gold" data-action="skip" data-id="${x.id}">⚡ Skip</button><button class="small muted-btn" data-action="up" data-id="${x.id}">↑</button><button class="small muted-btn" data-action="down" data-id="${x.id}">↓</button>`}<button class="small red" data-action="delete" data-id="${x.id}">Fjern</button></div></article>`}
+function render(data,detect=true){const old=new Set(state.queue.map(x=>String(x.id)));state.current=data.current||null;state.queue=Array.isArray(data.queue)?data.queue:[];if(detect&&old.size)state.queue.forEach(x=>{if(!old.has(String(x.id))){addActivity(`Ny ordre: ${x.name}`);sound(x.skipTheLine||x.priority?"skip":x.giveaway?"giveaway":"order")}});renderAll()}
+function renderAll(){
+ $("heroName").textContent=state.current?badge(state.current)+state.current.name:"Ingen aktiv ordre";$("heroMeta").className=state.current?"hero-meta":"hero-empty";$("heroMeta").textContent=state.current?[state.current.order,state.current.items].filter(Boolean).join("\n"):"Start neste kunde når du er klar.";
+ const mini=state.queue.slice(0,5);$("miniQueue").innerHTML=mini.length?mini.map((x,i)=>`<div class="mini"><span class="mini-no">${i+1}</span><div style="min-width:0"><strong>${badge(x)}${esc(x.name)}</strong><span>${esc([x.order,x.items].filter(Boolean).join(" • "))}</span></div></div>`).join(""):'<div class="empty">Køen er tom.</div>';
+ $("statQueue").textContent=state.queue.length;$("statSkip").textContent=state.queue.filter(x=>x.skipTheLine||x.priority).length;$("statGive").textContent=state.queue.filter(x=>x.giveaway).length;$("queueBadge").textContent=state.queue.length;$("previewCount").textContent=state.queue.length;
+ $("dashboardQueue").innerHTML=state.queue.length?state.queue.slice(0,10).map((x,i)=>queueCard(x,i,true)).join(""):'<div class="empty">Køen er tom.</div>';
+ renderQueue();const giveaways=state.queue.filter(x=>x.giveaway);$("giveawayList").innerHTML=giveaways.length?giveaways.map(x=>queueCard(x,state.queue.findIndex(y=>String(y.id)===String(x.id)),true)).join(""):'<div class="empty">Ingen aktive giveaways.</div>';
+ $("analyticsOrders").textContent=state.queue.length+(state.current?1:0)+state.finished;$("analyticsFinished").textContent=state.finished;$("analyticsSkip").textContent=state.queue.filter(x=>x.skipTheLine||x.priority).length;$("analyticsGive").textContent=giveaways.length;
+}
+function filtered(){const q=$("queueSearch").value.trim().toLowerCase(),f=$("queueFilter").value;return state.queue.filter(x=>{const h=`${x.name} ${x.order} ${x.items}`.toLowerCase(),s=x.skipTheLine||x.priority;return h.includes(q)&&(f==="all"||(f==="skip"&&s)||(f==="giveaway"&&x.giveaway)||(f==="normal"&&!s&&!x.giveaway))})}
+function renderQueue(){const a=filtered();$("queueCount").textContent=`${state.queue.length} ${state.queue.length===1?"ordre":"ordrer"} i kø`;$("fullQueue").innerHTML=a.length?a.map(x=>queueCard(x,state.queue.findIndex(y=>String(y.id)===String(x.id)))).join(""):'<div class="empty">Ingen ordre matcher.</div>'}
+async function next(){if(!state.queue.length)return toast("Køen er tom");try{const n=state.queue[0].name;await post("/api/next");addActivity(`Startet ordre: ${n}`);sound("order")}catch(e){toast(e.message)}}
+async function finish(){if(!state.current)return toast("Ingen aktiv ordre");if(settings.confirmFinish&&!confirm(`Marker ${state.current.name} som ferdig?`))return;try{const n=state.current.name;await post("/api/finish");state.finished++;sessionStorage.setItem("pxFinished",state.finished);addActivity(`Ferdig: ${n}`);sound("finish")}catch(e){toast(e.message)}}
+async function queueAction(e){const b=e.target.closest("[data-action]");if(!b)return;const id=b.dataset.id,a=b.dataset.action,x=state.queue.find(y=>String(y.id)===String(id));try{if(a==="delete"){if(!confirm(`Fjerne ${x?.name||"ordren"}?`))return;await request(`/api/queue/${id}`,{method:"DELETE"});addActivity(`Fjernet: ${x?.name||id}`);return}if(a==="open"){await post(`/api/queue/${id}/top`);await post("/api/next");addActivity(`Åpnet direkte: ${x?.name||id}`);sound("order");return}await post(`/api/queue/${id}/${a}`);addActivity(`${a==="skip"?"Skip aktivert":a==="top"?"Flyttet til topp":"Kø flyttet"}: ${x?.name||id}`);sound(a==="skip"?"skip":"order")}catch(err){toast(err.message)}}
+document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>switchView(b.dataset.view));document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>switchView(b.dataset.go));document.querySelectorAll("[data-global=next]").forEach(b=>b.onclick=next);document.querySelectorAll("[data-global=finish]").forEach(b=>b.onclick=finish);
+$("mobileMenu").onclick=()=>$("sidebar").classList.toggle("open");$("refresh").onclick=()=>fetch("/api/queue").then(r=>r.json()).then(d=>render(d,false)).catch(e=>toast(e.message));$("queueSearch").oninput=renderQueue;$("queueFilter").onchange=renderQueue;$("fullQueue").onclick=queueAction;$("dashboardQueue").onclick=queueAction;$("giveawayList").onclick=queueAction;
+$("clearQueue").onclick=async()=>{if(!confirm("Tømme hele ventelisten?"))return;try{await request("/api/queue",{method:"DELETE"});addActivity("Køen ble tømt")}catch(e){toast(e.message)}};
+$("addManual").onclick=async()=>{const name=$("manualName").value.trim(),order=$("manualOrder").value.trim(),items=$("manualItems").value.trim();if(!name)return toast("Skriv inn streamnavn");try{await post("/api/queue",{name,order,items,skipTheLine:$("manualSkip").checked,giveaway:$("manualGive").checked});addActivity(`La til manuelt: ${name}`);["manualName","manualOrder","manualItems"].forEach(id=>$(id).value="");$("manualSkip").checked=$("manualGive").checked=false}catch(e){toast(e.message)}};
+$("addGiveaway").onclick=async()=>{const name=$("giveName").value.trim()||"Pokebua Giveaway",order=$("giveOrder").value.trim(),items=$("giveItems").value.trim();if(!items)return toast("Skriv inn premien");try{await post("/api/queue",{name,order,items,giveaway:true});addActivity(`Giveaway lagt til: ${items}`);sound("giveaway");["giveName","giveOrder","giveItems"].forEach(id=>$(id).value="")}catch(e){toast(e.message)}};
+document.querySelectorAll("[data-sound]").forEach(b=>b.onclick=()=>sound(b.dataset.sound));$("testAlert").onclick=()=>{sound("skip");toast("Studio-effekt testet")};
+["confirmFinish","studioSounds","compactQueue"].forEach(id=>$(id).onchange=saveSettings);$("confirmFinish").checked=settings.confirmFinish;$("studioSounds").checked=settings.sounds;$("compactQueue").checked=settings.compact;saveSettings();
+document.addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.code==="Space"){e.preventDefault();next()}else if(e.key.toLowerCase()==="f")finish();else if(e.key.toLowerCase()==="q")switchView("queue");else if(e.key.toLowerCase()==="g")switchView("giveaway")});
+socket.on("connect",()=>{$("statusDot").classList.add("on");$("statusText").textContent="Tilkoblet";$("statStatus").textContent="ONLINE"});
+socket.on("disconnect",()=>{$("statusDot").classList.remove("on");$("statusText").textContent="Frakoblet";$("statStatus").textContent="OFFLINE"});
+socket.on("queue:update",d=>render(d,true));socket.on("order:alert",p=>{addActivity(`Ordrevarsel: ${p.name||"Ny kunde"}`);sound("order")});socket.on("skip:alert",p=>{addActivity(`Skip-varsel: ${p.name||"Kunde"}`);sound("skip")});socket.on("giveaway:alert",p=>{addActivity(`Giveaway-varsel: ${p.name||"Giveaway"}`);sound("giveaway")});
+fetch("/api/queue").then(r=>r.json()).then(d=>render(d,false)).catch(()=>{$("statusText").textContent="Kunne ikke hente køen";$("statStatus").textContent="FEIL"});
+setTimeout(()=>$("boot").classList.add("hide"),1350);
+</script>
+</body>
+</html>
