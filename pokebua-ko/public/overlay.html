@@ -2,467 +2,577 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokebua-kø</title>
-
+  <meta name="viewport" content="width=330, initial-scale=1" />
+  <title>Pokebua Overlay</title>
   <script src="/socket.io/socket.io.js"></script>
-
   <style>
-    :root {
-      --background: rgba(7, 10, 22, 0.96);
-      --yellow: #ffd900;
-      --white: #ffffff;
-      --muted: #e6e6e6;
-      --blue: #55c8ff;
-      --purple: #c478ff;
+    :root{
+      --w:330px;
+      --bg:rgba(7,14,26,.88);
+      --panel:rgba(13,25,43,.94);
+      --panel-2:rgba(10,21,37,.94);
+      --line:rgba(255,255,255,.08);
+      --text:#eef7ff;
+      --muted:#91a4ba;
+      --blue:#2d8cff;
+      --green:#21c786;
+      --gold:#e2b33b;
+      --purple:#9b62ff;
+      --red:#ff5364;
+      --shadow:0 18px 50px rgba(0,0,0,.38);
+      --radius:18px;
     }
 
-    * {
-      box-sizing: border-box;
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      width:var(--w);
+      min-height:100%;
+      overflow:hidden;
+      background:transparent;
+      color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      -webkit-font-smoothing:antialiased;
     }
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: transparent;
-      font-family: Arial, Helvetica, sans-serif;
+    body{padding:10px}
+
+    .overlay{
+      width:310px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      filter:drop-shadow(0 14px 30px rgba(0,0,0,.28));
     }
 
-    body {
-      padding: 18px;
+    .panel{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:
+        radial-gradient(circle at 90% 0%, rgba(45,140,255,.15), transparent 34%),
+        linear-gradient(145deg,var(--panel),var(--panel-2));
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(16px);
     }
 
-    .queue-card {
-      position: relative;
-      width: 472px;
-      min-height: 170px;
-      padding: 20px 18px 18px;
-      color: var(--white);
-      background: var(--background);
-      border: 3px solid rgba(255, 217, 0, 0.82);
-      border-radius: 22px;
-      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
-      transition: min-height 0.3s ease;
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:0 auto 0 0;
+      width:3px;
+      background:var(--blue);
+      box-shadow:0 0 18px rgba(45,140,255,.65);
     }
 
-    .title {
-      margin: 0 0 14px;
-      text-align: center;
-      font-size: 29px;
-      color: var(--yellow);
+    .panel.skip::before{background:var(--gold);box-shadow:0 0 18px rgba(226,179,59,.7)}
+    .panel.giveaway::before{background:var(--purple);box-shadow:0 0 18px rgba(155,98,255,.7)}
+
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px 8px 18px;
     }
 
-    .section-label {
-      margin: 0 0 5px;
-      font-size: 15px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
+    .eyebrow{
+      font-size:10px;
+      line-height:1;
+      font-weight:900;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#d4e7f8;
     }
 
-    .current-box {
-      min-height: 42px;
-      margin-bottom: 15px;
-      padding: 10px 13px;
-      display: flex;
-      align-items: center;
-      border-radius: 14px;
-      background: rgba(30, 27, 12, 0.95);
+    .live-dot{
+      width:7px;height:7px;border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 14px rgba(33,199,134,.85);
+      animation:pulse 2s infinite;
     }
 
-    .current-name {
-      font-size: 18px;
-      font-weight: 800;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .active-body{
+      padding:2px 18px 18px;
+      min-height:160px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
     }
 
-    .current-empty {
-      font-size: 16px;
-      font-style: italic;
-      color: var(--muted);
+    .active-name{
+      margin:2px 0 8px;
+      font-size:30px;
+      line-height:1.05;
+      font-weight:950;
+      letter-spacing:-.04em;
+      overflow-wrap:anywhere;
+      text-shadow:0 3px 20px rgba(0,0,0,.25);
     }
 
-    .waiting-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
+    .active-items{
+      color:#d7e6f4;
+      font-size:13px;
+      line-height:1.45;
+      white-space:pre-line;
+      max-height:88px;
+      overflow:hidden;
     }
 
-    .queue-row {
-      display: flex;
-      align-items: center;
-      min-height: 32px;
-      padding: 2px 4px;
-      font-size: 19px;
-      line-height: 28px;
-      font-weight: 800;
-      overflow: hidden;
+    .active-meta{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:14px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
     }
 
-    .queue-number {
-      width: 32px;
-      flex: 0 0 32px;
-      color: var(--yellow);
+    .timer{
+      color:#fff;
+      font-variant-numeric:tabular-nums;
+      letter-spacing:.05em;
     }
 
-    .queue-name {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .badge{
+      display:none;
+      margin-left:auto;
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:9px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      border:1px solid transparent;
+    }
+    .badge.show{display:inline-flex}
+    .badge.skip{color:#ffeab0;background:rgba(226,179,59,.12);border-color:rgba(226,179,59,.24)}
+    .badge.giveaway{color:#e8d8ff;background:rgba(155,98,255,.12);border-color:rgba(155,98,255,.24)}
+
+    .empty{
+      color:var(--muted);
+      text-align:center;
+      font-size:13px;
+      font-style:italic;
+      padding:28px 8px;
     }
 
-    .queue-row.skip .queue-name {
-      color: var(--yellow);
-      text-shadow: 0 0 8px rgba(255, 217, 0, 0.2);
+    .queue-panel{padding-bottom:10px}
+    .queue-count{
+      min-width:24px;height:24px;padding:0 7px;
+      display:grid;place-items:center;
+      border-radius:999px;
+      color:#fff;
+      background:rgba(255,255,255,.07);
+      font-size:10px;
+      font-weight:900;
     }
 
-    .queue-row.giveaway .queue-name {
-      color: #edc7ff;
+    .queue-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding:4px 10px 2px 14px;
     }
 
-    .more-count {
-      min-height: 33px;
-      margin-top: 8px;
-      padding-top: 10px;
-      text-align: center;
-      font-size: 17px;
-      font-weight: 900;
-      color: var(--yellow);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    .queue-item{
+      display:grid;
+      grid-template-columns:24px minmax(0,1fr) auto;
+      align-items:center;
+      gap:9px;
+      min-height:44px;
+      padding:8px 9px;
+      border:1px solid rgba(255,255,255,.055);
+      border-radius:12px;
+      background:rgba(255,255,255,.035);
+      animation:itemIn .35s cubic-bezier(.2,.8,.2,1) both;
     }
 
-    .more-count:empty {
-      display: none;
+    .queue-item.priority{
+      border-color:rgba(226,179,59,.18);
+      background:linear-gradient(90deg,rgba(226,179,59,.09),rgba(255,255,255,.025));
     }
 
-    .alert-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 20;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      pointer-events: none;
-      opacity: 0;
-      visibility: hidden;
-      background: rgba(3, 5, 12, 0.84);
-      border-radius: 19px;
+    .queue-item.giveaway{
+      border-color:rgba(155,98,255,.18);
+      background:linear-gradient(90deg,rgba(155,98,255,.09),rgba(255,255,255,.025));
     }
 
-    .alert-layer.show {
-      visibility: visible;
-      animation: fadeIn 0.28s forwards;
+    .position{
+      width:24px;height:24px;
+      display:grid;place-items:center;
+      border-radius:8px;
+      background:rgba(45,140,255,.11);
+      color:#a9d2ff;
+      font-size:10px;
+      font-weight:900;
     }
 
-    .alert-layer.hide {
-      animation: fadeOut 0.34s forwards;
+    .queue-item.priority .position{background:rgba(226,179,59,.12);color:#ffe29a}
+    .queue-item.giveaway .position{background:rgba(155,98,255,.12);color:#dcc3ff}
+
+    .q-copy{min-width:0}
+    .q-name{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size:13px;
+      font-weight:850;
+      color:#f1f7ff;
+    }
+    .q-items{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      margin-top:2px;
+      color:var(--muted);
+      font-size:9px;
+    }
+    .q-icon{font-size:12px;opacity:.95}
+
+    .more{
+      padding:8px 12px 4px;
+      text-align:center;
+      color:var(--muted);
+      font-size:10px;
+      font-weight:800;
     }
 
-    .alert-box {
-      width: 100%;
-      padding: 32px 24px;
-      text-align: center;
-      border-radius: 24px;
-      transform: scale(0.78) translateY(18px);
-      opacity: 0;
-      background: linear-gradient(145deg, #11152a, #050712);
-      border: 3px solid var(--yellow);
-      box-shadow: 0 0 42px rgba(255, 217, 0, 0.42);
+    .brand{
+      padding:1px 8px 0;
+      text-align:center;
+      color:rgba(226,237,247,.38);
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:.08em;
     }
 
-    .alert-layer.show .alert-box {
-      animation: pop 0.52s cubic-bezier(0.2, 0.9, 0.25, 1.18) forwards;
+    .alert{
+      position:fixed;
+      top:10px;
+      left:10px;
+      width:310px;
+      z-index:50;
+      pointer-events:none;
+      transform:translateY(-130%);
+      opacity:0;
+      transition:transform .38s cubic-bezier(.2,.9,.2,1),opacity .28s ease;
+    }
+    .alert.show{transform:translateY(0);opacity:1}
+    .alert-card{
+      padding:14px 16px 14px 18px;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px;
+      background:rgba(8,17,31,.96);
+      box-shadow:0 18px 50px rgba(0,0,0,.5);
+      backdrop-filter:blur(18px);
+    }
+    .alert-kicker{
+      font-size:9px;
+      font-weight:950;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:#8fc4ff;
+    }
+    .alert.skip .alert-kicker{color:#ffe29a}
+    .alert.giveaway .alert-kicker{color:#d9bdff}
+    .alert-name{
+      margin-top:5px;
+      font-size:20px;
+      font-weight:950;
+      letter-spacing:-.025em;
+      overflow-wrap:anywhere;
+    }
+    .alert-items{
+      margin-top:3px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.35;
     }
 
-    .alert-kicker {
-      margin-bottom: 10px;
-      font-size: 25px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      color: var(--yellow);
+    .swap-out{animation:swapOut .26s ease forwards}
+    .swap-in{animation:swapIn .42s cubic-bezier(.16,.85,.25,1) both}
+
+    @keyframes pulse{
+      0%,100%{transform:scale(1);opacity:.8}
+      50%{transform:scale(1.3);opacity:1}
+    }
+    @keyframes itemIn{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:none}
+    }
+    @keyframes swapOut{
+      to{opacity:0;transform:translateX(-24px)}
+    }
+    @keyframes swapIn{
+      from{opacity:0;transform:translateY(-18px) scale(.985)}
+      to{opacity:1;transform:none}
     }
 
-    .alert-name {
-      margin-bottom: 9px;
-      font-size: 34px;
-      font-weight: 900;
-      word-break: break-word;
-    }
-
-    .alert-subtitle {
-      font-size: 17px;
-      line-height: 1.35;
-      font-weight: 700;
-      color: #e8e8e8;
-      word-break: break-word;
-    }
-
-    .alert-order .alert-box {
-      border-color: var(--blue);
-      box-shadow: 0 0 40px rgba(85, 200, 255, 0.4);
-    }
-
-    .alert-order .alert-kicker {
-      color: #8cdcff;
-    }
-
-    .alert-giveaway .alert-box {
-      border-color: var(--purple);
-      box-shadow: 0 0 42px rgba(196, 120, 255, 0.44);
-    }
-
-    .alert-giveaway .alert-kicker {
-      color: #e6bfff;
-    }
-
-    .alert-skip .alert-box {
-      border-color: var(--yellow);
-      box-shadow: 0 0 54px rgba(255, 217, 0, 0.58);
-    }
-
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeOut {
-      from {
-        opacity: 1;
-      }
-
-      to {
-        opacity: 0;
-        visibility: hidden;
-      }
-    }
-
-    @keyframes pop {
-      0% {
-        transform: scale(0.78) translateY(18px);
-        opacity: 0;
-      }
-
-      70% {
-        transform: scale(1.04);
-        opacity: 1;
-      }
-
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation:none!important;transition:none!important}
     }
   </style>
 </head>
-
 <body>
-  <main class="queue-card">
-    <h1 class="title">🔥 POKEBUA-KØ 🔥</h1>
-
-    <div class="section-label">Åpnes nå</div>
-
-    <div class="current-box">
-      <div id="currentContent" class="current-empty">Ingen akkurat nå</div>
+  <div id="alert" class="alert" aria-live="polite">
+    <div class="alert-card">
+      <div id="alertKicker" class="alert-kicker">Ny ordre</div>
+      <div id="alertName" class="alert-name"></div>
+      <div id="alertItems" class="alert-items"></div>
     </div>
+  </div>
 
-    <div class="section-label">Venter</div>
+  <main class="overlay">
+    <section id="activePanel" class="panel">
+      <div class="section-head">
+        <div class="eyebrow">Åpnes nå</div>
+        <div class="live-dot" title="Tilkoblet"></div>
+      </div>
 
-    <div id="waitingList" class="waiting-list"></div>
-
-    <div id="moreCount" class="more-count"></div>
-
-    <section id="alertLayer" class="alert-layer">
-      <div class="alert-box">
-        <div id="alertKicker" class="alert-kicker"></div>
-        <div id="alertName" class="alert-name"></div>
-        <div id="alertSubtitle" class="alert-subtitle"></div>
+      <div id="activeBody" class="active-body">
+        <div class="empty">Venter på neste åpning…</div>
       </div>
     </section>
+
+    <section class="panel queue-panel">
+      <div class="section-head">
+        <div class="eyebrow">Neste i kø</div>
+        <div id="queueCount" class="queue-count">0</div>
+      </div>
+      <div id="queueList" class="queue-list">
+        <div class="empty">Køen er tom.</div>
+      </div>
+      <div id="moreCount" class="more" hidden></div>
+    </section>
+
+    <div class="brand">Powered by Pokebua</div>
   </main>
 
   <script>
-    const socket = io();
+    (() => {
+      const MAX_VISIBLE = 4;
+      const socket = io();
 
-    const MAX_VISIBLE = 14;
+      const activePanel = document.getElementById("activePanel");
+      const activeBody = document.getElementById("activeBody");
+      const queueList = document.getElementById("queueList");
+      const queueCount = document.getElementById("queueCount");
+      const moreCount = document.getElementById("moreCount");
 
-    const currentContent = document.getElementById("currentContent");
-    const waitingList = document.getElementById("waitingList");
-    const moreCount = document.getElementById("moreCount");
+      const alertEl = document.getElementById("alert");
+      const alertKicker = document.getElementById("alertKicker");
+      const alertName = document.getElementById("alertName");
+      const alertItems = document.getElementById("alertItems");
 
-    const alertLayer = document.getElementById("alertLayer");
-    const alertKicker = document.getElementById("alertKicker");
-    const alertName = document.getElementById("alertName");
-    const alertSubtitle = document.getElementById("alertSubtitle");
+      let currentId = null;
+      let currentStartedAt = null;
+      let timerHandle = null;
+      let alertHandle = null;
 
-    let alertQueue = [];
-    let alertPlaying = false;
-
-    function clean(value, fallback = "") {
-      const result = String(value ?? "").trim();
-      return result || fallback;
-    }
-
-    function render(data) {
-      const current = data?.current || null;
-      const queue = Array.isArray(data?.queue) ? data.queue : [];
-
-      renderCurrent(current);
-      renderWaiting(queue);
-    }
-
-    function renderCurrent(current) {
-      if (!current) {
-        currentContent.className = "current-empty";
-        currentContent.textContent = "Ingen akkurat nå";
-        return;
+      function clean(value) {
+        return String(value ?? "").trim();
       }
 
-      const badge = current.skipTheLine
-        ? "⚡ "
-        : current.giveaway
-          ? "🎁 "
-          : "";
+      function twitchName(entry) {
+        const raw = clean(
+          entry?.twitchName ||
+          entry?.twitch ||
+          entry?.twitch_username ||
+          entry?.displayName
+        );
 
-      currentContent.className = "current-name";
-      currentContent.textContent = badge + clean(current.name, "Ukjent");
-    }
+        if (!raw) return "";
 
-    function renderWaiting(queue) {
-      waitingList.innerHTML = "";
+        return raw
+          .replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "")
+          .replace(/^twitch\.tv\//i, "")
+          .replace(/^@+/, "")
+          .split(/[/?#]/)[0]
+          .trim();
+      }
 
-      const visibleQueue = queue.slice(0, MAX_VISIBLE);
+      function firstName(value) {
+        const name = clean(value);
+        if (!name) return "Kunde";
+        return name.split(/\s+/)[0];
+      }
 
-      visibleQueue.forEach((entry, index) => {
-        const row = document.createElement("div");
-        row.className = "queue-row";
+      function displayName(entry) {
+        return twitchName(entry) || firstName(entry?.name);
+      }
 
-        if (entry.skipTheLine || entry.priority) {
-          row.classList.add("skip");
-        } else if (entry.giveaway) {
-          row.classList.add("giveaway");
+      function safeItems(value) {
+        const text = clean(value);
+        return text || "Produkter ikke oppgitt";
+      }
+
+      function formatTimer(ms) {
+        const total = Math.max(0, Math.floor(ms / 1000));
+        const minutes = Math.floor(total / 60);
+        const seconds = total % 60;
+        return `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+      }
+
+      function renderTimer() {
+        const timer = document.getElementById("activeTimer");
+        if (!timer || !currentStartedAt) return;
+        timer.textContent = formatTimer(Date.now() - currentStartedAt);
+      }
+
+      function restartTimer(entry) {
+        clearInterval(timerHandle);
+        if (!entry) {
+          currentStartedAt = null;
+          return;
         }
 
-        const number = document.createElement("span");
-        number.className = "queue-number";
-        number.textContent = `${index + 1}.`;
-
-        const name = document.createElement("span");
-        name.className = "queue-name";
-
-        const badge =
-          entry.skipTheLine || entry.priority
-            ? "⚡ "
-            : entry.giveaway
-              ? "🎁 "
-              : "";
-
-        name.textContent = badge + clean(entry.name, "Ukjent");
-
-        row.appendChild(number);
-        row.appendChild(name);
-        waitingList.appendChild(row);
-      });
-
-      const hiddenCount = Math.max(queue.length - MAX_VISIBLE, 0);
-
-      moreCount.textContent =
-        hiddenCount > 0
-          ? `+ ${hiddenCount} ${hiddenCount === 1 ? "annen" : "andre"} i kø`
-          : "";
-    }
-
-    function addAlert(type, payload = {}) {
-      alertQueue.push({
-        type,
-        name: clean(payload.name, "Ukjent"),
-        items: clean(payload.items),
-        order: clean(payload.order)
-      });
-
-      playNextAlert();
-    }
-
-    async function playNextAlert() {
-      if (alertPlaying || alertQueue.length === 0) {
-        return;
+        const parsed = Date.parse(entry.startedAt || entry.openedAt || "");
+        currentStartedAt = Number.isFinite(parsed) ? parsed : Date.now();
+        renderTimer();
+        timerHandle = setInterval(renderTimer, 1000);
       }
 
-      alertPlaying = true;
-
-      const alert = alertQueue.shift();
-
-      alertLayer.className = `alert-layer alert-${alert.type}`;
-
-      if (alert.type === "skip") {
-        alertKicker.textContent = "⚡ SKIP THE LINE ⚡";
-        alertName.textContent = alert.name;
-        alertSubtitle.textContent = "hopper foran i køen!";
-      } else if (alert.type === "giveaway") {
-        alertKicker.textContent = "🎁 GIVEAWAY";
-        alertName.textContent = alert.name;
-        alertSubtitle.textContent =
-          alert.items || "Ny giveaway-ordre!";
-      } else {
-        alertKicker.textContent = "📦 NY ORDRE";
-        alertName.textContent = alert.name;
-        alertSubtitle.textContent =
-          alert.items || alert.order || "Ny ordre mottatt!";
+      function stateClass(entry) {
+        if (entry?.skipTheLine || entry?.priority) return "skip";
+        if (entry?.giveaway) return "giveaway";
+        return "";
       }
 
-      void alertLayer.offsetWidth;
-      alertLayer.classList.add("show");
+      function renderCurrent(entry) {
+        const nextId = entry?.id ?? null;
+        const changed = nextId !== currentId;
+        currentId = nextId;
 
-      const duration =
-        alert.type === "skip"
-          ? 3800
-          : alert.type === "giveaway"
-            ? 3200
-            : 2600;
+        if (changed) {
+          activeBody.classList.remove("swap-in");
+          activeBody.classList.add("swap-out");
+        }
 
-      await wait(duration);
+        setTimeout(() => {
+          activePanel.classList.remove("skip","giveaway");
+          const cls = stateClass(entry);
+          if (cls) activePanel.classList.add(cls);
 
-      alertLayer.classList.remove("show");
-      alertLayer.classList.add("hide");
+          if (!entry) {
+            activeBody.innerHTML = `<div class="empty">Venter på neste åpning…</div>`;
+            restartTimer(null);
+          } else {
+            const badge = cls === "skip"
+              ? `<span class="badge skip show">★ Skip the Line</span>`
+              : cls === "giveaway"
+                ? `<span class="badge giveaway show">🎁 Giveaway</span>`
+                : "";
 
-      await wait(360);
+            activeBody.innerHTML = `
+              <div class="active-name">${escapeHtml(displayName(entry))}</div>
+              <div class="active-items">${escapeHtml(safeItems(entry.items))}</div>
+              <div class="active-meta">
+                <span>Åpnet i</span>
+                <span id="activeTimer" class="timer">00:00</span>
+                ${badge}
+              </div>
+            `;
+            restartTimer(entry);
+          }
 
-      alertLayer.className = "alert-layer";
-      alertPlaying = false;
+          activeBody.classList.remove("swap-out");
+          if (changed) {
+            void activeBody.offsetWidth;
+            activeBody.classList.add("swap-in");
+          }
+        }, changed ? 180 : 0);
+      }
 
-      playNextAlert();
-    }
+      function renderQueue(queue = []) {
+        queueCount.textContent = queue.length;
 
-    function wait(milliseconds) {
-      return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
+        if (!queue.length) {
+          queueList.innerHTML = `<div class="empty">Køen er tom.</div>`;
+          moreCount.hidden = true;
+          return;
+        }
+
+        const visible = queue.slice(0, MAX_VISIBLE);
+        queueList.innerHTML = visible.map((entry, index) => {
+          const priority = entry.skipTheLine || entry.priority;
+          const giveaway = entry.giveaway;
+          const cls = priority ? "priority" : giveaway ? "giveaway" : "";
+          const icon = priority ? "★" : giveaway ? "🎁" : "";
+          return `
+            <div class="queue-item ${cls}" style="animation-delay:${index * 45}ms">
+              <div class="position">${index + 1}</div>
+              <div class="q-copy">
+                <div class="q-name">${escapeHtml(displayName(entry))}</div>
+                <div class="q-items">${escapeHtml(safeItems(entry.items))}</div>
+              </div>
+              <div class="q-icon">${icon}</div>
+            </div>
+          `;
+        }).join("");
+
+        const remaining = queue.length - visible.length;
+        moreCount.hidden = remaining <= 0;
+        moreCount.textContent = remaining > 0 ? `+ ${remaining} flere i kø` : "";
+      }
+
+      function showAlert(kind, payload = {}) {
+        clearTimeout(alertHandle);
+
+        alertEl.classList.remove("skip","giveaway","show");
+        if (kind === "skip") alertEl.classList.add("skip");
+        if (kind === "giveaway") alertEl.classList.add("giveaway");
+
+        alertKicker.textContent =
+          kind === "skip" ? "Skip the Line" :
+          kind === "giveaway" ? "Giveaway" :
+          "Ny ordre";
+
+        alertName.textContent = displayName(payload);
+        alertItems.textContent = safeItems(payload.items);
+
+        void alertEl.offsetWidth;
+        alertEl.classList.add("show");
+
+        alertHandle = setTimeout(() => {
+          alertEl.classList.remove("show");
+        }, 3600);
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
+      }
+
+      socket.on("queue:update", ({ current, queue }) => {
+        renderCurrent(current);
+        renderQueue(Array.isArray(queue) ? queue : []);
       });
-    }
 
-    socket.on("queue:update", render);
+      socket.on("order:alert", payload => showAlert("order", payload));
+      socket.on("skip:alert", payload => showAlert("skip", payload));
+      socket.on("giveaway:alert", payload => showAlert("giveaway", payload));
 
-    socket.on("order:alert", payload => {
-      addAlert("order", payload);
-    });
-
-    socket.on("giveaway:alert", payload => {
-      addAlert("giveaway", payload);
-    });
-
-    socket.on("skip:alert", payload => {
-      addAlert("skip", payload);
-    });
-
-    fetch("/api/queue")
-      .then(response => response.json())
-      .then(render)
-      .catch(error => {
-        console.error("Kunne ikke hente køen:", error);
-      });
+      fetch("/api/queue")
+        .then(res => {
+          if (!res.ok) throw new Error("Kunne ikke hente kø");
+          return res.json();
+        })
+        .then(data => {
+          renderCurrent(data.current);
+          renderQueue(Array.isArray(data.queue) ? data.queue : []);
+        })
+        .catch(() => {
+          renderCurrent(null);
+          renderQueue([]);
+        });
+    })();
   </script>
 </body>
 </html>
+
