@@ -1,113 +1,210 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="no">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pokebua Studio X v2</title>
-<script src="/socket.io/socket.io.js"></script>
-<link rel="stylesheet" href="/css/studio-x.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pokebua Studio X</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="/css/studio-x.css">
 </head>
 <body>
-<div id="boot" class="boot"><div class="boot-box"><div class="ball"></div><h1>POKEBUA <span>STUDIO X</span></h1><p>INITIALIZING RIP & SHIP CONTROL CENTER</p><div class="loader"><i></i></div></div></div>
+  <div id="boot" class="boot" aria-hidden="true">
+    <div class="boot-card">
+      <div class="brand-orb"></div>
+      <p class="eyebrow">POKEBUA</p>
+      <h1>STUDIO X</h1>
+      <div class="boot-status"><span></span><b id="bootText">Initializing Studio</b></div>
+      <div class="boot-progress"><i></i></div>
+      <small>Powered by Pokebua</small>
+    </div>
+  </div>
 
-<div class="app">
-<aside id="sidebar" class="sidebar">
-  <div class="brand"><div class="ball"></div><div><h1>Pokebua <span>Studio X</span></h1><p>RIP & SHIP CONTROL CENTER</p></div></div>
-  <div class="nav-label">Studio</div>
-  <nav class="nav">
-    <button class="nav-btn active" data-view="dashboard"><span class="nav-ico">◈</span>Dashboard</button>
-    <button class="nav-btn" data-view="queue"><span class="nav-ico">▣</span>Kø <span id="queueBadge" class="nav-badge">0</span></button>
-    <button class="nav-btn" data-view="giveaway"><span class="nav-ico">✦</span>Giveaways</button>
-    <button class="nav-btn" data-view="overlay"><span class="nav-ico">◉</span>Overlay</button>
-  </nav>
-  <div class="nav-label">Kontroll</div>
-  <nav class="nav">
-    <button class="nav-btn" data-view="sounds"><span class="nav-ico">♫</span>Soundboard</button>
-    <button class="nav-btn" data-view="analytics"><span class="nav-ico">▥</span>Analytics</button>
-    <button class="nav-btn" data-view="settings"><span class="nav-ico">⚙</span>Innstillinger</button>
-  </nav>
-  <div class="side-foot"><div class="connection"><span id="statusDot" class="dot"></span><span id="statusText">Kobler til...</span></div><div class="server-note">Railway • Socket.IO live sync</div></div>
-</aside>
-
-<main class="main">
-<header class="topbar">
-  <div class="top-left"><button id="mobileMenu" class="mobile">☰</button><div><h2 id="pageTitle">Dashboard</h2><p id="pageSubtitle">Kontrollrommet for hele streamen.</p></div></div>
-  <div class="top-actions"><button id="refresh" class="icon-btn" title="Oppdater">↻</button><div class="live"><i></i> POKEBUA LIVE</div></div>
-</header>
-
-<section id="view-dashboard" class="view active">
-  <section class="hero">
-    <div class="hero-grid">
-      <div><div class="kicker">● Åpnes nå</div><div id="heroName" class="hero-name">Ingen aktiv ordre</div><div id="heroMeta" class="hero-empty">Start neste kunde når du er klar.</div><div id="heroTimer" class="hero-timer"><i></i><span id="heroTimerText">00:00</span> aktiv</div>
-        <div class="actions"><button class="btn green" data-global="next">▶ Start neste</button><button class="btn red" data-global="finish">✓ Ferdig</button><button class="btn blue" data-go="queue">Se hele køen</button></div>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-block">
+        <div class="brand-orb small"></div>
+        <div>
+          <strong>Pokebua Studio X</strong>
+          <span>Rip & Ship Control</span>
+        </div>
       </div>
-      <aside class="preview"><div class="panel-title"><div><h3>Neste kunder</h3><div class="hint">Live forhåndsvisning</div></div><span id="previewCount" class="nav-badge">0</span></div><div id="miniQueue" class="mini-list"><div class="empty">Køen er tom.</div></div></aside>
-    </div>
-  </section>
-  <div class="stats">
-    <article class="stat" style="--accent:rgba(78,163,255,.13)"><div class="stat-label">I kø</div><div id="statQueue" class="stat-value">0</div><div class="stat-note">Ventende ordre</div></article>
-    <article class="stat" style="--accent:rgba(255,207,53,.13)"><div class="stat-label">Skip the Line</div><div id="statSkip" class="stat-value">0</div><div class="stat-note">Prioriterte ordre</div></article>
-    <article class="stat" style="--accent:rgba(181,124,255,.13)"><div class="stat-label">Giveaways</div><div id="statGive" class="stat-value">0</div><div class="stat-note">I aktiv kø</div></article>
-    <article class="stat" style="--accent:rgba(67,224,141,.13)"><div class="stat-label">Status</div><div id="statStatus" class="stat-value" style="font-size:25px">KLAR</div><div class="stat-note">Studio connection</div></article>
-  </div>
-  <div class="dashboard-grid">
-    <section class="panel"><div class="panel-title"><div><h3>Køkontroll</h3><div class="hint">De ti første ordrene</div></div><button class="small blue" data-go="queue">Full kø</button></div><div id="dashboardQueue" class="queue-list"></div></section>
-    <div>
-      <section class="panel"><div class="panel-title"><div><h3>Legg til manuelt</h3><div class="hint">Ordre utenfor Shopify</div></div></div>
-        <div class="form-grid"><input id="manualName" placeholder="Streamnavn"><input id="manualOrder" placeholder="Ordrenummer"><textarea id="manualItems" class="full" rows="3" placeholder="Produkter, f.eks. 6x Journey Together"></textarea><div class="checks full"><label><input id="manualSkip" type="checkbox"> Skip the Line</label><label><input id="manualGive" type="checkbox"> Giveaway</label></div><button id="addManual" class="btn gold full">+ Legg i kø</button></div>
+
+      <p class="nav-label">Studio</p>
+      <nav>
+        <button class="nav-item active" data-view="dashboard"><span>◈</span>Dashboard</button>
+        <button class="nav-item" data-view="queue"><span>▣</span>Kø <b id="queueBadge">0</b></button>
+        <button class="nav-item" data-view="giveaway"><span>✦</span>Giveaways</button>
+        <button class="nav-item" data-view="overlay"><span>◉</span>Overlay</button>
+      </nav>
+
+      <p class="nav-label">Verktøy</p>
+      <nav>
+        <button class="nav-item" data-view="soundboard"><span>♫</span>Soundboard</button>
+        <button class="nav-item" data-view="analytics"><span>▥</span>Analytics</button>
+        <button class="nav-item" data-view="settings"><span>⚙</span>Innstillinger</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection"><i id="statusDot"></i><span id="statusText">Kobler til</span></div>
+        <small>Powered by Pokebua</small>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="menuBtn" class="icon-button mobile-only">☰</button>
+          <div>
+            <p class="eyebrow" id="pageEyebrow">CONTROL CENTER</p>
+            <h2 id="pageTitle">Dashboard</h2>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="privacy-pill">PRIVACY SAFE</div>
+          <div class="live-pill"><i></i> POKEBUA LIVE</div>
+        </div>
+      </header>
+
+      <section class="view active" id="view-dashboard">
+        <section class="hero-card" id="heroCard">
+          <div>
+            <p class="eyebrow live-label">● ÅPNES NÅ</p>
+            <h1 id="heroName">Ingen aktiv ordre</h1>
+            <p id="heroMeta">Start neste kunde når du er klar.</p>
+            <div class="hero-timer"><i></i><span id="heroTimer">00:00</span> aktiv</div>
+            <div class="hero-actions">
+              <button class="button success" data-command="next">▶ Start neste</button>
+              <button class="button danger" data-command="finish">✓ Ferdig</button>
+              <button class="button secondary" data-view-link="queue">Se hele køen</button>
+            </div>
+          </div>
+          <div class="next-preview panel-soft">
+            <div class="section-head">
+              <div><strong>Neste kunder</strong><small>Live forhåndsvisning</small></div>
+              <b id="previewCount">0</b>
+            </div>
+            <div id="miniQueue" class="mini-queue empty-state">Køen er tom.</div>
+          </div>
+        </section>
+
+        <section class="stat-grid">
+          <article class="stat-card"><span>I kø</span><strong id="statQueue">0</strong><small>Ventende ordre</small></article>
+          <article class="stat-card"><span>Skip the Line</span><strong id="statSkip">0</strong><small>Prioriterte ordre</small></article>
+          <article class="stat-card"><span>Giveaways</span><strong id="statGive">0</strong><small>Aktive i køen</small></article>
+          <article class="stat-card"><span>Status</span><strong id="statStatus" class="status-value">KOBLER</strong><small>Socket.IO</small></article>
+        </section>
+
+        <section class="dashboard-grid">
+          <article class="panel">
+            <div class="section-head">
+              <div><strong>Køkontroll</strong><small>Dra kortene for å endre rekkefølge</small></div>
+              <button class="text-button" data-view-link="queue">Åpne full kø</button>
+            </div>
+            <div id="dashboardQueue" class="queue-list"></div>
+          </article>
+
+          <div class="right-stack">
+            <article class="panel">
+              <div class="section-head"><div><strong>Legg til manuelt</strong><small>Twitch-navn overstyrer fornavn</small></div></div>
+              <div class="form-grid">
+                <label>Navn<input id="manualName" placeholder="F.eks. Jørgen Hansen"></label>
+                <label>Twitch-navn <span>(valgfritt)</span><input id="manualTwitch" placeholder="F.eks. pokebuafan"></label>
+                <label>Ordrenummer<input id="manualOrder" placeholder="#5832"></label>
+                <label class="full">Produkter<textarea id="manualItems" rows="3" placeholder="6x Journey Together"></textarea></label>
+                <div class="toggle-row full">
+                  <label><input id="manualSkip" type="checkbox"> Skip the Line</label>
+                  <label><input id="manualGive" type="checkbox"> Giveaway</label>
+                </div>
+                <button id="addManual" class="button gold full">+ Legg i kø</button>
+              </div>
+            </article>
+
+            <article class="panel activity-panel">
+              <div class="section-head"><div><strong>Live Activity</strong><small>Siste handlinger i Studio</small></div><button id="clearFeed" class="text-button">Tøm</button></div>
+              <div id="activityFeed" class="activity-feed empty-state">Ingen aktivitet ennå.</div>
+            </article>
+          </div>
+        </section>
       </section>
-      <section class="panel"><div class="panel-title"><div><h3>Aktivitetsfeed</h3><div class="hint">Siste handlinger i Studio</div></div></div><div id="feed" class="feed"><div class="empty">Ingen aktivitet ennå.</div></div></section>
-    </div>
+
+      <section class="view" id="view-queue">
+        <article class="panel full-height">
+          <div class="queue-toolbar">
+            <div><p class="eyebrow">SMART QUEUE</p><h3>Venteliste</h3><small id="queueCount">0 ordre i kø</small></div>
+            <div class="toolbar-actions">
+              <input id="queueSearch" placeholder="Søk navn, ordre eller produkt">
+              <select id="queueFilter"><option value="all">Alle</option><option value="skip">Skip the Line</option><option value="giveaway">Giveaway</option><option value="normal">Vanlige</option></select>
+              <button id="clearQueue" class="button danger">Tøm kø</button>
+            </div>
+          </div>
+          <div id="fullQueue" class="queue-list large"></div>
+        </article>
+      </section>
+
+      <section class="view" id="view-giveaway">
+        <div class="two-column">
+          <article class="panel">
+            <div class="section-head"><div><strong>Giveaway Center</strong><small>Legg premien direkte i køen</small></div></div>
+            <div class="form-grid">
+              <label>Visningsnavn<input id="giveName" placeholder="Pokebua Giveaway"></label>
+              <label>Referanse<input id="giveOrder" placeholder="Runde 1"></label>
+              <label class="full">Premie<textarea id="giveItems" rows="5" placeholder="1x Elite Trainer Box"></textarea></label>
+              <button id="addGiveaway" class="button purple full">✦ Legg giveaway i kø</button>
+            </div>
+          </article>
+          <article class="panel"><div class="section-head"><div><strong>Aktive giveaways</strong><small>Registrert i køsystemet</small></div></div><div id="giveawayList" class="queue-list"></div></article>
+        </div>
+      </section>
+
+      <section class="view" id="view-overlay">
+        <div class="module-grid">
+          <article class="module-card"><span>◉</span><h3>Kø-overlay</h3><p>Åpne eksisterende overlay som Browser Source i OBS.</p><button class="button secondary" id="openOverlay">Åpne overlay</button></article>
+          <article class="module-card"><span>✦</span><h3>Test varsel</h3><p>Forhåndsvis toast, lyd og Studio-effekt.</p><button class="button gold" id="testAlert">Kjør test</button></article>
+          <article class="module-card"><span>⧉</span><h3>Kopier OBS-URL</h3><p>Kopierer korrekt overlay-adresse til utklippstavlen.</p><button class="button secondary" id="copyOverlay">Kopier URL</button></article>
+        </div>
+      </section>
+
+      <section class="view" id="view-soundboard">
+        <article class="panel"><div class="section-head"><div><strong>Soundboard</strong><small>Diskrete Studio-lyder</small></div></div><div class="sound-grid">
+          <button data-sound="order"><span>Ny ordre</span><small>To toner</small></button>
+          <button data-sound="skip"><span>Skip the Line</span><small>Gull-varsel</small></button>
+          <button data-sound="giveaway"><span>Giveaway</span><small>Stigende toner</small></button>
+          <button data-sound="finish"><span>Ferdig</span><small>Bekreftelse</small></button>
+        </div></article>
+      </section>
+
+      <section class="view" id="view-analytics">
+        <section class="stat-grid">
+          <article class="stat-card"><span>Ordre i økt</span><strong id="analyticsOrders">0</strong><small>Lokalt registrert</small></article>
+          <article class="stat-card"><span>Fullført</span><strong id="analyticsFinished">0</strong><small>Denne Studio-økten</small></article>
+          <article class="stat-card"><span>Skip</span><strong id="analyticsSkip">0</strong><small>Akkurat nå</small></article>
+          <article class="stat-card"><span>Giveaways</span><strong id="analyticsGive">0</strong><small>Akkurat nå</small></article>
+        </section>
+        <article class="panel"><div class="section-head"><div><strong>Analytics</strong><small>Permanent historikk kommer når database kobles til</small></div></div><p class="muted-copy">Denne versjonen viser live-data og øktdata. Omsetning, kundehistorikk og produktstatistikk krever permanent lagring på serveren.</p></article>
+      </section>
+
+      <section class="view" id="view-settings">
+        <article class="panel settings-panel">
+          <div class="section-head"><div><strong>Studio-innstillinger</strong><small>Lagres lokalt i nettleseren</small></div></div>
+          <label class="setting-row"><div><strong>Bekreft før ferdig</strong><small>Hindrer feilklikk på aktiv ordre</small></div><input id="confirmFinish" type="checkbox"></label>
+          <label class="setting-row"><div><strong>Studio-lyder</strong><small>Spill lyd ved varsler</small></div><input id="studioSounds" type="checkbox"></label>
+          <label class="setting-row"><div><strong>Intro ved oppstart</strong><small>Vis premium splash screen</small></div><input id="showBoot" type="checkbox"></label>
+          <div class="privacy-box"><b>Personvernregel</b><p>Twitch-navn vises først. Ellers vises kun fornavn. Etternavn, e-post, telefon og adresse skal aldri vises i Studio eller overlay.</p></div>
+        </article>
+      </section>
+
+      <footer class="app-footer"><span>Powered by Pokebua</span><span>Studio X • Privacy Safe</span></footer>
+    </main>
   </div>
-</section>
 
-<section id="view-queue" class="view">
-  <section class="panel"><div class="queue-toolbar"><div><h3 style="margin:0">Venteliste</h3><div id="queueCount" class="hint">0 ordre i kø</div></div><div class="toolbar-controls"><input id="queueSearch" class="search" placeholder="Søk navn, ordre eller produkt"><select id="queueFilter"><option value="all">Alle ordre</option><option value="skip">Skip the Line</option><option value="giveaway">Giveaway</option><option value="normal">Vanlige</option></select><button id="clearQueue" class="btn red">Tøm kø</button></div></div><div id="fullQueue" class="queue-list"></div></section>
-</section>
-
-<section id="view-giveaway" class="view">
-  <div class="dashboard-grid">
-    <section class="panel"><div class="panel-title"><div><h3>Giveaway Center</h3><div class="hint">Opprett og styr giveaways fra samme sted</div></div></div>
-      <div class="form-grid"><input id="giveName" placeholder="Navn, f.eks. Pokebua Giveaway"><input id="giveOrder" placeholder="Referanse / runde"><textarea id="giveItems" class="full" rows="4" placeholder="Premie"></textarea><button id="addGiveaway" class="btn purple full">✦ Legg giveaway i kø</button></div>
-    </section>
-    <section class="panel"><div class="panel-title"><div><h3>Aktive giveaways</h3><div class="hint">Registrert i køsystemet</div></div></div><div id="giveawayList" class="queue-list"></div></section>
+  <div id="toastHost" class="toast-host"></div>
+  <div id="contextMenu" class="context-menu" hidden>
+    <button data-context="open">▶ Start åpning</button>
+    <button data-context="skip">⚡ Gi Skip the Line</button>
+    <button data-context="top">↑ Flytt til topp</button>
+    <button data-context="delete" class="danger-text">✕ Fjern</button>
   </div>
-</section>
 
-<section id="view-overlay" class="view"><div class="module-grid">
-  <article class="module"><div class="module-icon">◉</div><h3>Kø-overlay</h3><p>Bruk eksisterende <b>/overlay.html</b> som Browser Source i OBS. Studio oppdaterer overlayet automatisk.</p><button class="btn blue" onclick="window.open('/overlay.html','_blank')">Åpne overlay</button></article>
-  <article class="module"><div class="module-icon">✦</div><h3>Event Alerts</h3><p>Ny ordre, Skip the Line og giveaway bruker Socket.IO-hendelsene fra serveren din.</p><button class="btn gold" id="testAlert">Test Studio-effekt</button></article>
-  <article class="module"><div class="module-icon">▣</div><h3>OBS-oppsett</h3><p>Legg overlay-URL-en inn som Browser Source. Anbefalt størrelse er 1920 × 1080.</p><button class="btn muted-btn" onclick="navigator.clipboard?.writeText(location.origin+'/overlay.html');toast('Overlay-lenke kopiert')">Kopier URL</button></article>
-</div></section>
-
-<section id="view-sounds" class="view"><section class="panel"><div class="panel-title"><div><h3>Soundboard</h3><div class="hint">Raske lydeffekter under stream</div></div></div><div class="sound-grid">
-  <div class="sound"><div><strong>Ny ordre</strong><span>To toner</span></div><button class="btn blue" data-sound="order">▶ Spill</button></div>
-  <div class="sound"><div><strong>Skip the Line</strong><span>Rask energilyd</span></div><button class="btn gold" data-sound="skip">▶ Spill</button></div>
-  <div class="sound"><div><strong>Giveaway</strong><span>Tre stigende toner</span></div><button class="btn purple" data-sound="giveaway">▶ Spill</button></div>
-  <div class="sound"><div><strong>Ferdig</strong><span>Kort bekreftelse</span></div><button class="btn green" data-sound="finish">▶ Spill</button></div>
-</div></section></section>
-
-<section id="view-analytics" class="view"><div class="stats">
-  <article class="stat"><div class="stat-label">Ordre i økt</div><div id="analyticsOrders" class="stat-value">0</div><div class="stat-note">Registrert lokalt i nettleseren</div></article>
-  <article class="stat"><div class="stat-label">Fullført</div><div id="analyticsFinished" class="stat-value">0</div><div class="stat-note">Denne Studio-økten</div></article>
-  <article class="stat"><div class="stat-label">Skip</div><div id="analyticsSkip" class="stat-value">0</div><div class="stat-note">Aktiv kø akkurat nå</div></article>
-  <article class="stat"><div class="stat-label">Giveaways</div><div id="analyticsGive" class="stat-value">0</div><div class="stat-note">Aktiv kø akkurat nå</div></article>
-</div><section class="panel"><div class="panel-title"><div><h3>Analytics-modul</h3><div class="hint">Klar for permanent historikk når serveren får database</div></div></div><p style="color:var(--muted);line-height:1.7">Denne versjonen viser live-data og øktdata. Omsetning, produkter, ventetid og kundehistorikk krever at serveren lagrer fullførte ordre i en database.</p></section></section>
-
-<section id="view-settings" class="view"><section class="panel"><div class="panel-title"><div><h3>Studio-innstillinger</h3><div class="hint">Lagres lokalt i nettleseren</div></div></div><div class="settings">
-  <div class="setting"><div><strong>Bekreft før ferdig</strong><p>Unngå at aktive ordre avsluttes ved feil.</p></div><label class="switch"><input id="confirmFinish" type="checkbox" checked><span class="slider"></span></label></div>
-  <div class="setting"><div><strong>Studio-lyder</strong><p>Spill en kort lyd ved handlinger.</p></div><label class="switch"><input id="studioSounds" type="checkbox" checked><span class="slider"></span></label></div>
-  <div class="setting"><div><strong>Kompakt kø</strong><p>Vis flere ordre på skjermen samtidig.</p></div><label class="switch"><input id="compactQueue" type="checkbox"><span class="slider"></span></label></div>
-</div></section></section>
-</main>
-</div>
-
-<div class="bottom"><button class="btn green" data-global="next">▶ Neste</button><button class="btn red" data-global="finish">✓ Ferdig</button><button class="btn gold" data-go="queue">▣ Kø</button><button class="btn purple" data-go="giveaway">✦ Giveaway</button></div>
-<div id="toast" class="toast"></div>
-<div id="eventToast" class="event-toast"><div class="event-toast-head"><span id="eventType" class="event-toast-type">NY ORDRE</span><span id="eventTime" class="event-toast-time"></span></div><div id="eventName" class="event-toast-name"></div><div id="eventMeta" class="event-toast-meta"></div><div class="event-toast-bar"><i></i></div></div>
-<div id="screenFlash" class="screen-flash"></div>
-<div class="shortcut-hint">SPACE Neste · F Ferdig · Q Kø · G Giveaway</div>
-
-<script src="/js/studio-x.js" defer></script>
+  <script src="/js/studio-x.js"></script>
 </body>
 </html>
