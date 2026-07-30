@@ -187,17 +187,39 @@ body{padding:8px}
 }
 
 .item-row{
-  display:grid;
-  grid-template-columns:23px minmax(0,1fr);
-  gap:8px;
-  align-items:start;
-  font-size:16px;
-  line-height:1.25;
-  font-weight:800;
+    display:grid;
+    grid-template-columns:24px 1fr auto;
+    align-items:center;
+    gap:10px;
+
+    padding:6px 0;
+
+    font-size:16px;
+    line-height:1.25;
+    font-weight:800;
 }
 
-.item-icon{color:var(--blue);font-size:16px;line-height:1.2}
-.qty{color:var(--yellow)}
+.item-icon{
+    color:var(--blue);
+    font-size:18px;
+    line-height:1;
+}
+
+.item-name{
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.item-qty{
+    color:var(--yellow);
+    font-size:18px;
+    font-weight:900;
+    min-width:40px;
+    text-align:right;
+}
+
+
 
 
 .badge{
