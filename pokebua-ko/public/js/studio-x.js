@@ -1,58 +1,145 @@
-/* Pokebua Studio X v2 – modular application */
-"use strict";
-const $=id=>document.getElementById(id), socket=io();
-const state={current:null,queue:[],activities:JSON.parse(sessionStorage.getItem("pxActivities")||"[]"),finished:Number(sessionStorage.getItem("pxFinished")||0),seen:new Set(),currentStartedAt:Number(sessionStorage.getItem("pxCurrentStartedAt")||0),lastCurrentId:null};
-const settings=JSON.parse(localStorage.getItem("pxSettings")||'{"confirmFinish":true,"sounds":true,"compact":false}');
-const pageInfo={
- dashboard:["Dashboard","Kontrollrommet for hele streamen."],queue:["Kø","Administrer alle kunder og ordre."],
- giveaway:["Giveaways","Opprett og styr giveaway-ordre."],overlay:["Overlay","Koble Studio til OBS."],
- sounds:["Soundboard","Raske lydeffekter under stream."],analytics:["Analytics","Live statistikk fra Studio."],
- settings:["Innstillinger","Tilpass arbeidsflyten din."]
+const $ = id => document.getElementById(id);
+const socket = io();
+const state = {
+  current: null,
+  queue: [],
+  currentStartedAt: Number(sessionStorage.getItem("pxCurrentStartedAt")) || 0,
+  lastCurrentId: sessionStorage.getItem("pxCurrentId") || null,
+  finished: Number(sessionStorage.getItem("pxFinished")) || 0,
+  selectedId: null,
+  activities: JSON.parse(sessionStorage.getItem("pxActivities") || "[]")
 };
-const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove("show"),2200)}
-function renderActivities(){$("feed").innerHTML=state.activities.length?state.activities.map(x=>`<div class="feed-item"><div class="feed-time">${x.time}</div><div class="feed-text">${esc(x.icon||"•")} ${esc(x.text)}</div></div>`).join(""):'<div class="empty">Ingen aktivitet ennå.</div>'}
-function addActivity(text,icon="•"){state.activities.unshift({time:new Date().toLocaleTimeString("no-NO",{hour:"2-digit",minute:"2-digit",second:"2-digit"}),text,icon});state.activities=state.activities.slice(0,100);sessionStorage.setItem("pxActivities",JSON.stringify(state.activities));renderActivities()}
-function flash(type="order"){const colors={order:"rgba(78,163,255,.52)",skip:"rgba(255,207,53,.58)",giveaway:"rgba(181,124,255,.55)",finish:"rgba(67,224,141,.5)"},f=$("screenFlash");f.style.setProperty("--flash-color",colors[type]||colors.order);f.classList.remove("fire");void f.offsetWidth;f.classList.add("fire")}
-function eventToast(type,p={}){const cfg={order:["NY ORDRE","#4ea3ff"],skip:["SKIP THE LINE","#ffcf35"],giveaway:["GIVEAWAY","#b57cff"],finish:["ORDRE FERDIG","#43e08d"]}[type]||["STUDIO EVENT","#4ea3ff"],t=$("eventToast");t.style.setProperty("--event-color",cfg[1]);$("eventType").textContent=cfg[0];$("eventTime").textContent=new Date().toLocaleTimeString("no-NO",{hour:"2-digit",minute:"2-digit"});$("eventName").textContent=p.name||"Pokebua Studio";$("eventMeta").textContent=[p.order,p.items].filter(Boolean).join(" • ");const bar=t.querySelector(".event-toast-bar i");bar.style.animation="none";void bar.offsetWidth;bar.style.animation="";t.classList.add("show");clearTimeout(t._x);t._x=setTimeout(()=>t.classList.remove("show"),4200);flash(type)}
-function animateNumber(id,value){const el=$(id),next=Number(value)||0,prev=Number(el.dataset.value??el.textContent)||0;if(prev===next)return;el.dataset.value=next;const start=performance.now(),dur=330;function tick(now){const p=Math.min(1,(now-start)/dur),e=1-Math.pow(1-p,3);el.textContent=Math.round(prev+(next-prev)*e);if(p<1)requestAnimationFrame(tick);else{el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")}}requestAnimationFrame(tick)}
-function updateTimer(){const wrap=$("heroTimer"),txt=$("heroTimerText");if(!state.current||!state.currentStartedAt){wrap.classList.remove("visible");return}wrap.classList.add("visible");const sec=Math.max(0,Math.floor((Date.now()-state.currentStartedAt)/1000)),h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;txt.textContent=(h?String(h).padStart(2,"0")+":":"")+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")}
+const settings = Object.assign({confirmFinish:true,sounds:true,showBoot:true}, JSON.parse(localStorage.getItem("pxSettings") || "{}"));
+const pageInfo = {
+  dashboard:["CONTROL CENTER","Dashboard"], queue:["SMART QUEUE","Kø"], giveaway:["EVENT CONTROL","Giveaways"],
+  overlay:["STREAM OUTPUT","Overlay"], soundboard:["AUDIO CONTROL","Soundboard"], analytics:["SESSION DATA","Analytics"], settings:["SYSTEM","Innstillinger"]
+};
 
-function saveSettings(){settings.confirmFinish=$("confirmFinish").checked;settings.sounds=$("studioSounds").checked;settings.compact=$("compactQueue").checked;localStorage.setItem("pxSettings",JSON.stringify(settings));document.body.classList.toggle("compact",settings.compact)}
-function sound(type){if(!settings.sounds)return;try{const AC=window.AudioContext||window.webkitAudioContext,ctx=new AC(),n=ctx.currentTime,maps={order:[[520,0,.1],[680,.12,.13]],skip:[[320,0,.08],[650,.09,.09],[980,.18,.15]],giveaway:[[520,0,.09],[690,.1,.09],[880,.21,.16]],finish:[[620,0,.09],[420,.1,.13]]};(maps[type]||maps.order).forEach(([f,d,t])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type==="skip"?"sawtooth":"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,n+d);g.gain.exponentialRampToValueAtTime(.11,n+d+.015);g.gain.exponentialRampToValueAtTime(.0001,n+d+t);o.connect(g);g.connect(ctx.destination);o.start(n+d);o.stop(n+d+t+.03)});setTimeout(()=>ctx.close(),900)}catch(e){}}
-async function request(url,options={}){const r=await fetch(url,options);if(!r.ok){const d=await r.json().catch(()=>({}));throw Error(d.error||"Noe gikk galt")}return r.status===204?null:r.json().catch(()=>null)}
-const post=(url,body)=>request(url,{method:"POST",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
-function switchView(name){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===name));$("view-"+name).classList.add("active");$("pageTitle").textContent=pageInfo[name][0];$("pageSubtitle").textContent=pageInfo[name][1];$("sidebar").classList.remove("open");if(name==="queue")setTimeout(()=>$("queueSearch").focus(),80)}
-function badge(x){return x.skipTheLine||x.priority?"⚡ ":x.giveaway?"✦ ":""}
-function tags(x){let a=[];if(x.skipTheLine||x.priority)a.push('<span class="tag skip">⚡ Skip the Line</span>');if(x.giveaway)a.push('<span class="tag give">✦ Giveaway</span>');return a.length?`<div class="tags">${a.join("")}</div>`:""}
-function age(x){if(!x.createdAt)return "";const n=Math.max(0,Math.floor((Date.now()-new Date(x.createdAt).getTime())/60000));return n<1?"nå":n<60?`${n} min`: `${Math.floor(n/60)}t ${n%60}m`}
-function queueCard(x,index,compact=false){return `<article class="queue-card ${x.skipTheLine||x.priority?"priority":x.giveaway?"giveaway":""}"><div><div class="queue-top"><span class="queue-no">${index+1}</span><span class="queue-name">${badge(x)}${esc(x.name)}</span></div><div class="queue-details">${esc([x.order,x.items].filter(Boolean).join(" • "))}${x.createdAt?` · ⏱ ${age(x)}`:""}</div>${tags(x)}</div><div class="queue-actions"><button class="small green" data-action="open" data-id="${x.id}">▶ Åpne</button>${compact?"":`<button class="small blue" data-action="top" data-id="${x.id}">Topp</button><button class="small gold" data-action="skip" data-id="${x.id}">⚡ Skip</button><button class="small muted-btn" data-action="up" data-id="${x.id}">↑</button><button class="small muted-btn" data-action="down" data-id="${x.id}">↓</button>`}<button class="small red" data-action="delete" data-id="${x.id}">Fjern</button></div></article>`}
-function render(data,detect=true){const old=new Set(state.queue.map(x=>String(x.id))),previousCurrent=state.current;state.current=data.current||null;state.queue=Array.isArray(data.queue)?data.queue:[];if(state.current){if(String(state.lastCurrentId)!==String(state.current.id)){state.currentStartedAt=Date.now();state.lastCurrentId=state.current.id;sessionStorage.setItem("pxCurrentStartedAt",state.currentStartedAt)}}else{state.currentStartedAt=0;state.lastCurrentId=null;sessionStorage.removeItem("pxCurrentStartedAt")}if(detect)state.queue.forEach(x=>{if(!old.has(String(x.id))){addActivity(`Ny ordre: ${x.name}`,x.skipTheLine||x.priority?"⚡":x.giveaway?"🎁":"🟢")}});renderAll();updateTimer()}
-function renderAll(){
- $("heroName").textContent=state.current?badge(state.current)+state.current.name:"Ingen aktiv ordre";document.querySelector(".hero").classList.toggle("active-order",!!state.current);$("heroMeta").className=state.current?"hero-meta":"hero-empty";$("heroMeta").textContent=state.current?[state.current.order,state.current.items].filter(Boolean).join("\n"):"Start neste kunde når du er klar.";
- const mini=state.queue.slice(0,5);$("miniQueue").innerHTML=mini.length?mini.map((x,i)=>`<div class="mini"><span class="mini-no">${i+1}</span><div style="min-width:0"><strong>${badge(x)}${esc(x.name)}</strong><span>${esc([x.order,x.items].filter(Boolean).join(" • "))}</span></div></div>`).join(""):'<div class="empty">Køen er tom.</div>';
- animateNumber("statQueue",state.queue.length);animateNumber("statSkip",state.queue.filter(x=>x.skipTheLine||x.priority).length);animateNumber("statGive",state.queue.filter(x=>x.giveaway).length);$("queueBadge").textContent=state.queue.length;$("previewCount").textContent=state.queue.length;
- $("dashboardQueue").innerHTML=state.queue.length?state.queue.slice(0,10).map((x,i)=>queueCard(x,i,true)).join(""):'<div class="empty">Køen er tom.</div>';
- renderQueue();const giveaways=state.queue.filter(x=>x.giveaway);$("giveawayList").innerHTML=giveaways.length?giveaways.map(x=>queueCard(x,state.queue.findIndex(y=>String(y.id)===String(x.id)),true)).join(""):'<div class="empty">Ingen aktive giveaways.</div>';
- animateNumber("analyticsOrders",state.queue.length+(state.current?1:0)+state.finished);animateNumber("analyticsFinished",state.finished);animateNumber("analyticsSkip",state.queue.filter(x=>x.skipTheLine||x.priority).length);animateNumber("analyticsGive",giveaways.length);
+function escapeHtml(value="") { return String(value).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
+function firstName(value="") { return String(value).trim().split(/\s+/)[0] || "Kunde"; }
+function cleanTwitch(value="") {
+  return String(value).trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i,"").replace(/^@/,"").split(/[/?#]/)[0].trim();
 }
-function filtered(){const q=$("queueSearch").value.trim().toLowerCase(),f=$("queueFilter").value;return state.queue.filter(x=>{const h=`${x.name} ${x.order} ${x.items}`.toLowerCase(),s=x.skipTheLine||x.priority;return h.includes(q)&&(f==="all"||(f==="skip"&&s)||(f==="giveaway"&&x.giveaway)||(f==="normal"&&!s&&!x.giveaway))})}
-function renderQueue(){const a=filtered();$("queueCount").textContent=`${state.queue.length} ${state.queue.length===1?"ordre":"ordrer"} i kø`;$("fullQueue").innerHTML=a.length?a.map(x=>queueCard(x,state.queue.findIndex(y=>String(y.id)===String(x.id)))).join(""):'<div class="empty">Ingen ordre matcher.</div>'}
-async function next(){if(!state.queue.length)return toast("Køen er tom");try{const n=state.queue[0].name;await post("/api/next");addActivity(`Startet ordre: ${n}`,"📦");eventToast("order",{name:n,items:"Åpnes nå"});sound("order")}catch(e){toast(e.message)}}
-async function finish(){if(!state.current)return toast("Ingen aktiv ordre");if(settings.confirmFinish&&!confirm(`Marker ${state.current.name} som ferdig?`))return;try{const n=state.current.name;await post("/api/finish");state.finished++;sessionStorage.setItem("pxFinished",state.finished);addActivity(`Ferdig: ${n}`,"✅");eventToast("finish",{name:n});sound("finish")}catch(e){toast(e.message)}}
-async function queueAction(e){const b=e.target.closest("[data-action]");if(!b)return;const id=b.dataset.id,a=b.dataset.action,x=state.queue.find(y=>String(y.id)===String(id));try{if(a==="delete"){if(!confirm(`Fjerne ${x?.name||"ordren"}?`))return;await request(`/api/queue/${id}`,{method:"DELETE"});addActivity(`Fjernet: ${x?.name||id}`,"🗑️");return}if(a==="open"){await post(`/api/queue/${id}/top`);await post("/api/next");addActivity(`Åpnet direkte: ${x?.name||id}`,"📦");eventToast("order",x||{});sound("order");return}await post(`/api/queue/${id}/${a}`);addActivity(`${a==="skip"?"Skip aktivert":a==="top"?"Flyttet til topp":"Kø flyttet"}: ${x?.name||id}`,a==="skip"?"⚡":"↕️");sound(a==="skip"?"skip":"order")}catch(err){toast(err.message)}}
-document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>switchView(b.dataset.view));document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>switchView(b.dataset.go));document.querySelectorAll("[data-global=next]").forEach(b=>b.onclick=next);document.querySelectorAll("[data-global=finish]").forEach(b=>b.onclick=finish);
-$("mobileMenu").onclick=()=>$("sidebar").classList.toggle("open");$("refresh").onclick=()=>renderActivities();setInterval(updateTimer,1000);setInterval(()=>{renderQueue()},60000);
-fetch("/api/queue").then(r=>r.json()).then(d=>render(d,false)).catch(e=>toast(e.message));$("queueSearch").oninput=renderQueue;$("queueFilter").onchange=renderQueue;$("fullQueue").onclick=queueAction;$("dashboardQueue").onclick=queueAction;$("giveawayList").onclick=queueAction;
-$("clearQueue").onclick=async()=>{if(!confirm("Tømme hele ventelisten?"))return;try{await request("/api/queue",{method:"DELETE"});addActivity("Køen ble tømt","🧹")}catch(e){toast(e.message)}};
-$("addManual").onclick=async()=>{const name=$("manualName").value.trim(),order=$("manualOrder").value.trim(),items=$("manualItems").value.trim();if(!name)return toast("Skriv inn streamnavn");try{await post("/api/queue",{name,order,items,skipTheLine:$("manualSkip").checked,giveaway:$("manualGive").checked});addActivity(`La til manuelt: ${name}`,"➕");["manualName","manualOrder","manualItems"].forEach(id=>$(id).value="");$("manualSkip").checked=$("manualGive").checked=false}catch(e){toast(e.message)}};
-$("addGiveaway").onclick=async()=>{const name=$("giveName").value.trim()||"Pokebua Giveaway",order=$("giveOrder").value.trim(),items=$("giveItems").value.trim();if(!items)return toast("Skriv inn premien");try{await post("/api/queue",{name,order,items,giveaway:true});addActivity(`Giveaway lagt til: ${items}`,"🎁");eventToast("giveaway",{name,order,items});sound("giveaway");["giveName","giveOrder","giveItems"].forEach(id=>$(id).value="")}catch(e){toast(e.message)}};
-document.querySelectorAll("[data-sound]").forEach(b=>b.onclick=()=>sound(b.dataset.sound));$("testAlert").onclick=()=>{sound("skip");toast("Studio-effekt testet")};
-["confirmFinish","studioSounds","compactQueue"].forEach(id=>$(id).onchange=saveSettings);$("confirmFinish").checked=settings.confirmFinish;$("studioSounds").checked=settings.sounds;$("compactQueue").checked=settings.compact;saveSettings();
-document.addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.code==="Space"){e.preventDefault();next()}else if(e.key.toLowerCase()==="f")finish();else if(e.key.toLowerCase()==="q")switchView("queue");else if(e.key.toLowerCase()==="g")switchView("giveaway")});
-socket.on("connect",()=>{$("statusDot").classList.add("on");$("statusText").textContent="Tilkoblet";$("statStatus").textContent="ONLINE"});
-socket.on("disconnect",()=>{$("statusDot").classList.remove("on");$("statusText").textContent="Frakoblet";$("statStatus").textContent="OFFLINE"});
-socket.on("queue:update",d=>render(d,true));socket.on("order:alert",p=>{addActivity(`Ny ordre: ${p.name||"Ny kunde"}`,"🟢");eventToast("order",p);sound("order")});socket.on("skip:alert",p=>{addActivity(`Skip the Line: ${p.name||"Kunde"}`,"⚡");eventToast("skip",p);sound("skip")});socket.on("giveaway:alert",p=>{addActivity(`Giveaway: ${p.name||"Giveaway"}`,"🎁");eventToast("giveaway",p);sound("giveaway")});
-renderActivities();setInterval(updateTimer,1000);setInterval(()=>{renderQueue()},60000);
-fetch("/api/queue").then(r=>r.json()).then(d=>render(d,false)).catch(()=>{$("statusText").textContent="Kunne ikke hente køen";$("statStatus").textContent="FEIL"});
-setTimeout(()=>$("boot").classList.add("hide"),1350);
+function safeDisplayName(entry={}) {
+  const twitch = cleanTwitch(entry.twitchName || entry.twitch || entry.streamName || "");
+  return twitch || firstName(entry.displayName || entry.name || "Kunde");
+}
+function formatAge(createdAt) {
+  if (!createdAt) return "nå";
+  const mins = Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000));
+  if (mins < 1) return "nå";
+  if (mins < 60) return `${mins} min`;
+  return `${Math.floor(mins/60)}t ${mins%60}m`;
+}
+function api(url, options={}) {
+  return fetch(url, {headers:{"Content-Type":"application/json",...(options.headers||{})},...options}).then(async r => {
+    if (!r.ok) throw new Error((await r.json().catch(()=>({}))).error || `Feil ${r.status}`);
+    return r.status === 204 ? null : r.json();
+  });
+}
+function post(url, body) { return api(url,{method:"POST",body:body ? JSON.stringify(body) : undefined}); }
+function saveSettings(){
+  settings.confirmFinish=$('confirmFinish').checked; settings.sounds=$('studioSounds').checked; settings.showBoot=$('showBoot').checked;
+  localStorage.setItem("pxSettings",JSON.stringify(settings));
+}
+function switchView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${name}`));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  $('pageEyebrow').textContent=pageInfo[name][0]; $('pageTitle').textContent=pageInfo[name][1]; $('sidebar').classList.remove('open');
+}
+function toast(title, detail=""){
+  const item=document.createElement('div'); item.className='toast'; item.innerHTML=`<strong>${escapeHtml(title)}</strong>${detail?`<small>${escapeHtml(detail)}</small>`:""}`;
+  $('toastHost').append(item); setTimeout(()=>item.remove(),3600);
+}
+function addActivity(text, icon="●"){
+  state.activities.unshift({text,icon,time:new Date().toISOString()}); state.activities=state.activities.slice(0,80);
+  sessionStorage.setItem("pxActivities",JSON.stringify(state.activities)); renderActivity();
+}
+function renderActivity(){
+  $('activityFeed').classList.toggle('empty-state',!state.activities.length);
+  $('activityFeed').innerHTML=state.activities.length ? state.activities.map(x=>`<div class="activity-item"><b>${x.icon}</b><div><strong>${escapeHtml(x.text)}</strong><small>${new Date(x.time).toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</small></div></div>`).join('') : 'Ingen aktivitet ennå.';
+}
+function playSound(type){
+  if(!settings.sounds) return;
+  const ctx=new (window.AudioContext||window.webkitAudioContext)(); const tones={order:[520,690],skip:[740,980],giveaway:[440,660,880],finish:[620]}[type]||[520];
+  tones.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain(); o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(.0001,ctx.currentTime+i*.09);g.gain.exponentialRampToValueAtTime(.08,ctx.currentTime+i*.09+.015);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+i*.09+.18);o.connect(g).connect(ctx.destination);o.start(ctx.currentTime+i*.09);o.stop(ctx.currentTime+i*.09+.2)});
+}
+function queueCard(entry,index,compact=false){
+  const name=safeDisplayName(entry); const priority=entry.skipTheLine||entry.priority; const classes=priority?'priority':entry.giveaway?'giveaway':'';
+  return `<article class="queue-card ${classes}" draggable="true" data-id="${entry.id}">
+    <div class="queue-main"><div class="queue-title"><span class="queue-position">${index+1}</span><strong>${priority?'⚡ ':entry.giveaway?'✦ ':''}${escapeHtml(name)}</strong></div>
+    <div class="queue-meta">${escapeHtml([entry.order,entry.items].filter(Boolean).join(' • '))}${entry.createdAt?` · ⏱ ${formatAge(entry.createdAt)}`:''}</div>
+    <div class="tags">${priority?'<span class="tag skip">Skip the Line</span>':''}${entry.giveaway?'<span class="tag give">Giveaway</span>':''}</div></div>
+    <div class="queue-actions"><button class="small-button" data-action="open">▶ Åpne</button>${compact?'':`<button class="small-button" data-action="top">Topp</button><button class="small-button" data-action="skip">⚡ Skip</button><button class="small-button" data-action="delete">Fjern</button>`}</div>
+  </article>`;
+}
+function filteredQueue(){
+  const q=$('queueSearch').value.trim().toLowerCase(),f=$('queueFilter').value;
+  return state.queue.filter(x=>{const text=`${safeDisplayName(x)} ${x.order||''} ${x.items||''}`.toLowerCase(),skip=x.skipTheLine||x.priority;return text.includes(q)&&(f==='all'||(f==='skip'&&skip)||(f==='giveaway'&&x.giveaway)||(f==='normal'&&!skip&&!x.giveaway));});
+}
+function renderQueueLists(){
+  const dash=state.queue.slice(0,10); $('dashboardQueue').innerHTML=dash.length?dash.map((x,i)=>queueCard(x,i,true)).join(''):'<div class="empty-state">Køen er tom.</div>';
+  const full=filteredQueue(); $('fullQueue').innerHTML=full.length?full.map(x=>queueCard(x,state.queue.findIndex(y=>String(y.id)===String(x.id)))).join(''):'<div class="empty-state">Ingen ordre matcher.</div>';
+  $('queueCount').textContent=`${state.queue.length} ${state.queue.length===1?'ordre':'ordrer'} i kø`;
+  const gives=state.queue.filter(x=>x.giveaway); $('giveawayList').innerHTML=gives.length?gives.map(x=>queueCard(x,state.queue.findIndex(y=>String(y.id)===String(x.id)),true)).join(''):'<div class="empty-state">Ingen aktive giveaways.</div>';
+  bindDragAndDrop();
+}
+function animateNumber(id,target){const el=$(id),start=Number(el.textContent)||0,diff=target-start,t0=performance.now();function tick(t){const p=Math.min(1,(t-t0)/260);el.textContent=Math.round(start+diff*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)}requestAnimationFrame(tick)}
+function render(){
+  const currentName=state.current?safeDisplayName(state.current):'Ingen aktiv ordre'; $('heroName').textContent=currentName;
+  $('heroMeta').textContent=state.current?[state.current.order,state.current.items].filter(Boolean).join('\n'):'Start neste kunde når du er klar.';
+  $('heroCard').classList.toggle('has-current',!!state.current);
+  const mini=state.queue.slice(0,5); $('miniQueue').classList.toggle('empty-state',!mini.length); $('miniQueue').innerHTML=mini.length?mini.map((x,i)=>`<div class="mini-row"><b>${i+1}</b><div><strong>${escapeHtml(safeDisplayName(x))}</strong><small>${escapeHtml([x.order,x.items].filter(Boolean).join(' • '))}</small></div></div>`).join(''):'Køen er tom.';
+  animateNumber('statQueue',state.queue.length); animateNumber('statSkip',state.queue.filter(x=>x.skipTheLine||x.priority).length); animateNumber('statGive',state.queue.filter(x=>x.giveaway).length);
+  $('queueBadge').textContent=state.queue.length;$('previewCount').textContent=state.queue.length;
+  animateNumber('analyticsOrders',state.queue.length+(state.current?1:0)+state.finished);animateNumber('analyticsFinished',state.finished);animateNumber('analyticsSkip',state.queue.filter(x=>x.skipTheLine||x.priority).length);animateNumber('analyticsGive',state.queue.filter(x=>x.giveaway).length);
+  renderQueueLists(); updateTimer();
+}
+function updateState(data,detect=true){
+  const oldIds=new Set(state.queue.map(x=>String(x.id))); const oldCurrent=state.current;
+  state.current=data.current||null; state.queue=Array.isArray(data.queue)?data.queue:[];
+  if(state.current){if(String(state.current.id)!==String(state.lastCurrentId)){state.currentStartedAt=Date.now();state.lastCurrentId=String(state.current.id);sessionStorage.setItem('pxCurrentStartedAt',state.currentStartedAt);sessionStorage.setItem('pxCurrentId',state.lastCurrentId)}}else{state.currentStartedAt=0;state.lastCurrentId=null;sessionStorage.removeItem('pxCurrentStartedAt');sessionStorage.removeItem('pxCurrentId')}
+  if(detect) state.queue.forEach(x=>{if(!oldIds.has(String(x.id))) addActivity(`Ny ordre: ${safeDisplayName(x)}`,x.skipTheLine||x.priority?'⚡':x.giveaway?'🎁':'🟢')});
+  if(oldCurrent&&!state.current){} render();
+}
+function updateTimer(){
+  if(!state.current||!state.currentStartedAt){$('heroTimer').textContent='00:00';return} const sec=Math.floor((Date.now()-state.currentStartedAt)/1000); $('heroTimer').textContent=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+}
+async function next(){if(!state.queue.length)return toast('Køen er tom');const name=safeDisplayName(state.queue[0]);try{await post('/api/next');addActivity(`Startet ordre: ${name}`,'📦');toast('Åpnes nå',name);playSound('order')}catch(e){toast('Kunne ikke starte',e.message)}}
+async function finish(){if(!state.current)return toast('Ingen aktiv ordre');const name=safeDisplayName(state.current);if(settings.confirmFinish&&!confirm(`Marker ${name} som ferdig?`))return;try{await post('/api/finish');state.finished++;sessionStorage.setItem('pxFinished',state.finished);addActivity(`Ferdig: ${name}`,'✅');toast('Ordre ferdig',name);playSound('finish')}catch(e){toast('Kunne ikke fullføre',e.message)}}
+async function act(id,action){const entry=state.queue.find(x=>String(x.id)===String(id));if(!entry)return;const name=safeDisplayName(entry);try{
+  if(action==='delete'){if(!confirm(`Fjerne ${name}?`))return;await api(`/api/queue/${id}`,{method:'DELETE'});addActivity(`Fjernet: ${name}`,'🗑');return}
+  if(action==='open'){await post(`/api/queue/${id}/top`);await post('/api/next');addActivity(`Åpnet direkte: ${name}`,'📦');toast('Åpnes nå',name);playSound('order');return}
+  await post(`/api/queue/${id}/${action}`);addActivity(`${action==='skip'?'Skip aktivert':'Flyttet til topp'}: ${name}`,action==='skip'?'⚡':'↕'); if(action==='skip')playSound('skip');
+}catch(e){toast('Handling feilet',e.message)}}
+function handleQueueClick(e){const button=e.target.closest('[data-action]'),card=e.target.closest('.queue-card');if(!button||!card)return;act(card.dataset.id,button.dataset.action)}
+function bindDragAndDrop(){
+  document.querySelectorAll('.queue-card[draggable=true]').forEach(card=>{
+    card.ondragstart=()=>{card.classList.add('dragging');state.selectedId=card.dataset.id};
+    card.ondragend=()=>{card.classList.remove('dragging');document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'))};
+    card.ondragover=e=>{e.preventDefault();card.classList.add('drop-target')};
+    card.ondragleave=()=>card.classList.remove('drop-target');
+    card.ondrop=async e=>{e.preventDefault();card.classList.remove('drop-target');const from=state.queue.findIndex(x=>String(x.id)===String(state.selectedId)),to=state.queue.findIndex(x=>String(x.id)===String(card.dataset.id));if(from<0||to<0||from===to)return;const ids=state.queue.map(x=>x.id);const [moved]=ids.splice(from,1);ids.splice(to,0,moved);try{await post('/api/queue/reorder',{ids});addActivity('Køen ble omorganisert','↕')}catch(err){toast('Kunne ikke flytte',err.message)}};
+    card.oncontextmenu=e=>{e.preventDefault();state.selectedId=card.dataset.id;const menu=$('contextMenu');menu.hidden=false;menu.style.left=`${Math.min(e.clientX,innerWidth-215)}px`;menu.style.top=`${Math.min(e.clientY,innerHeight-190)}px`};
+  });
+}
+
+document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+document.querySelectorAll('[data-view-link]').forEach(b=>b.onclick=()=>switchView(b.dataset.viewLink));
+document.querySelectorAll('[data-command=next]').forEach(b=>b.onclick=next);document.querySelectorAll('[data-command=finish]').forEach(b=>b.onclick=finish);
+$('menuBtn').onclick=()=>$('sidebar').classList.toggle('open');
+$('dashboardQueue').onclick=handleQueueClick;$('fullQueue').onclick=handleQueueClick;$('giveawayList').onclick=handleQueueClick;
+$('queueSearch').oninput=renderQueueLists;$('queueFilter').onchange=renderQueueLists;
+$('clearFeed').onclick=()=>{state.activities=[];sessionStorage.removeItem('pxActivities');renderActivity()};
+$('clearQueue').onclick=async()=>{if(!confirm('Tømme hele ventelisten?'))return;try{await api('/api/queue',{method:'DELETE'});addActivity('Køen ble tømt','🧹')}catch(e){toast('Kunne ikke tømme køen',e.message)}};
+$('addManual').onclick=async()=>{const name=$('manualName').value.trim(),twitchName=cleanTwitch($('manualTwitch').value),order=$('manualOrder').value.trim(),items=$('manualItems').value.trim();if(!name&&!twitchName)return toast('Skriv inn navn eller Twitch-navn');try{await post('/api/queue',{name:name||twitchName,twitchName,order,items,skipTheLine:$('manualSkip').checked,giveaway:$('manualGive').checked});['manualName','manualTwitch','manualOrder','manualItems'].forEach(id=>$(id).value='');$('manualSkip').checked=$('manualGive').checked=false}catch(e){toast('Kunne ikke legge til',e.message)}};
+$('addGiveaway').onclick=async()=>{const name=$('giveName').value.trim()||'Pokebua Giveaway',order=$('giveOrder').value.trim(),items=$('giveItems').value.trim();if(!items)return toast('Skriv inn premien');try{await post('/api/queue',{name,order,items,giveaway:true});['giveName','giveOrder','giveItems'].forEach(id=>$(id).value='')}catch(e){toast('Kunne ikke legge til giveaway',e.message)}};
+$('openOverlay').onclick=()=>window.open('/overlay.html','_blank');$('copyOverlay').onclick=async()=>{await navigator.clipboard.writeText(`${location.origin}/overlay.html`);toast('Overlay-URL kopiert')};$('testAlert').onclick=()=>{toast('Studio-varsel','Powered by Pokebua');playSound('skip')};
+document.querySelectorAll('[data-sound]').forEach(b=>b.onclick=()=>playSound(b.dataset.sound));
+['confirmFinish','studioSounds','showBoot'].forEach(id=>$(id).onchange=saveSettings);$('confirmFinish').checked=settings.confirmFinish;$('studioSounds').checked=settings.sounds;$('showBoot').checked=settings.showBoot;
+$('contextMenu').onclick=e=>{const b=e.target.closest('[data-context]');if(b){act(state.selectedId,b.dataset.context);$('contextMenu').hidden=true}};document.addEventListener('click',e=>{if(!e.target.closest('#contextMenu'))$('contextMenu').hidden=true});
+document.addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();next()}else if(e.key.toLowerCase()==='f')finish();else if(e.key.toLowerCase()==='q')switchView('queue')});
+socket.on('connect',()=>{$('statusDot').classList.add('online');$('statusText').textContent='Tilkoblet';$('statStatus').textContent='ONLINE'});socket.on('disconnect',()=>{$('statusDot').classList.remove('online');$('statusText').textContent='Frakoblet';$('statStatus').textContent='OFFLINE'});socket.on('queue:update',d=>updateState(d,true));
+socket.on('order:alert',p=>{toast('Ny ordre',safeDisplayName(p));playSound('order')});socket.on('skip:alert',p=>{toast('Skip the Line',safeDisplayName(p));playSound('skip')});socket.on('giveaway:alert',p=>{toast('Giveaway',safeDisplayName(p));playSound('giveaway')});
+renderActivity();setInterval(updateTimer,1000);setInterval(renderQueueLists,60000);api('/api/queue').then(d=>updateState(d,false)).catch(e=>toast('Kunne ikke hente køen',e.message));
+if(settings.showBoot){const steps=['Initializing Studio','Connecting Queue','Loading Overlay','Privacy Check','Connected'];let i=0;const timer=setInterval(()=>{$('bootText').textContent=steps[Math.min(++i,steps.length-1)];if(i>=steps.length-1){clearInterval(timer);setTimeout(()=>$('boot').classList.add('hidden'),300)}},250)}else{$('boot').classList.add('hidden')}
