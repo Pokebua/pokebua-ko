@@ -5,79 +5,240 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pokebua Studio</title>
   <style>
-    :root{--bg:#08111f;--sidebar:#0d1727;--panel:#111d30;--panel2:#17253a;--border:#263750;--text:#f8fafc;--muted:#9fb0c7;--yellow:#facc15;--green:#22c55e;--red:#ef4444;--blue:#38bdf8;--purple:#c084fc;--shadow:0 18px 45px rgba(0,0,0,.28)}
-    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:radial-gradient(circle at top right,rgba(56,189,248,.08),transparent 28%),radial-gradient(circle at top left,rgba(250,204,21,.07),transparent 24%),var(--bg);color:var(--text)} button,input{font:inherit} button{border:0;cursor:pointer}.app{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}
-    .sidebar{position:sticky;top:0;height:100vh;padding:22px 16px;background:rgba(13,23,39,.96);border-right:1px solid var(--border);backdrop-filter:blur(14px);z-index:10}.brand{display:flex;align-items:center;gap:12px;padding:6px 8px 22px}.brand-ball{width:44px;height:44px;border-radius:50%;background:linear-gradient(to bottom,#ef4444 0 44%,#111827 44% 56%,#f8fafc 56% 100%);border:3px solid #111827;position:relative;box-shadow:0 0 22px rgba(250,204,21,.18);flex:0 0 auto}.brand-ball:after{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;transform:translate(-50%,-50%);border-radius:50%;background:#f8fafc;border:3px solid #111827}.brand-title{font-weight:900;font-size:20px}.brand-subtitle{color:var(--muted);font-size:12px;margin-top:2px}.nav{display:grid;gap:8px;margin-top:10px}.nav-button{width:100%;padding:12px 13px;border-radius:12px;background:transparent;color:var(--muted);display:flex;align-items:center;gap:11px;text-align:left;font-weight:800}.nav-button:hover{background:rgba(255,255,255,.04);color:var(--text)}.nav-button.active{color:#111827;background:var(--yellow)}.nav-icon{width:24px;text-align:center;font-size:18px}.sidebar-footer{position:absolute;left:16px;right:16px;bottom:18px;padding:13px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025)}.connection{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;font-weight:700}.connection-dot{width:10px;height:10px;border-radius:50%;background:#64748b}.connection-dot.connected{background:var(--green);box-shadow:0 0 13px rgba(34,197,94,.7)}
-    .main{min-width:0;padding:24px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.topbar h1{margin:0;font-size:clamp(26px,3vw,38px)}.topbar p{margin:6px 0 0;color:var(--muted)}.live-pill{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border-radius:999px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.1);color:#fecaca;font-weight:900}.live-dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 0 6px rgba(239,68,68,.12)}.view{display:none}.view.active{display:block}
-    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat-card,.panel{background:linear-gradient(180deg,rgba(23,37,58,.96),rgba(17,29,48,.96));border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}.stat-card{padding:18px;min-height:130px}.stat-label{color:var(--muted);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}.stat-value{margin-top:10px;font-size:36px;font-weight:950}.stat-note{margin-top:7px;color:var(--muted);font-size:13px}.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(340px,.88fr);gap:18px}.panel{padding:20px;min-width:0}.panel+.panel{margin-top:18px}.panel-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.panel-header h2{margin:0;font-size:19px}.panel-hint{color:var(--muted);font-size:13px}
-    .current-card{min-height:280px;padding:24px;border-radius:16px;border:1px solid rgba(250,204,21,.24);background:radial-gradient(circle at top right,rgba(250,204,21,.12),transparent 35%),rgba(250,204,21,.045);display:flex;flex-direction:column;justify-content:space-between}.current-label{color:var(--yellow);font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:1.3px}.current-name{margin-top:12px;font-size:clamp(30px,5vw,52px);font-weight:950;line-height:1;overflow-wrap:anywhere}.current-details{margin-top:16px;color:var(--muted);font-size:16px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.empty-state{color:var(--muted);font-style:italic;padding:18px 0}.actions{display:flex;flex-wrap:wrap;gap:10px}.action-button{min-height:44px;padding:10px 15px;border-radius:11px;font-weight:900}.primary{background:var(--yellow);color:#111827}.success{background:var(--green);color:#052e16}.danger{background:var(--red);color:white}.blue{background:var(--blue);color:#082f49}.muted-button{background:#40516a;color:white}.quick-list{display:grid;gap:10px}.quick-item{padding:13px 14px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--border)}.quick-item-title{font-weight:900;overflow-wrap:anywhere}.quick-item-details{margin-top:5px;color:var(--muted);font-size:13px;line-height:1.4;overflow-wrap:anywhere}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}input{width:100%;min-height:46px;padding:11px 13px;border:1px solid #40516a;border-radius:11px;background:#0c1626;color:white;outline:none}input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(250,204,21,.1)}.queue-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}.search{width:min(360px,100%)}.queue-list{display:grid;gap:10px}.queue-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:15px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.025)}.queue-item.priority{border-color:rgba(250,204,21,.62);box-shadow:inset 4px 0 0 var(--yellow)}.queue-item.giveaway{border-color:rgba(192,132,252,.62);box-shadow:inset 4px 0 0 var(--purple)}.queue-title{font-weight:950;font-size:17px;overflow-wrap:anywhere}.queue-details{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.queue-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:420px}.small{min-height:36px;padding:7px 10px;border-radius:9px;font-size:12px;font-weight:900}.coming-soon{min-height:380px;display:grid;place-items:center;text-align:center}.coming-soon-icon{font-size:56px;margin-bottom:14px}.coming-soon h2{margin:0 0 8px}.coming-soon p{max-width:520px;margin:0 auto;color:var(--muted);line-height:1.6}.mobile-menu{display:none;width:44px;height:44px;border-radius:11px;background:var(--panel2);color:white;font-size:20px}
-    @media(max-width:1050px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}}@media(max-width:820px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:0;top:0;width:250px;transform:translateX(-105%);transition:.2s;box-shadow:var(--shadow)}.sidebar.open{transform:translateX(0)}.mobile-menu{display:inline-grid;place-items:center}.main{padding:16px}.topbar{align-items:flex-start}.live-pill{display:none}}@media(max-width:650px){.stats-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.queue-toolbar{align-items:stretch;flex-direction:column}.queue-item{grid-template-columns:1fr}.queue-actions{justify-content:flex-start;max-width:none}.queue-actions button{flex:1 1 auto}}
+    :root{
+      --bg:#08111f;--side:#0d1727;--panel:#111d30;--panel2:#17253a;--border:#2a3a53;
+      --text:#f8fafc;--muted:#9fb0c7;--yellow:#facc15;--green:#22c55e;--red:#ef4444;
+      --blue:#38bdf8;--purple:#c084fc;--shadow:0 18px 45px rgba(0,0,0,.28)
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Arial,sans-serif;color:var(--text);
+      background:radial-gradient(circle at top right,rgba(56,189,248,.08),transparent 28%),
+      radial-gradient(circle at top left,rgba(250,204,21,.07),transparent 24%),var(--bg)}
+    button,input{font:inherit}button{border:0;cursor:pointer}
+    .app{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}
+    .sidebar{position:sticky;top:0;height:100vh;padding:22px 16px;background:rgba(13,23,39,.97);
+      border-right:1px solid var(--border);z-index:10}
+    .brand{display:flex;gap:12px;align-items:center;padding:6px 8px 22px}
+    .ball{width:44px;height:44px;border-radius:50%;position:relative;flex:none;border:3px solid #111827;
+      background:linear-gradient(to bottom,#ef4444 0 44%,#111827 44% 56%,#f8fafc 56% 100%)}
+    .ball:after{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;transform:translate(-50%,-50%);
+      border-radius:50%;background:white;border:3px solid #111827}
+    .brand-title{font-size:20px;font-weight:900}.brand-sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .nav{display:grid;gap:8px}.nav-btn{width:100%;padding:12px 13px;border-radius:12px;background:transparent;
+      color:var(--muted);display:flex;gap:11px;align-items:center;text-align:left;font-weight:800}
+    .nav-btn:hover{background:rgba(255,255,255,.04);color:white}.nav-btn.active{background:var(--yellow);color:#111827}
+    .side-foot{position:absolute;left:16px;right:16px;bottom:18px;padding:13px;border:1px solid var(--border);
+      border-radius:12px;background:rgba(255,255,255,.025)}
+    .connection{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;font-weight:700}
+    .dot{width:10px;height:10px;border-radius:50%;background:#64748b}.dot.on{background:var(--green);box-shadow:0 0 13px rgba(34,197,94,.7)}
+    .main{min-width:0;padding:24px}.topbar{display:flex;justify-content:space-between;gap:16px;margin-bottom:22px}
+    h1{margin:0;font-size:clamp(26px,3vw,38px)}.subtitle{margin:6px 0 0;color:var(--muted)}
+    .live{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border-radius:999px;
+      border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.1);color:#fecaca;font-weight:900}
+    .live span{width:10px;height:10px;border-radius:50%;background:var(--red)}
+    .view{display:none}.view.active{display:block}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .card,.panel{background:linear-gradient(180deg,rgba(23,37,58,.96),rgba(17,29,48,.96));
+      border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+    .card{padding:18px;min-height:128px}.label{color:var(--muted);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
+    .value{font-size:36px;font-weight:950;margin-top:10px}.note{color:var(--muted);font-size:13px;margin-top:7px}
+    .dash-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(330px,.88fr);gap:18px}
+    .panel{padding:20px}.panel+.panel{margin-top:18px}.panel-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px}
+    .panel-head h2{margin:0;font-size:19px}.hint{color:var(--muted);font-size:13px;margin-top:4px}
+    .current{min-height:280px;padding:24px;border-radius:16px;border:1px solid rgba(250,204,21,.25);
+      background:radial-gradient(circle at top right,rgba(250,204,21,.12),transparent 35%),rgba(250,204,21,.045)}
+    .current-tag{color:var(--yellow);font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:1.3px}
+    .current-name{margin-top:12px;font-size:clamp(30px,5vw,52px);font-weight:950;overflow-wrap:anywhere}
+    .details{margin-top:16px;color:var(--muted);font-size:16px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+    .empty{color:var(--muted);font-style:italic;padding:18px 0}.actions{display:flex;flex-wrap:wrap;gap:10px}
+    .btn{min-height:44px;padding:10px 15px;border-radius:11px;font-weight:900}.btn:active{transform:scale(.98)}
+    .primary{background:var(--yellow);color:#111827}.success{background:var(--green);color:#052e16}.danger{background:var(--red);color:white}
+    .blue{background:var(--blue);color:#082f49}.muted{background:#40516a;color:white}
+    .form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
+    input{width:100%;min-height:46px;padding:11px 13px;border:1px solid #40516a;border-radius:11px;background:#0c1626;color:white;outline:none}
+    input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px rgba(250,204,21,.1)}
+    .quick{display:grid;gap:10px}.quick-item{padding:13px 14px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--border)}
+    .quick-title{font-weight:900}.quick-details{margin-top:5px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+    .queue-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:14px}.search{width:min(360px,100%)}
+    .queue{display:grid;gap:10px}.queue-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;
+      padding:15px;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.025)}
+    .queue-item.priority{border-color:rgba(250,204,21,.62);box-shadow:inset 4px 0 0 var(--yellow)}
+    .queue-item.giveaway{border-color:rgba(192,132,252,.62);box-shadow:inset 4px 0 0 var(--purple)}
+    .queue-title{font-size:17px;font-weight:950}.queue-details{margin-top:6px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+    .queue-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:430px}.small{min-height:36px;padding:7px 10px;border-radius:9px;font-size:12px;font-weight:900}
+    .coming{min-height:390px;display:grid;place-items:center;text-align:center}.coming .icon{font-size:56px}.coming p{max-width:520px;color:var(--muted);line-height:1.6}
+    .mobile{display:none;width:44px;height:44px;border-radius:11px;background:var(--panel2);color:white;font-size:20px}
+    @media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.dash-grid{grid-template-columns:1fr}}
+    @media(max-width:820px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:0;width:250px;transform:translateX(-105%);transition:.2s}
+      .sidebar.open{transform:translateX(0)}.mobile{display:inline-grid;place-items:center}.main{padding:16px}.live{display:none}}
+    @media(max-width:650px){.stats{grid-template-columns:1fr 1fr}.form{grid-template-columns:1fr}.full{grid-column:auto}
+      .queue-toolbar{align-items:stretch;flex-direction:column}.queue-item{grid-template-columns:1fr}.queue-actions{justify-content:flex-start;max-width:none}}
   </style>
 </head>
 <body>
 <div class="app">
   <aside id="sidebar" class="sidebar">
-    <div class="brand"><div class="brand-ball"></div><div><div class="brand-title">Pokebua Studio</div><div class="brand-subtitle">Rip & Ship Control Center</div></div></div>
+    <div class="brand"><div class="ball"></div><div><div class="brand-title">Pokebua Studio</div><div class="brand-sub">Rip & Ship Control Center</div></div></div>
     <nav class="nav">
-      <button class="nav-button active" data-view="dashboard"><span class="nav-icon">🏠</span>Dashboard</button>
-      <button class="nav-button" data-view="queue"><span class="nav-icon">📦</span>Kø</button>
-      <button class="nav-button" data-view="giveaways"><span class="nav-icon">🎁</span>Giveaways</button>
-      <button class="nav-button" data-view="statistics"><span class="nav-icon">📊</span>Statistikk</button>
-      <button class="nav-button" data-view="sounds"><span class="nav-icon">🎵</span>Lyder</button>
-      <button class="nav-button" data-view="settings"><span class="nav-icon">⚙️</span>Innstillinger</button>
+      <button class="nav-btn active" data-view="dashboard">🏠 Dashboard</button>
+      <button class="nav-btn" data-view="queue">📦 Kø</button>
+      <button class="nav-btn" data-view="giveaways">🎁 Giveaways</button>
+      <button class="nav-btn" data-view="statistics">📊 Statistikk</button>
+      <button class="nav-btn" data-view="sounds">🎵 Lyder</button>
+      <button class="nav-btn" data-view="settings">⚙️ Innstillinger</button>
     </nav>
-    <div class="sidebar-footer"><div class="connection"><span id="statusDot" class="connection-dot"></span><span id="statusText">Kobler til...</span></div></div>
+    <div class="side-foot"><div class="connection"><span id="statusDot" class="dot"></span><span id="statusText">Kobler til...</span></div></div>
   </aside>
+
   <main class="main">
-    <header class="topbar"><div style="display:flex;gap:12px;align-items:flex-start"><button id="mobileMenu" class="mobile-menu">☰</button><div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Full oversikt over streamkøen.</p></div></div><div class="live-pill"><span class="live-dot"></span>POKEBUA LIVE</div></header>
+    <header class="topbar">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <button id="mobileMenu" class="mobile">☰</button>
+        <div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle" class="subtitle">Full oversikt over streamkøen.</p></div>
+      </div>
+      <div class="live"><span></span> POKEBUA LIVE</div>
+    </header>
 
     <section id="view-dashboard" class="view active">
-      <div class="stats-grid">
-        <article class="stat-card"><div class="stat-label">I kø</div><div id="statQueue" class="stat-value">0</div><div class="stat-note">Ventende ordre</div></article>
-        <article class="stat-card"><div class="stat-label">Skip the Line</div><div id="statSkip" class="stat-value">0</div><div class="stat-note">Prioriterte ordre</div></article>
-        <article class="stat-card"><div class="stat-label">Giveaway</div><div id="statGiveaway" class="stat-value">0</div><div class="stat-note">Registrert i køen</div></article>
-        <article class="stat-card"><div class="stat-label">Åpnes nå</div><div id="statCurrent" class="stat-value" style="font-size:24px">Ingen</div><div class="stat-note">Aktiv kunde</div></article>
+      <div class="stats">
+        <article class="card"><div class="label">I kø</div><div id="statQueue" class="value">0</div><div class="note">Ventende ordre</div></article>
+        <article class="card"><div class="label">Skip the Line</div><div id="statSkip" class="value">0</div><div class="note">Prioriterte ordre</div></article>
+        <article class="card"><div class="label">Giveaway</div><div id="statGiveaway" class="value">0</div><div class="note">Registrert i køen</div></article>
+        <article class="card"><div class="label">Åpnes nå</div><div id="statCurrent" class="value" style="font-size:24px">Ingen</div><div class="note">Aktiv kunde</div></article>
       </div>
-      <div class="dashboard-grid">
+
+      <div class="dash-grid">
         <div>
-          <section class="panel"><div class="panel-header"><div><h2>Åpnes nå</h2><div class="panel-hint">Aktiv ordre på streamen</div></div></div><div id="currentCard" class="current-card"><div><div class="current-label">Aktiv ordre</div><div class="empty-state">Ingen ordre åpnes nå.</div></div></div><div class="actions" style="margin-top:14px"><button id="nextDashboard" class="action-button success">▶ Start neste</button><button id="finishDashboard" class="action-button danger">✓ Marker ferdig</button></div></section>
-          <section class="panel"><div class="panel-header"><div><h2>Legg til manuelt</h2><div class="panel-hint">For kunder som ikke kommer fra Shopify</div></div></div><div class="form-grid"><input id="name" placeholder="Streamnavn"><input id="order" placeholder="Ordrenummer, f.eks. #1842"><input id="items" class="full" placeholder="Produkter, f.eks. 6x booster"><button id="add" class="action-button primary full">Legg i kø</button></div></section>
+          <section class="panel">
+            <div class="panel-head"><div><h2>Åpnes nå</h2><div class="hint">Aktiv ordre på streamen</div></div></div>
+            <div id="currentCard" class="current"><div class="current-tag">Aktiv ordre</div><div class="empty">Ingen ordre åpnes nå.</div></div>
+            <div class="actions" style="margin-top:14px">
+              <button id="nextDashboard" class="btn success">▶ Start neste</button>
+              <button id="finishDashboard" class="btn danger">✓ Marker ferdig</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><div><h2>Legg til manuelt</h2><div class="hint">For kunder som ikke kommer fra Shopify</div></div></div>
+            <div class="form">
+              <input id="name" placeholder="Streamnavn">
+              <input id="order" placeholder="Ordrenummer, f.eks. #1842">
+              <input id="items" class="full" placeholder="Produkter, f.eks. 6x booster">
+              <button id="add" class="btn primary full">Legg i kø</button>
+            </div>
+          </section>
         </div>
+
         <div>
-          <section class="panel"><div class="panel-header"><div><h2>Neste i kø</h2><div class="panel-hint">De fem neste kundene</div></div><button class="action-button blue" data-go="queue">Se hele køen</button></div><div id="quickQueue" class="quick-list"><div class="empty-state">Køen er tom.</div></div></section>
-          <section class="panel"><div class="panel-header"><div><h2>Hurtigkontroll</h2><div class="panel-hint">Vanlige handlinger under stream</div></div></div><div class="actions"><button id="nextQuick" class="action-button success">▶ Neste</button><button id="finishQuick" class="action-button danger">✓ Ferdig</button><button class="action-button primary" data-go="queue">📦 Åpne kø</button></div></section>
+          <section class="panel">
+            <div class="panel-head"><div><h2>Neste i kø</h2><div class="hint">De fem neste kundene</div></div><button class="btn blue" data-go="queue">Se hele køen</button></div>
+            <div id="quickQueue" class="quick"><div class="empty">Køen er tom.</div></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><div><h2>Hurtigkontroll</h2><div class="hint">Vanlige handlinger under stream</div></div></div>
+            <div class="actions"><button id="nextQuick" class="btn success">▶ Neste</button><button id="finishQuick" class="btn danger">✓ Ferdig</button><button class="btn primary" data-go="queue">📦 Åpne kø</button></div>
+          </section>
         </div>
       </div>
     </section>
 
-    <section id="view-queue" class="view"><section class="panel"><div class="queue-toolbar"><div><h2 style="margin:0">Venteliste</h2><div id="queueCount" class="panel-hint">0 ordre i kø</div></div><div class="actions"><input id="search" class="search" placeholder="Søk etter navn, ordre eller produkt"><button id="clearQueue" class="action-button danger">Tøm venteliste</button></div></div><div id="queueList" class="queue-list"><div class="empty-state">Køen er tom.</div></div></section></section>
-    <section id="view-giveaways" class="view"><section class="panel coming-soon"><div><div class="coming-soon-icon">🎁</div><h2>Giveaway Studio kommer her</h2><p>Her kan vi senere legge inn giveaway-animasjon, nedtelling og vinner-visning direkte i OBS.</p></div></section></section>
-    <section id="view-statistics" class="view"><section class="panel coming-soon"><div><div class="coming-soon-icon">📊</div><h2>Statistikk kommer her</h2><p>Når vi legger til historikk og lagring, kan denne siden vise dagens ordre og totalsummer.</p></div></section></section>
-    <section id="view-sounds" class="view"><section class="panel coming-soon"><div><div class="coming-soon-icon">🎵</div><h2>Lydpanel kommer her</h2><p>Her kan vi lage knapper for ordrelyd, Skip-lyd, giveaway-lyd og andre effekter.</p></div></section></section>
-    <section id="view-settings" class="view"><section class="panel coming-soon"><div><div class="coming-soon-icon">⚙️</div><h2>Innstillinger kommer her</h2><p>Senere kan vi legge inn innstillinger for overlay, farger, animasjoner og automatisk neste ordre.</p></div></section></section>
+    <section id="view-queue" class="view">
+      <section class="panel">
+        <div class="queue-toolbar">
+          <div><h2 style="margin:0">Venteliste</h2><div id="queueCount" class="hint">0 ordre i kø</div></div>
+          <div class="actions"><input id="search" class="search" placeholder="Søk navn, ordre eller produkt"><button id="clearQueue" class="btn danger">Tøm venteliste</button></div>
+        </div>
+        <div id="queueList" class="queue"><div class="empty">Køen er tom.</div></div>
+      </section>
+    </section>
+
+    <section id="view-giveaways" class="view"><section class="panel coming"><div><div class="icon">🎁</div><h2>Giveaway Studio kommer her</h2><p>Her bygger vi senere giveaway-animasjon, nedtelling og vinner-visning direkte i OBS.</p></div></section></section>
+    <section id="view-statistics" class="view"><section class="panel coming"><div><div class="icon">📊</div><h2>Statistikk kommer her</h2><p>Når vi legger til historikk og lagring, kan denne siden vise åpnete ordre og dagens totalsummer.</p></div></section></section>
+    <section id="view-sounds" class="view"><section class="panel coming"><div><div class="icon">🎵</div><h2>Lydpanel kommer her</h2><p>Her legger vi inn knapper for ordrelyd, Skip-lyd, giveaway-lyd og andre effekter.</p></div></section></section>
+    <section id="view-settings" class="view"><section class="panel coming"><div><div class="icon">⚙️</div><h2>Innstillinger kommer her</h2><p>Her kan vi senere styre overlay, farger, animasjoner og automatisk neste ordre.</p></div></section></section>
   </main>
 </div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
-const socket=io();let state={current:null,queue:[]};
-const pageInfo={dashboard:["Dashboard","Full oversikt over streamkøen."],queue:["Kø","Administrer alle ventende ordre."],giveaways:["Giveaways","Kontroller giveaway-visning og vinnere."],statistics:["Statistikk","Følg aktivitet og resultater fra streamen."],sounds:["Lyder","Spill av lyder og effekter i overlayet."],settings:["Innstillinger","Tilpass Pokebua Studio."]};
-function escapeHtml(v){return String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+const socket=io();
+let state={current:null,queue:[]};
+const pageInfo={
+  dashboard:["Dashboard","Full oversikt over streamkøen."],
+  queue:["Kø","Administrer alle ventende ordre."],
+  giveaways:["Giveaways","Kontroller giveaway-visning og vinnere."],
+  statistics:["Statistikk","Følg aktivitet og resultater fra streamen."],
+  sounds:["Lyder","Spill av lyder og effekter i overlayet."],
+  settings:["Innstillinger","Tilpass Pokebua Studio."]
+};
+function esc(v){return String(v||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 async function request(url,options={}){const r=await fetch(url,options);if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.error||"Noe gikk galt")}if(r.status===204)return null;return r.json().catch(()=>null)}
-async function post(url,body){return request(url,{method:"POST",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined})}
-function switchView(name){document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));document.querySelectorAll(".nav-button").forEach(b=>b.classList.toggle("active",b.dataset.view===name));document.getElementById(`view-${name}`).classList.add("active");document.getElementById("pageTitle").textContent=pageInfo[name][0];document.getElementById("pageSubtitle").textContent=pageInfo[name][1];document.getElementById("sidebar").classList.remove("open")}
-function render(data){state={current:data.current||null,queue:Array.isArray(data.queue)?data.queue:[]};renderStats();renderCurrent();renderQuickQueue();renderQueue()}
-function renderStats(){document.getElementById("statQueue").textContent=state.queue.length;document.getElementById("statSkip").textContent=state.queue.filter(i=>i.skipTheLine||i.priority).length;document.getElementById("statGiveaway").textContent=state.queue.filter(i=>i.giveaway).length;document.getElementById("statCurrent").textContent=state.current?state.current.name:"Ingen"}
-function renderCurrent(){const c=document.getElementById("currentCard");if(!state.current){c.innerHTML='<div><div class="current-label">Aktiv ordre</div><div class="empty-state">Ingen ordre åpnes nå.</div></div>';return}const badge=state.current.skipTheLine?"⚡ ":state.current.giveaway?"🎁 ":"";c.innerHTML=`<div><div class="current-label">Aktiv ordre</div><div class="current-name">${badge}${escapeHtml(state.current.name)}</div><div class="current-details">${escapeHtml(state.current.order)}\n${escapeHtml(state.current.items)}</div></div>`}
-function renderQuickQueue(){const c=document.getElementById("quickQueue"),items=state.queue.slice(0,5);if(!items.length){c.innerHTML='<div class="empty-state">Køen er tom.</div>';return}c.innerHTML=items.map((i,n)=>{const b=i.skipTheLine||i.priority?"⚡ ":i.giveaway?"🎁 ":"";return `<div class="quick-item"><div class="quick-item-title">${n+1}. ${b}${escapeHtml(i.name)}</div><div class="quick-item-details">${escapeHtml(i.order)} ${escapeHtml(i.items)}</div></div>`}).join("")}
-function renderQueue(){const q=document.getElementById("search").value.trim().toLowerCase(),items=state.queue.filter(i=>`${i.name} ${i.order} ${i.items}`.toLowerCase().includes(q));document.getElementById("queueCount").textContent=`${state.queue.length} ${state.queue.length===1?"ordre":"ordrer"} i kø`;const c=document.getElementById("queueList");if(!items.length){c.innerHTML=q?'<div class="empty-state">Ingen treff.</div>':'<div class="empty-state">Køen er tom.</div>';return}c.innerHTML="";items.forEach(i=>{const index=state.queue.findIndex(x=>x.id===i.id),row=document.createElement("div");row.className="queue-item";if(i.skipTheLine||i.priority)row.classList.add("priority");else if(i.giveaway)row.classList.add("giveaway");const b=i.skipTheLine||i.priority?"⚡ ":i.giveaway?"🎁 ":"";row.innerHTML=`<div><div class="queue-title">${index+1}. ${b}${escapeHtml(i.name)}</div><div class="queue-details">${escapeHtml(i.order)} ${escapeHtml(i.items)}</div></div><div class="queue-actions"><button class="small success" data-action="open" data-id="${i.id}">▶ Åpne</button><button class="small blue" data-action="top" data-id="${i.id}">Til topp</button><button class="small primary" data-action="skip" data-id="${i.id}">⚡ Skip</button><button class="small muted-button" data-action="up" data-id="${i.id}">↑</button><button class="small muted-button" data-action="down" data-id="${i.id}">↓</button><button class="small danger" data-action="delete" data-id="${i.id}">Fjern</button></div>`;c.appendChild(row)})}
-async function runAction(a){try{if(a==="next")await post("/api/next");if(a==="finish")await post("/api/finish")}catch(e){alert(e.message)}}
-document.querySelectorAll(".nav-button").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.view)));document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>switchView(b.dataset.go)));document.getElementById("mobileMenu").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
-document.getElementById("add").addEventListener("click",async()=>{const n=document.getElementById("name"),o=document.getElementById("order"),i=document.getElementById("items");if(!n.value.trim())return alert("Skriv inn streamnavn.");try{await post("/api/queue",{name:n.value.trim(),order:o.value.trim(),items:i.value.trim()});n.value="";o.value="";i.value="";n.focus()}catch(e){alert(e.message)}});
-document.getElementById("nextDashboard").onclick=()=>runAction("next");document.getElementById("finishDashboard").onclick=()=>runAction("finish");document.getElementById("nextQuick").onclick=()=>runAction("next");document.getElementById("finishQuick").onclick=()=>runAction("finish");document.getElementById("search").addEventListener("input",renderQueue);
-document.getElementById("clearQueue").addEventListener("click",async()=>{if(!confirm("Er du sikker på at du vil tømme hele ventelisten?"))return;try{await request("/api/queue",{method:"DELETE"})}catch(e){alert(e.message)}});
-document.getElementById("queueList").addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const id=b.dataset.id,a=b.dataset.action;try{if(a==="delete"){if(!confirm("Vil du fjerne denne ordren fra køen?"))return;await request(`/api/queue/${id}`,{method:"DELETE"});return}if(a==="open"){await post(`/api/queue/${id}/top`);await post("/api/next");return}await post(`/api/queue/${id}/${a}`)}catch(err){alert(err.message)}});
-socket.on("connect",()=>{document.getElementById("statusDot").classList.add("connected");document.getElementById("statusText").textContent="Tilkoblet"});socket.on("disconnect",()=>{document.getElementById("statusDot").classList.remove("connected");document.getElementById("statusText").textContent="Frakoblet"});socket.on("queue:update",render);fetch("/api/queue").then(r=>r.json()).then(render).catch(()=>document.getElementById("statusText").textContent="Kunne ikke hente køen");
+function post(url,body){return request(url,{method:"POST",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined})}
+function switchView(name){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===name));
+  document.getElementById("view-"+name).classList.add("active");
+  pageTitle.textContent=pageInfo[name][0];pageSubtitle.textContent=pageInfo[name][1];
+  sidebar.classList.remove("open")
+}
+function render(data){
+  state={current:data.current||null,queue:Array.isArray(data.queue)?data.queue:[]};
+  statQueue.textContent=state.queue.length;
+  statSkip.textContent=state.queue.filter(x=>x.skipTheLine||x.priority).length;
+  statGiveaway.textContent=state.queue.filter(x=>x.giveaway).length;
+  statCurrent.textContent=state.current?state.current.name:"Ingen";
+  renderCurrent();renderQuick();renderQueue()
+}
+function renderCurrent(){
+  if(!state.current){currentCard.innerHTML='<div class="current-tag">Aktiv ordre</div><div class="empty">Ingen ordre åpnes nå.</div>';return}
+  const badge=state.current.skipTheLine?"⚡ ":state.current.giveaway?"🎁 ":"";
+  currentCard.innerHTML=`<div class="current-tag">Aktiv ordre</div><div class="current-name">${badge}${esc(state.current.name)}</div><div class="details">${esc(state.current.order)}
+${esc(state.current.items)}</div>`
+}
+function renderQuick(){
+  const q=state.queue.slice(0,5);
+  if(!q.length){quickQueue.innerHTML='<div class="empty">Køen er tom.</div>';return}
+  quickQueue.innerHTML=q.map((x,i)=>{const b=x.skipTheLine||x.priority?"⚡ ":x.giveaway?"🎁 ":"";return `<div class="quick-item"><div class="quick-title">${i+1}. ${b}${esc(x.name)}</div><div class="quick-details">${esc(x.order)} ${esc(x.items)}</div></div>`}).join("")
+}
+function renderQueue(){
+  const s=search.value.trim().toLowerCase();
+  const filtered=state.queue.filter(x=>(`${x.name} ${x.order} ${x.items}`).toLowerCase().includes(s));
+  queueCount.textContent=`${state.queue.length} ${state.queue.length===1?"ordre":"ordrer"} i kø`;
+  if(!filtered.length){queueList.innerHTML=`<div class="empty">${s?"Ingen treff.":"Køen er tom."}</div>`;return}
+  queueList.innerHTML="";
+  filtered.forEach(x=>{
+    const i=state.queue.findIndex(y=>y.id===x.id),row=document.createElement("div");
+    row.className="queue-item"+((x.skipTheLine||x.priority)?" priority":x.giveaway?" giveaway":"");
+    const b=x.skipTheLine||x.priority?"⚡ ":x.giveaway?"🎁 ":"";
+    row.innerHTML=`<div><div class="queue-title">${i+1}. ${b}${esc(x.name)}</div><div class="queue-details">${esc(x.order)} ${esc(x.items)}</div></div>
+    <div class="queue-actions">
+      <button class="small success" data-action="open" data-id="${x.id}">▶ Åpne</button>
+      <button class="small blue" data-action="top" data-id="${x.id}">Til topp</button>
+      <button class="small primary" data-action="skip" data-id="${x.id}">⚡ Skip</button>
+      <button class="small muted" data-action="up" data-id="${x.id}">↑</button>
+      <button class="small muted" data-action="down" data-id="${x.id}">↓</button>
+      <button class="small danger" data-action="delete" data-id="${x.id}">Fjern</button>
+    </div>`;
+    queueList.appendChild(row)
+  })
+}
+document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>switchView(b.dataset.go));
+mobileMenu.onclick=()=>sidebar.classList.toggle("open");
+async function run(a){try{await post(a==="next"?"/api/next":"/api/finish")}catch(e){alert(e.message)}}
+nextDashboard.onclick=()=>run("next");finishDashboard.onclick=()=>run("finish");nextQuick.onclick=()=>run("next");finishQuick.onclick=()=>run("finish");
+add.onclick=async()=>{const n=name.value.trim(),o=order.value.trim(),it=items.value.trim();if(!n)return alert("Skriv inn streamnavn.");try{await post("/api/queue",{name:n,order:o,items:it});name.value="";order.value="";items.value="";name.focus()}catch(e){alert(e.message)}};
+search.oninput=renderQueue;
+clearQueue.onclick=async()=>{if(!confirm("Er du sikker på at du vil tømme hele ventelisten?"))return;try{await request("/api/queue",{method:"DELETE"})}catch(e){alert(e.message)}};
+queueList.onclick=async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const id=b.dataset.id,a=b.dataset.action;try{
+  if(a==="delete"){if(!confirm("Vil du fjerne denne ordren fra køen?"))return;await request(`/api/queue/${id}`,{method:"DELETE"});return}
+  if(a==="open"){await post(`/api/queue/${id}/top`);await post("/api/next");return}
+  await post(`/api/queue/${id}/${a}`)
+}catch(err){alert(err.message)}};
+socket.on("connect",()=>{statusDot.classList.add("on");statusText.textContent="Tilkoblet"});
+socket.on("disconnect",()=>{statusDot.classList.remove("on");statusText.textContent="Frakoblet"});
+socket.on("queue:update",render);
+fetch("/api/queue").then(r=>r.json()).then(render).catch(()=>statusText.textContent="Kunne ikke hente køen");
 </script>
 </body>
 </html>
