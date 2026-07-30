@@ -23,6 +23,9 @@
   let queueClosed = false;
   let closingTimerHandle = null;
 
+  let dragonAnimationHandle = null;
+  const DRAGON_ANIMATION_DURATION = 5400;
+
   function clean(value) {
     return String(value ?? "").trim();
   }
@@ -573,6 +576,146 @@
     }, 3600);
   }
 
+  /* ======================================================
+     POKEBUA DRAGON EVENT
+  ====================================================== */
+
+  function createDragonEmbers(amount = 42) {
+    return Array.from({ length: amount }, () => {
+      const x = Math.round(Math.random() * 100);
+      const size = Math.round(4 + Math.random() * 10);
+      const duration = (2.2 + Math.random() * 2.8).toFixed(2);
+      const delay = (Math.random() * 2.2).toFixed(2);
+      const drift = Math.round(-160 + Math.random() * 320);
+
+      return `
+        <span
+          class="dragon-ember"
+          style="
+            --x:${x}%;
+            --size:${size}px;
+            --duration:${duration}s;
+            --delay:${delay}s;
+            --drift:${drift}px;
+          "
+          aria-hidden="true"
+        ></span>
+      `;
+    }).join("");
+  }
+
+  function buildDragonScene() {
+    const dragonEvent =
+      document.getElementById("dragonEvent");
+
+    if (!dragonEvent) {
+      console.error("Fant ikke #dragonEvent i overlay.html");
+      return null;
+    }
+
+    if (
+      dragonEvent.dataset.ready === "true" &&
+      dragonEvent.querySelector(".dragon-stage")
+    ) {
+      return dragonEvent;
+    }
+
+    dragonEvent.innerHTML = `
+      <div class="dragon-stage">
+        <div class="dragon-character" aria-hidden="true">
+          <div class="dragon-wing left"></div>
+          <div class="dragon-wing right"></div>
+
+          <div class="dragon-tail">
+            <div class="dragon-tail-fire"></div>
+          </div>
+
+          <div class="dragon-body"></div>
+
+          <div class="dragon-head">
+            <div class="dragon-horn left"></div>
+            <div class="dragon-horn right"></div>
+
+            <div class="dragon-eye left"></div>
+            <div class="dragon-eye right"></div>
+          </div>
+        </div>
+
+        <div class="dragon-sign-wrap">
+          <div class="dragon-sign">
+            <div class="dragon-sign-title">
+              SKIP THE LINE
+            </div>
+
+            <div id="dragonName"></div>
+          </div>
+        </div>
+
+        <div class="dragon-embers" aria-hidden="true">
+          ${createDragonEmbers()}
+        </div>
+
+        <div
+          class="dragon-shockwave"
+          aria-hidden="true"
+        ></div>
+
+        <div
+          class="dragon-flash"
+          aria-hidden="true"
+        ></div>
+      </div>
+    `;
+
+    dragonEvent.dataset.ready = "true";
+
+    return dragonEvent;
+  }
+
+  function stopDragonAnimation() {
+    clearTimeout(dragonAnimationHandle);
+    dragonAnimationHandle = null;
+
+    const dragonEvent =
+      document.getElementById("dragonEvent");
+
+    if (!dragonEvent) {
+      return;
+    }
+
+    dragonEvent.classList.remove("show");
+    dragonEvent.setAttribute("aria-hidden", "true");
+  }
+
+  function playDragonAnimation(payload = {}) {
+    const dragonEvent = buildDragonScene();
+
+    if (!dragonEvent) {
+      return;
+    }
+
+    clearTimeout(dragonAnimationHandle);
+
+    const dragonName =
+      dragonEvent.querySelector("#dragonName");
+
+    if (dragonName) {
+      dragonName.textContent = displayName(payload);
+    }
+
+    dragonEvent.classList.remove("show");
+    dragonEvent.setAttribute("aria-hidden", "true");
+
+    void dragonEvent.offsetWidth;
+
+    dragonEvent.setAttribute("aria-hidden", "false");
+    dragonEvent.classList.add("show");
+
+    dragonAnimationHandle = setTimeout(() => {
+      stopDragonAnimation();
+    }, DRAGON_ANIMATION_DURATION + 150);
+  }
+
   function applyState(data = {}) {
     queueClosingAt =
       data.queueClosingAt || null;
@@ -613,11 +756,14 @@
 
   socket.on("skip:alert", payload => {
     showAlert("skip", payload);
+    playDragonAnimation(payload);
   });
 
   socket.on("giveaway:alert", payload => {
     showAlert("giveaway", payload);
   });
+
+  buildDragonScene();
 
   fetch("/api/queue")
     .then(response => {
@@ -630,7 +776,9 @@
     .then(data => {
       applyState(data);
     })
-    .catch(() => {
+    .catch(error => {
+      console.error("Kunne ikke hente kø:", error);
+
       queueClosingAt = null;
       queueClosed = false;
 
