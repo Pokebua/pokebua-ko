@@ -633,12 +633,31 @@
           <div class="dragon-body"></div>
 
           <div class="dragon-head">
-            <div class="dragon-horn left"></div>
-            <div class="dragon-horn right"></div>
+  <div class="dragon-horn left"></div>
+  <div class="dragon-horn right"></div>
 
-            <div class="dragon-eye left"></div>
-            <div class="dragon-eye right"></div>
-          </div>
+  <div class="dragon-eye left"></div>
+  <div class="dragon-eye right"></div>
+
+  <div class="dragon-snout">
+    <div class="dragon-nostril left"></div>
+    <div class="dragon-nostril right"></div>
+  </div>
+
+  <div class="dragon-mouth">
+    <div class="dragon-mouth-glow"></div>
+    <div class="dragon-tooth tooth-1"></div>
+    <div class="dragon-tooth tooth-2"></div>
+    <div class="dragon-tooth tooth-3"></div>
+    <div class="dragon-tooth tooth-4"></div>
+  </div>
+</div>
+
+<div class="dragon-fire-breath" aria-hidden="true">
+  <div class="dragon-fire-core"></div>
+  <div class="dragon-fire-outer"></div>
+  <div class="dragon-fire-sparks"></div>
+</div>
         </div>
 
         <div class="dragon-sign-wrap">
