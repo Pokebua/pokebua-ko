@@ -1817,3 +1817,698 @@ body{padding:8px}
     transform: translateX(75px);
   }
 }
+
+/* ======================================================
+   SKIP THE LINE – FIGUREN FLYR UT AV KORTET
+====================================================== */
+
+#skipCardEvent {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  width: 100vw;
+  height: 100vh;
+
+  overflow: hidden;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+}
+
+#skipCardEvent.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.skip-card-stage {
+  position: absolute;
+  inset: 0;
+
+  transform-origin: center;
+}
+
+#skipCardEvent.show .skip-card-stage {
+  animation: skipCardCameraShake 6.2s ease both;
+}
+
+/* Mørkere bakgrunn */
+
+.skip-card-backdrop {
+  position: absolute;
+  inset: 0;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(255, 150, 35, 0.25),
+      rgba(25, 13, 45, 0.78) 55%,
+      rgba(2, 5, 14, 0.92)
+    );
+}
+
+#skipCardEvent.show .skip-card-backdrop {
+  animation: skipCardBackdrop 6.2s ease both;
+}
+
+/* Selve kortet */
+
+.skip-card-wrap {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+
+  width: min(430px, 31vw);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    translateY(130vh)
+    rotate(-18deg)
+    scale(0.35);
+
+  transform-origin: center;
+  perspective: 1200px;
+
+  filter:
+    drop-shadow(0 30px 35px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 35px rgba(255, 150, 40, 0.35));
+}
+
+#skipCardEvent.show .skip-card-wrap {
+  animation: skipCardEntrance 6.2s cubic-bezier(.18, .82, .22, 1) both;
+}
+
+.skip-card-image {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  border-radius: 5.5%;
+
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.25),
+    0 0 35px rgba(255, 131, 0, 0.35);
+}
+
+/* Glød inni kortet */
+
+.skip-card-portal {
+  position: absolute;
+  left: 64%;
+  top: 32%;
+
+  width: 42%;
+  aspect-ratio: 1;
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.1);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 240, 135, 0.95) 18%,
+      rgba(255, 134, 20, 0.78) 43%,
+      rgba(255, 44, 0, 0.38) 64%,
+      transparent 76%
+    );
+
+  mix-blend-mode: screen;
+
+  filter:
+    blur(5px)
+    drop-shadow(0 0 30px #ff7200);
+}
+
+#skipCardEvent.show .skip-card-portal {
+  animation: skipCardPortal 6.2s ease both;
+}
+
+/* Figuren som flyr ut */
+
+.skip-character-wrap {
+  position: absolute;
+  left: 50%;
+  top: 43%;
+
+  z-index: 20;
+
+  width: min(610px, 46vw);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    translate(95px, -55px)
+    scale(0.03)
+    rotate(-12deg);
+
+  transform-origin: center;
+}
+
+#skipCardEvent.show .skip-character-wrap {
+  animation:
+    skipCharacterEscape
+    6.2s
+    cubic-bezier(.15, .78, .18, 1)
+    both;
+}
+
+.skip-character-image {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  filter:
+    drop-shadow(0 25px 20px rgba(0, 0, 0, 0.65))
+    drop-shadow(0 0 20px rgba(255, 100, 0, 0.65))
+    drop-shadow(0 0 45px rgba(255, 185, 45, 0.35));
+}
+
+/* Skilt */
+
+.skip-sign-wrap {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+
+  z-index: 30;
+
+  width: min(790px, 68vw);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(-10deg)
+    scale(0.1);
+}
+
+#skipCardEvent.show .skip-sign-wrap {
+  animation:
+    skipCardSignEntrance
+    6.2s
+    cubic-bezier(.17, .88, .3, 1.22)
+    both;
+}
+
+.skip-sign {
+  position: relative;
+
+  min-height: 205px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 25px 45px;
+
+  border: 9px solid #3c1805;
+  border-radius: 24px;
+
+  background:
+    repeating-linear-gradient(
+      3deg,
+      rgba(255, 255, 255, 0.035) 0 3px,
+      rgba(0, 0, 0, 0.05) 3px 10px
+    ),
+    linear-gradient(
+      180deg,
+      #a35a1d,
+      #66300d 48%,
+      #381305
+    );
+
+  box-shadow:
+    0 0 0 5px #daa036,
+    0 0 0 10px #371504,
+    inset 0 7px 13px rgba(255, 220, 130, 0.17),
+    inset 0 -17px 25px rgba(20, 4, 0, 0.68),
+    0 25px 50px rgba(0, 0, 0, 0.72);
+}
+
+.skip-sign-title {
+  color: #ffef8b;
+
+  font-family:
+    Impact,
+    Haettenschweiler,
+    "Arial Black",
+    sans-serif;
+
+  font-size: clamp(50px, 6vw, 108px);
+  line-height: 0.95;
+  letter-spacing: 0.055em;
+  text-align: center;
+  white-space: nowrap;
+
+  text-shadow:
+    0 3px 0 #ff8a00,
+    0 7px 0 #7b2500,
+    0 0 12px #fff4a0,
+    0 0 25px #ff9400,
+    0 0 48px #ed3b00;
+}
+
+#skipCardName {
+  margin-top: 17px;
+
+  max-width: 94%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: white;
+
+  font-size: clamp(28px, 3vw, 54px);
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 0.025em;
+  text-align: center;
+
+  text-shadow:
+    0 3px 0 #762100,
+    0 0 8px white,
+    0 0 20px #ffab20,
+    0 0 38px #ef3c00;
+}
+
+/* Lysglimt */
+
+.skip-card-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+
+  opacity: 0;
+
+  background: #fff9df;
+}
+
+#skipCardEvent.show .skip-card-flash {
+  animation: skipCardFlash 6.2s linear both;
+}
+
+/* Shockwave */
+
+.skip-card-shockwave {
+  position: absolute;
+  left: 50%;
+  top: 43%;
+
+  z-index: 15;
+
+  width: 150px;
+  height: 150px;
+
+  opacity: 0;
+
+  border: 10px solid rgba(255, 193, 60, 0.9);
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.1);
+
+  box-shadow:
+    0 0 30px #ffb000,
+    inset 0 0 25px #ff6800;
+}
+
+#skipCardEvent.show .skip-card-shockwave {
+  animation: skipCardShockwave 6.2s ease-out both;
+}
+
+/* Partikler */
+
+.skip-card-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+}
+
+.skip-card-particle {
+  position: absolute;
+  left: 50%;
+  top: 43%;
+
+  width: var(--size);
+  height: var(--size);
+
+  opacity: 0;
+
+  border-radius: 50%;
+
+  background: #ffdc4e;
+
+  box-shadow:
+    0 0 9px #ffd13d,
+    0 0 19px #ff6200;
+}
+
+#skipCardEvent.show .skip-card-particle {
+  animation:
+    skipCardParticleFly
+    var(--duration)
+    ease-out
+    var(--delay)
+    both;
+}
+
+/* ======================================================
+   KEYFRAMES
+====================================================== */
+
+@keyframes skipCardBackdrop {
+  0% {
+    opacity: 0;
+  }
+
+  6%,
+  88% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes skipCardEntrance {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translateY(130vh)
+      rotate(-18deg)
+      scale(0.35);
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  23% {
+    transform:
+      translate(-50%, -50%)
+      translateY(-5vh)
+      rotate(6deg)
+      scale(1.08);
+  }
+
+  31% {
+    transform:
+      translate(-50%, -50%)
+      translateY(0)
+      rotate(-2deg)
+      scale(0.98);
+  }
+
+  37%,
+  68% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0)
+      scale(1);
+  }
+
+  77% {
+    opacity: 0.4;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-8deg)
+      scale(0.82);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-14deg)
+      scale(0.55);
+  }
+}
+
+@keyframes skipCardPortal {
+  0%,
+  25% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.1);
+  }
+
+  32% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.9);
+  }
+
+  43% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1.45);
+  }
+
+  54%,
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(2.2);
+  }
+}
+
+@keyframes skipCharacterEscape {
+  0%,
+  30% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translate(95px, -55px)
+      scale(0.03)
+      rotate(-12deg);
+  }
+
+  34% {
+    opacity: 1;
+  }
+
+  47% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(20px, -30px)
+      scale(0.72)
+      rotate(5deg);
+  }
+
+  58%,
+  78% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(0, -70px)
+      scale(1)
+      rotate(0);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translate(130vw, -42vh)
+      scale(0.66)
+      rotate(17deg);
+  }
+}
+
+@keyframes skipCardSignEntrance {
+  0%,
+  48% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-12deg)
+      scale(0.1);
+  }
+
+  57% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(5deg)
+      scale(1.16);
+  }
+
+  64% {
+    transform:
+      translate(-50%, -50%)
+      rotate(-2deg)
+      scale(0.96);
+  }
+
+  70%,
+  84% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -65%)
+      rotate(8deg)
+      scale(0.72);
+  }
+}
+
+@keyframes skipCardFlash {
+  0%,
+  31% {
+    opacity: 0;
+  }
+
+  35% {
+    opacity: 0.92;
+  }
+
+  38% {
+    opacity: 0;
+  }
+
+  53% {
+    opacity: 0.32;
+  }
+
+  56%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes skipCardShockwave {
+  0%,
+  32% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.1);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(11);
+  }
+}
+
+@keyframes skipCardParticleFly {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(var(--angle))
+      translateX(20px)
+      scale(0.25);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(var(--angle))
+      translateX(var(--distance))
+      scale(0.8);
+  }
+}
+
+@keyframes skipCardCameraShake {
+  0%,
+  31%,
+  58%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(-10px, 6px);
+  }
+
+  34% {
+    transform: translate(9px, -7px);
+  }
+
+  35% {
+    transform: translate(-7px, -4px);
+  }
+
+  36% {
+    transform: translate(6px, 5px);
+  }
+
+  37% {
+    transform: translate(0, 0);
+  }
+
+  54% {
+    transform: translate(-4px, 3px);
+  }
+
+  55% {
+    transform: translate(5px, -3px);
+  }
+
+  56% {
+    transform: translate(0, 0);
+  }
+}
