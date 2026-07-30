@@ -216,13 +216,20 @@ ${badge}
     const visible = queue.slice(0,MAX_VISIBLE);
 
     queueList.innerHTML = visible.map((entry,index) => {
-      const priority = entry?.skipTheLine || entry?.priority;
-      const giveaway = entry?.giveaway;
-      const cls = priority ? "priority" : giveaway ? "giveaway" : "";
-      const icon = priority ? "★" : giveaway ? "🎁" : "";
+      const skip = entry?.skipTheLine || entry?.priority;
+const giveaway = entry?.giveaway;
+const isFirst = index === 0;
+
+const classes = [
+  isFirst ? "priority" : "",
+  skip ? "skip" : "",
+  giveaway ? "giveaway" : ""
+].filter(Boolean).join(" ");
+
+const icon = skip ? "★" : giveaway ? "🎁" : "";
 
       return `
-        <div class="queue-item ${cls}" style="animation-delay:${index * 35}ms">
+        <div class="queue-item ${classes}" style="animation-delay:${index * 35}ms">
           <div class="position">${index + 1}.</div>
           <div class="q-name">${escapeHtml(displayName(entry))}</div>
           <div class="q-icon">${icon}</div>
