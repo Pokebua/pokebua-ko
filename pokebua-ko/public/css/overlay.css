@@ -1398,3 +1398,422 @@ body{padding:8px}
       scale(1.15);
   }
 }
+
+/* ======================================================
+   DRAGEMUNN OG ILDPUST
+====================================================== */
+
+.dragon-snout {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+
+  width: 62%;
+  height: 38%;
+
+  transform: translateX(-50%);
+
+  border-radius:
+    42% 42% 56% 56% /
+    38% 38% 62% 62%;
+
+  background:
+    linear-gradient(
+      180deg,
+      #d95b12,
+      #8d2407 62%,
+      #4d0d02
+    );
+
+  border: 3px solid rgba(54, 8, 0, 0.82);
+
+  box-shadow:
+    inset 0 7px 12px rgba(255, 179, 59, 0.2),
+    inset 0 -8px 14px rgba(35, 3, 0, 0.6);
+}
+
+.dragon-nostril {
+  position: absolute;
+  top: 35%;
+
+  width: 10%;
+  height: 18%;
+
+  border-radius: 50%;
+
+  background: #210400;
+
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 8px rgba(255, 66, 0, 0.35);
+}
+
+.dragon-nostril.left {
+  left: 27%;
+}
+
+.dragon-nostril.right {
+  right: 27%;
+}
+
+.dragon-mouth {
+  position: absolute;
+  left: 50%;
+  top: 75%;
+
+  z-index: 4;
+
+  width: 52%;
+  height: 30%;
+
+  overflow: hidden;
+
+  transform:
+    translateX(-50%)
+    scaleY(0.15);
+
+  transform-origin: top center;
+
+  border-radius:
+    12% 12% 48% 48% /
+    18% 18% 82% 82%;
+
+  border: 4px solid #3c0700;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 70%,
+      #ff8b00,
+      #a51b00 40%,
+      #2c0000 78%
+    );
+
+  box-shadow:
+    inset 0 0 22px rgba(255, 69, 0, 0.82),
+    0 8px 12px rgba(0, 0, 0, 0.48);
+}
+
+#dragonEvent.show .dragon-mouth {
+  animation: dragonMouthOpen 5.4s ease both;
+}
+
+.dragon-mouth-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -10%;
+
+  width: 58%;
+  height: 80%;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      circle,
+      #ffffff 0%,
+      #fff186 23%,
+      #ff9c00 48%,
+      transparent 72%
+    );
+
+  filter:
+    blur(4px)
+    drop-shadow(0 0 16px #ff6a00);
+}
+
+#dragonEvent.show .dragon-mouth-glow {
+  animation: dragonMouthGlow 5.4s ease both;
+}
+
+.dragon-tooth {
+  position: absolute;
+  top: -1px;
+
+  width: 9%;
+  height: 34%;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fffbd7,
+      #d3c5a1
+    );
+
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    50% 100%
+  );
+
+  filter:
+    drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6));
+}
+
+.tooth-1 {
+  left: 11%;
+}
+
+.tooth-2 {
+  left: 31%;
+}
+
+.tooth-3 {
+  right: 31%;
+}
+
+.tooth-4 {
+  right: 11%;
+}
+
+/* ------------------------------------------------------
+   ILDPUST
+------------------------------------------------------ */
+
+.dragon-fire-breath {
+  position: absolute;
+  left: 50%;
+  top: 32%;
+
+  z-index: 30;
+
+  width: 105vw;
+  height: 170px;
+
+  opacity: 0;
+
+  transform:
+    translate(4%, -50%)
+    rotate(-4deg)
+    scaleX(0);
+
+  transform-origin: left center;
+
+  pointer-events: none;
+}
+
+#dragonEvent.show .dragon-fire-breath {
+  animation: dragonFireBreath 5.4s ease both;
+}
+
+.dragon-fire-core {
+  position: absolute;
+  left: 0;
+  top: 50%;
+
+  width: 100%;
+  height: 42%;
+
+  transform: translateY(-50%);
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #fff7a1 12%,
+      #ffd21f 30%,
+      #ff7200 58%,
+      rgba(227, 26, 0, 0.7) 80%,
+      transparent 100%
+    );
+
+  filter:
+    blur(2px)
+    drop-shadow(0 0 15px #fff176)
+    drop-shadow(0 0 32px #ff6a00);
+}
+
+.dragon-fire-outer {
+  position: absolute;
+  left: -2%;
+  top: 50%;
+
+  width: 102%;
+  height: 100%;
+
+  transform: translateY(-50%);
+
+  opacity: 0.78;
+
+  background:
+    radial-gradient(
+      ellipse at left center,
+      rgba(255, 248, 144, 0.95),
+      rgba(255, 132, 0, 0.72) 35%,
+      rgba(229, 37, 0, 0.46) 62%,
+      transparent 78%
+    );
+
+  filter: blur(13px);
+}
+
+.dragon-fire-sparks {
+  position: absolute;
+  inset: -45% 0;
+
+  opacity: 0.95;
+
+  background:
+    radial-gradient(
+      circle at 12% 44%,
+      #fff499 0 4px,
+      transparent 5px
+    ),
+    radial-gradient(
+      circle at 28% 31%,
+      #ffcb27 0 6px,
+      transparent 7px
+    ),
+    radial-gradient(
+      circle at 44% 60%,
+      #ff7a00 0 5px,
+      transparent 6px
+    ),
+    radial-gradient(
+      circle at 59% 36%,
+      #ffe370 0 4px,
+      transparent 5px
+    ),
+    radial-gradient(
+      circle at 75% 57%,
+      #ff5b00 0 6px,
+      transparent 7px
+    );
+
+  filter:
+    blur(1px)
+    drop-shadow(0 0 8px #ff7500);
+}
+
+#dragonEvent.show .dragon-fire-sparks {
+  animation: dragonFireSparkMove 260ms linear 1.65s infinite;
+}
+
+/* ======================================================
+   NYE KEYFRAMES
+====================================================== */
+
+@keyframes dragonMouthOpen {
+  0%,
+  24% {
+    transform:
+      translateX(-50%)
+      scaleY(0.1);
+  }
+
+  30% {
+    transform:
+      translateX(-50%)
+      scaleY(1.15);
+  }
+
+  36%,
+  48% {
+    transform:
+      translateX(-50%)
+      scaleY(1);
+  }
+
+  55%,
+  100% {
+    transform:
+      translateX(-50%)
+      scaleY(0.12);
+  }
+}
+
+@keyframes dragonMouthGlow {
+  0%,
+  26% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      scale(0.2);
+  }
+
+  32% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      scale(1.2);
+  }
+
+  46% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      scale(1);
+  }
+
+  54%,
+  100% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      scale(0.3);
+  }
+}
+
+@keyframes dragonFireBreath {
+  0%,
+  30% {
+    opacity: 0;
+
+    transform:
+      translate(4%, -50%)
+      rotate(-4deg)
+      scaleX(0);
+  }
+
+  34% {
+    opacity: 1;
+
+    transform:
+      translate(4%, -50%)
+      rotate(-4deg)
+      scaleX(0.12);
+  }
+
+  40% {
+    opacity: 1;
+
+    transform:
+      translate(4%, -50%)
+      rotate(-4deg)
+      scaleX(1);
+  }
+
+  49% {
+    opacity: 1;
+
+    transform:
+      translate(4%, -50%)
+      rotate(-2deg)
+      scaleX(1.05);
+  }
+
+  56%,
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(4%, -50%)
+      rotate(-1deg)
+      scaleX(0.2);
+  }
+}
+
+@keyframes dragonFireSparkMove {
+  from {
+    transform: translateX(-18px);
+  }
+
+  to {
+    transform: translateX(75px);
+  }
+}
