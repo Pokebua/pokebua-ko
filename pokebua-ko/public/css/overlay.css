@@ -144,21 +144,66 @@ body{padding:8px}
   min-width:0;
 }
 
+/* ---------- SVG-IKONER ---------- */
+
+.svg-icon{
+  width:100%;
+  height:100%;
+  display:block;
+
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
 .person-icon{
-  width:45px;height:45px;flex:0 0 45px;
-  display:grid;place-items:center;
-  border-radius:50%;
+  width:45px;
+  height:45px;
+  flex:0 0 45px;
+
+  display:grid;
+  place-items:center;
+  padding:10px;
+
   border:2px solid var(--yellow);
+  border-radius:50%;
+
   color:var(--yellow);
   background:rgba(255,189,22,.07);
-  box-shadow:0 0 18px rgba(255,189,22,.10);
-  font-size:22px;font-weight:900;
+
+  box-shadow:
+    0 0 18px rgba(255,189,22,.12),
+    inset 0 0 12px rgba(255,189,22,.05);
+}
+
+.person-svg{
+  width:23px;
+  height:23px;
 }
 
 .active-card.giveaway .person-icon{
   color:var(--blue);
   border-color:var(--blue);
   background:rgba(22,140,255,.08);
+}
+
+.item-icon{
+  width:24px;
+  height:28px;
+
+  display:grid;
+  place-items:center;
+
+  color:var(--blue);
+}
+
+.pack-svg{
+  width:22px;
+  height:26px;
+
+  filter:drop-shadow(0 0 5px rgba(22,140,255,.35));
 }
 
 .active-name{
