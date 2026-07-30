@@ -162,8 +162,7 @@
           <div class="items">${itemRows}</div>
 
 ${badge}
-
-        restartTimer(entry);
+`;
       }
 
       activeContent.classList.remove("swap-out");
