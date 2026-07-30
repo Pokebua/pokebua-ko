@@ -2,32 +2,16 @@
   const MAX_VISIBLE = 10;
   const socket = io();
 
-  const activeCard =
-    document.getElementById("activeCard");
+  const activeCard = document.getElementById("activeCard");
+  const activeContent = document.getElementById("activeContent");
+  const queueList = document.getElementById("queueList");
+  const queueCount = document.getElementById("queueCount");
+  const moreCount = document.getElementById("moreCount");
 
-  const activeContent =
-    document.getElementById("activeContent");
-
-  const queueList =
-    document.getElementById("queueList");
-
-  const queueCount =
-    document.getElementById("queueCount");
-
-  const moreCount =
-    document.getElementById("moreCount");
-
-  const alertEl =
-    document.getElementById("alert");
-
-  const alertKicker =
-    document.getElementById("alertKicker");
-
-  const alertName =
-    document.getElementById("alertName");
-
-  const alertItems =
-    document.getElementById("alertItems");
+  const alertEl = document.getElementById("alert");
+  const alertKicker = document.getElementById("alertKicker");
+  const alertName = document.getElementById("alertName");
+  const alertItems = document.getElementById("alertItems");
 
   let currentId = null;
   let currentStartedAt = null;
@@ -38,10 +22,6 @@
   let queueClosingAt = null;
   let queueClosed = false;
   let closingTimerHandle = null;
-
-  /* =======================================================
-     GENERELLE HJELPEFUNKSJONER
-  ======================================================= */
 
   function clean(value) {
     return String(value ?? "").trim();
@@ -70,10 +50,7 @@
     }
 
     return raw
-      .replace(
-        /^https?:\/\/(www\.)?twitch\.tv\//i,
-        ""
-      )
+      .replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "")
       .replace(/^twitch\.tv\//i, "")
       .replace(/^@+/, "")
       .split(/[/?#]/)[0]
@@ -91,10 +68,7 @@
   }
 
   function displayName(entry) {
-    return (
-      twitchName(entry) ||
-      firstName(entry?.name)
-    );
+    return twitchName(entry) || firstName(entry?.name);
   }
 
   function isQueueClosedEntry(entry = {}) {
@@ -149,21 +123,14 @@
       .filter(Boolean);
   }
 
-  /* =======================================================
-     TIMER FOR AKTIV ORDRE
-  ======================================================= */
-
   function formatActiveTimer(milliseconds) {
     const totalSeconds = Math.max(
       0,
       Math.floor(milliseconds / 1000)
     );
 
-    const minutes =
-      Math.floor(totalSeconds / 60);
-
-    const seconds =
-      totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
 
     return (
       `${String(minutes).padStart(2, "0")}:` +
@@ -172,8 +139,7 @@
   }
 
   function renderActiveTimer() {
-    const timer =
-      document.getElementById("activeTimer");
+    const timer = document.getElementById("activeTimer");
 
     if (!timer || !currentStartedAt) {
       return;
@@ -199,10 +165,9 @@
       ""
     );
 
-    currentStartedAt =
-      Number.isFinite(parsed)
-        ? parsed
-        : Date.now();
+    currentStartedAt = Number.isFinite(parsed)
+      ? parsed
+      : Date.now();
 
     renderActiveTimer();
 
@@ -211,10 +176,6 @@
       1000
     );
   }
-
-  /* =======================================================
-     AKTIV ORDRE
-  ======================================================= */
 
   function stateClass(entry) {
     if (
@@ -232,30 +193,20 @@
   }
 
   function renderCurrent(entry) {
-    const nextId =
-      entry?.id ?? null;
-
-    const changed =
-      nextId !== currentId;
+    const nextId = entry?.id ?? null;
+    const changed = nextId !== currentId;
 
     currentId = nextId;
 
     if (changed) {
-      activeContent.classList.remove(
-        "swap-in"
-      );
-
-      activeContent.classList.add(
-        "swap-out"
-      );
+      activeContent.classList.remove("swap-in");
+      activeContent.classList.add("swap-out");
     }
 
     setTimeout(() => {
-      const state =
-        stateClass(entry);
+      const state = stateClass(entry);
 
-      activeCard.className =
-        `active-card ${state}`;
+      activeCard.className = `active-card ${state}`;
 
       if (!entry) {
         activeContent.innerHTML = `
@@ -368,23 +319,14 @@
         restartActiveTimer(entry);
       }
 
-      activeContent.classList.remove(
-        "swap-out"
-      );
+      activeContent.classList.remove("swap-out");
 
       if (changed) {
         void activeContent.offsetWidth;
-
-        activeContent.classList.add(
-          "swap-in"
-        );
+        activeContent.classList.add("swap-in");
       }
     }, changed ? 170 : 0);
   }
-
-  /* =======================================================
-     KØSTENGING
-  ======================================================= */
 
   function formatClosingCountdown(milliseconds) {
     const totalSeconds = Math.max(
@@ -392,16 +334,13 @@
       Math.ceil(milliseconds / 1000)
     );
 
-    const hours =
-      Math.floor(totalSeconds / 3600);
+    const hours = Math.floor(totalSeconds / 3600);
 
-    const minutes =
-      Math.floor(
-        (totalSeconds % 3600) / 60
-      );
+    const minutes = Math.floor(
+      (totalSeconds % 3600) / 60
+    );
 
-    const seconds =
-      totalSeconds % 60;
+    const seconds = totalSeconds % 60;
 
     if (hours > 0) {
       return (
@@ -415,6 +354,18 @@
       `${String(minutes).padStart(2, "0")}:` +
       `${String(seconds).padStart(2, "0")}`
     );
+  }
+
+  function getClosingTimestamp() {
+    if (!queueClosingAt) {
+      return null;
+    }
+
+    const timestamp = new Date(queueClosingAt).getTime();
+
+    return Number.isFinite(timestamp)
+      ? timestamp
+      : null;
   }
 
   function queueClosingCard() {
@@ -436,35 +387,13 @@
       `;
     }
 
-    if (!queueClosingAt) {
+    const closingTimestamp = getClosingTimestamp();
+
+    if (!closingTimestamp) {
       return "";
     }
 
-    const closingTimestamp =
-      new Date(queueClosingAt).getTime();
-
-    if (!Number.isFinite(closingTimestamp)) {
-      return "";
-    }
-
-    const remaining =
-      closingTimestamp - Date.now();
-
-    if (remaining <= 0) {
-      return `
-        <div class="queue-item queue-status-card queue-closing-status">
-          <div class="queue-status-icon">
-            ⏳
-          </div>
-
-          <div class="queue-status-content">
-            <strong>KØEN STENGER NÅ</strong>
-
-            <small>00:00</small>
-          </div>
-        </div>
-      `;
-    }
+    const remaining = closingTimestamp - Date.now();
 
     return `
       <div class="queue-item queue-status-card queue-closing-status">
@@ -475,12 +404,37 @@
         <div class="queue-status-content">
           <strong>KØEN STENGER OM</strong>
 
-          <small>
+          <small id="queueClosingCountdown">
             ${formatClosingCountdown(remaining)}
           </small>
         </div>
       </div>
     `;
+  }
+
+  function updateClosingCountdown() {
+    if (!queueClosingAt || queueClosed) {
+      return;
+    }
+
+    const countdown =
+      document.getElementById("queueClosingCountdown");
+
+    if (!countdown) {
+      return;
+    }
+
+    const closingTimestamp = getClosingTimestamp();
+
+    if (!closingTimestamp) {
+      return;
+    }
+
+    const remaining =
+      closingTimestamp - Date.now();
+
+    countdown.textContent =
+      formatClosingCountdown(remaining);
   }
 
   function restartClosingTimer() {
@@ -491,85 +445,75 @@
       return;
     }
 
+    updateClosingCountdown();
+
     closingTimerHandle = setInterval(() => {
-      renderQueue(latestQueue);
+      updateClosingCountdown();
     }, 1000);
   }
 
-  /* =======================================================
-     VENTEKØ
-  ======================================================= */
-
   function renderQueue(queue = []) {
-    latestQueue =
-      Array.isArray(queue)
-        ? queue
-        : [];
+    latestQueue = Array.isArray(queue)
+      ? queue
+      : [];
 
-    const customers =
-      customerQueue(latestQueue);
+    const customers = customerQueue(latestQueue);
 
-    queueCount.textContent =
-      customers.length;
+    queueCount.textContent = customers.length;
 
     const visibleCustomers =
       customers.slice(0, MAX_VISIBLE);
 
-    const customerCards =
-      visibleCustomers
-        .map((entry, index) => {
-          const skip =
-            entry?.skipTheLine ||
-            entry?.priority;
+    const customerCards = visibleCustomers
+      .map((entry, index) => {
+        const skip =
+          entry?.skipTheLine ||
+          entry?.priority;
 
-          const giveaway =
-            entry?.giveaway;
+        const giveaway =
+          entry?.giveaway;
 
-          const isFirst =
-            index === 0;
+        const isFirst =
+          index === 0;
 
-          const classes = [
-            isFirst ? "priority" : "",
-            skip ? "skip" : "",
-            giveaway ? "giveaway" : ""
-          ]
-            .filter(Boolean)
-            .join(" ");
+        const classes = [
+          isFirst ? "priority" : "",
+          skip ? "skip" : "",
+          giveaway ? "giveaway" : ""
+        ]
+          .filter(Boolean)
+          .join(" ");
 
-          const icon = skip
-            ? "★"
-            : giveaway
-              ? "🎁"
-              : "";
+        const icon = skip
+          ? "★"
+          : giveaway
+            ? "🎁"
+            : "";
 
-          return `
-            <div
-              class="queue-item ${classes}"
-              style="animation-delay:${index * 35}ms"
-            >
-              <div class="position">
-                ${index + 1}.
-              </div>
-
-              <div class="q-name">
-                ${escapeHtml(displayName(entry))}
-              </div>
-
-              <div class="q-icon">
-                ${icon}
-              </div>
+        return `
+          <div
+            class="queue-item ${classes}"
+            style="animation-delay:${index * 35}ms"
+          >
+            <div class="position">
+              ${index + 1}.
             </div>
-          `;
-        })
-        .join("");
 
-    const statusCard =
-      queueClosingCard();
+            <div class="q-name">
+              ${escapeHtml(displayName(entry))}
+            </div>
 
-    if (
-      !customerCards &&
-      !statusCard
-    ) {
+            <div class="q-icon">
+              ${icon}
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    const statusCard = queueClosingCard();
+
+    if (!customerCards && !statusCard) {
       queueList.innerHTML = `
         <div class="empty">
           Køen er tom.
@@ -587,18 +531,13 @@
       customers.length -
       visibleCustomers.length;
 
-    moreCount.hidden =
-      remaining <= 0;
+    moreCount.hidden = remaining <= 0;
 
     moreCount.textContent =
       remaining > 0
         ? `+ ${remaining} flere i kø`
         : "";
   }
-
-  /* =======================================================
-     VARSLER
-  ======================================================= */
 
   function showAlert(kind, payload = {}) {
     clearTimeout(alertHandle);
@@ -609,9 +548,7 @@
     );
 
     if (kind === "giveaway") {
-      alertEl.classList.add(
-        "giveaway"
-      );
+      alertEl.classList.add("giveaway");
     }
 
     alertKicker.textContent =
@@ -636,10 +573,6 @@
     }, 3600);
   }
 
-  /* =======================================================
-     SERVERSTATE
-  ======================================================= */
-
   function applyState(data = {}) {
     queueClosingAt =
       data.queueClosingAt || null;
@@ -660,64 +593,36 @@
     restartClosingTimer();
   }
 
-  socket.on(
-    "queue:update",
-    data => {
-      applyState(data);
-    }
-  );
+  socket.on("queue:update", data => {
+    applyState(data);
+  });
 
-  socket.on(
-    "queue:closed",
-    () => {
-      queueClosingAt = null;
-      queueClosed = true;
+  socket.on("queue:closed", () => {
+    queueClosingAt = null;
+    queueClosed = true;
 
-      restartClosingTimer();
-      renderQueue(latestQueue);
-    }
-  );
+    clearInterval(closingTimerHandle);
+    closingTimerHandle = null;
 
-  socket.on(
-    "order:alert",
-    payload => {
-      showAlert(
-        "order",
-        payload
-      );
-    }
-  );
+    renderQueue(latestQueue);
+  });
 
-  socket.on(
-    "skip:alert",
-    payload => {
-      showAlert(
-        "skip",
-        payload
-      );
-    }
-  );
+  socket.on("order:alert", payload => {
+    showAlert("order", payload);
+  });
 
-  socket.on(
-    "giveaway:alert",
-    payload => {
-      showAlert(
-        "giveaway",
-        payload
-      );
-    }
-  );
+  socket.on("skip:alert", payload => {
+    showAlert("skip", payload);
+  });
 
-  /* =======================================================
-     OPPSTART
-  ======================================================= */
+  socket.on("giveaway:alert", payload => {
+    showAlert("giveaway", payload);
+  });
 
   fetch("/api/queue")
     .then(response => {
       if (!response.ok) {
-        throw new Error(
-          "Kunne ikke hente kø"
-        );
+        throw new Error("Kunne ikke hente kø");
       }
 
       return response.json();
