@@ -2,24 +2,55 @@
 <html lang="no">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=330, initial-scale=1" />
+  <meta
+    name="viewport"
+    content="width=330, initial-scale=1"
+  />
+
   <title>Pokebua Overlay</title>
-  <link rel="stylesheet" href="/css/overlay.css" />
+
+  <link
+    rel="stylesheet"
+    href="/css/overlay.css"
+  />
+
   <script src="/socket.io/socket.io.js"></script>
 </head>
+
 <body>
-  <div id="alert" class="alert" aria-live="polite">
+  <div
+    id="alert"
+    class="alert"
+    aria-live="polite"
+  >
     <div class="alert-card">
-      <div id="alertKicker" class="alert-kicker">Ny ordre</div>
-      <div id="alertName" class="alert-name"></div>
-      <div id="alertItems" class="alert-items"></div>
+      <div
+        id="alertKicker"
+        class="alert-kicker"
+      >
+        Ny ordre
+      </div>
+
+      <div
+        id="alertName"
+        class="alert-name"
+      ></div>
+
+      <div
+        id="alertItems"
+        class="alert-items"
+      ></div>
     </div>
   </div>
 
   <main class="overlay">
     <section class="shell">
       <div class="logo-wrap">
-<img src="/pokebua-logo.png" class="logo" alt="Pokebua.no">
+        <img
+          src="/pokebua-logo.png"
+          class="logo"
+          alt="Pokebua.no"
+        />
       </div>
 
       <div class="section-title">
@@ -28,29 +59,72 @@
         <span class="bolt">⚡</span>
       </div>
 
-      <section id="activeCard" class="active-card normal">
+      <section
+        id="activeCard"
+        class="active-card normal"
+      >
         <div id="activeContent">
-          <div class="empty">Venter på neste åpning…</div>
+          <div class="empty">
+            Venter på neste åpning…
+          </div>
         </div>
       </section>
 
       <div class="section-title queue-title">
         <span>★</span>
-        <span>Neste i kø (<span id="queueCount">0</span>)</span>
+
+        <span>
+          Neste i kø
+          (<span id="queueCount">0</span>)
+        </span>
+
         <span>★</span>
       </div>
 
       <section class="queue-panel">
-        <div id="queueList" class="queue-list">
-          <div class="empty">Køen er tom.</div>
+        <div
+          id="queueList"
+          class="queue-list"
+        >
+          <div class="empty">
+            Køen er tom.
+          </div>
         </div>
-        <div id="moreCount" class="more" hidden></div>
+
+        <div
+          id="moreCount"
+          class="more"
+          hidden
+        ></div>
       </section>
 
-      <div class="footer">Powered by Pokebua</div>
+      <div class="footer">
+        Powered by Pokebua
+      </div>
     </section>
   </main>
 
+  <!-- Fullskjerm Skip the Line-animasjon -->
+  <div
+    id="dragonEvent"
+    aria-hidden="true"
+  >
+    <video
+      id="dragonVideo"
+      preload="auto"
+      muted
+      playsinline
+    >
+      <source
+        src="/assets/infernos.webm"
+        type="video/webm"
+      />
+    </video>
+
+    <div id="dragonName"></div>
+  </div>
+
+  <!-- JavaScript skal ligge helt nederst -->
   <script src="/js/overlay.js"></script>
 </body>
 </html>
