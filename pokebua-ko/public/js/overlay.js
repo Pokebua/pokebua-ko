@@ -142,14 +142,24 @@
               : "";
 
         const itemRows = safeItems(entry.items)
-          .slice(0,4)
-          .map(item => `
+    .slice(0, 6)
+    .map(item => {
+
+        const match = item.match(/^(.*?)(?:\s*[x×]\s*(\d+))$/i);
+
+        const name = match ? match[1].trim() : item;
+        const qty = match ? match[2] : "";
+
+        return `
             <div class="item-row">
-              <div class="item-icon">📦</div>
-              <div>${highlightQuantity(item)}</div>
+                <div class="item-icon">📦</div>
+                <div class="item-name">${escapeHtml(name)}</div>
+                <div class="item-qty">${qty ? "×" + qty : ""}</div>
             </div>
-          `)
-          .join("");
+        `;
+
+    })
+    .join("");
 
         activeContent.innerHTML = `
           <div class="active-header">
