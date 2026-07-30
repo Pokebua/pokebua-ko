@@ -141,29 +141,49 @@
               ? `<div class="badge giveaway">🎁 Giveaway</div>`
               : "";
 
-        const itemRows = safeItems(entry.items)
-    .slice(0, 6)
-    .map(item => {
+const packIcon = `
+  <svg class="svg-icon pack-svg" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 2h10l2 3v16H5V5l2-3Z"></path>
+    <path d="M7 2l2 4h6l2-4"></path>
+    <path d="M8 10h8"></path>
+    <path d="M9 14h6"></path>
+  </svg>
+`;
 
-        const match = item.match(/^(.*?)(?:\s*[x×]\s*(\d+))$/i);
+const itemRows = safeItems(entry.items)
+  .slice(0, 6)
+  .map(item => {
+    const match = item.match(/^(.*?)(?:\s*[x×]\s*(\d+))$/i);
 
-        const name = match ? match[1].trim() : item;
-        const qty = match ? match[2] : "";
+    const name = match ? match[1].trim() : item;
+    const qty = match ? match[2] : "";
 
-        return `
-            <div class="item-row">
-                <div class="item-icon">📦</div>
-                <div class="item-name">${escapeHtml(name)}</div>
-                <div class="item-qty">${qty ? "×" + qty : ""}</div>
-            </div>
-        `;
+    return `
+      <div class="item-row">
+        <div class="item-icon">
+          ${packIcon}
+        </div>
 
-    })
-    .join("");
+        <div class="item-name">
+          ${escapeHtml(name)}
+        </div>
+
+        <div class="item-qty">
+          ${qty ? "×" + qty : ""}
+        </div>
+      </div>
+    `;
+  })
+  .join("");
 
         activeContent.innerHTML = `
           <div class="active-header">
-            <div class="person-icon">👤</div>
+           <div class="person-icon">
+    <svg class="svg-icon person-svg" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path>
+    </svg>
+</div>
             <div class="active-name">${escapeHtml(displayName(entry))}</div>
           </div>
 
