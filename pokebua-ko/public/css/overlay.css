@@ -116,8 +116,8 @@ body{padding:8px}
 .active-card{
   position:relative;
   margin:0 12px 12px;
-  padding:17px 16px 16px;
-  min-height:208px;
+  padding:14px 16px;
+  min-height:150px;
   overflow:hidden;
   border:2px solid var(--yellow);
   border-radius:20px;
