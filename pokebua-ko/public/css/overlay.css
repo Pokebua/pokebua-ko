@@ -500,3 +500,901 @@ body{padding:8px}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
+
+/* ======================================================
+   POKEBUA DRAGON EVENT
+   Fullskjerm Skip the Line-animasjon
+====================================================== */
+
+#dragonEvent {
+  position: fixed;
+  inset: 0;
+
+  /*
+    OBS-kilden bør settes til 1920 × 1080.
+    Selve køpanelet beholder bredden på 350 px.
+  */
+  width: 100vw;
+  height: 100vh;
+
+  z-index: 999999;
+  overflow: hidden;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition:
+    opacity 180ms ease,
+    visibility 180ms ease;
+}
+
+#dragonEvent.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mørk filmatisk bakgrunn */
+#dragonEvent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(255, 132, 0, 0.25),
+      rgba(80, 17, 0, 0.18) 35%,
+      rgba(0, 5, 15, 0.78) 75%
+    );
+
+  backdrop-filter: blur(1px);
+}
+
+#dragonEvent.show::before {
+  animation: dragonBackdrop 5.4s ease both;
+}
+
+/* Vi beholder videoelementet skjult foreløpig */
+#dragonVideo {
+  display: none;
+}
+
+/* ------------------------------------------------------
+   DRAGENS HOVEDSCENE
+------------------------------------------------------ */
+
+.dragon-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+
+  transform-origin: center;
+}
+
+#dragonEvent.show .dragon-stage {
+  animation: dragonCameraShake 5.4s ease both;
+}
+
+/* ------------------------------------------------------
+   DRAGEN
+------------------------------------------------------ */
+
+.dragon-character {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+
+  width: min(760px, 58vw);
+  height: min(620px, 66vh);
+
+  opacity: 0;
+
+  transform:
+    translate(-180vw, -50%)
+    rotate(-18deg)
+    scale(0.38);
+
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+#dragonEvent.show .dragon-character {
+  animation:
+    dragonFlyIn 5.4s cubic-bezier(.18, .78, .18, 1) both;
+}
+
+/* Kroppen */
+.dragon-body {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+
+  width: 54%;
+  height: 58%;
+
+  transform: translate(-50%, -50%);
+
+  border-radius:
+    48% 52% 44% 56% /
+    42% 46% 54% 58%;
+
+  background:
+    radial-gradient(
+      circle at 44% 26%,
+      rgba(255, 218, 99, 0.95),
+      transparent 8%
+    ),
+    radial-gradient(
+      ellipse at center,
+      #e16a13 0%,
+      #b33b0d 43%,
+      #591304 80%
+    );
+
+  border: 5px solid rgba(49, 8, 0, 0.8);
+
+  box-shadow:
+    inset 0 0 35px rgba(255, 180, 30, 0.42),
+    inset -28px -24px 38px rgba(37, 5, 0, 0.72),
+    0 26px 40px rgba(0, 0, 0, 0.55),
+    0 0 45px rgba(255, 86, 0, 0.36);
+}
+
+/* Hode */
+.dragon-head {
+  position: absolute;
+  left: 50%;
+  top: 17%;
+
+  width: 34%;
+  height: 31%;
+
+  transform: translateX(-50%);
+
+  border-radius:
+    52% 48% 54% 46% /
+    46% 46% 54% 54%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ef7a1b,
+      #a92e09 58%,
+      #501002
+    );
+
+  border: 5px solid rgba(48, 7, 0, 0.86);
+
+  box-shadow:
+    inset 10px 12px 18px rgba(255, 198, 57, 0.22),
+    inset -18px -16px 24px rgba(37, 4, 0, 0.58),
+    0 15px 25px rgba(0, 0, 0, 0.45);
+}
+
+/* Øyne */
+.dragon-eye {
+  position: absolute;
+  top: 40%;
+
+  width: 11%;
+  height: 12%;
+
+  border-radius: 50%;
+
+  background: #ffe55b;
+
+  box-shadow:
+    0 0 8px #fff5a3,
+    0 0 18px #ffb000,
+    0 0 35px #ff5e00;
+}
+
+.dragon-eye.left {
+  left: 26%;
+}
+
+.dragon-eye.right {
+  right: 26%;
+}
+
+/* Horn */
+.dragon-horn {
+  position: absolute;
+  top: -18%;
+
+  width: 14%;
+  height: 46%;
+
+  border-radius: 80% 15% 15% 15%;
+
+  background:
+    linear-gradient(
+      90deg,
+      #171c28,
+      #5f7184 50%,
+      #10141d
+    );
+
+  box-shadow:
+    0 8px 12px rgba(0, 0, 0, 0.45);
+}
+
+.dragon-horn.left {
+  left: 19%;
+  transform: rotate(-27deg);
+}
+
+.dragon-horn.right {
+  right: 19%;
+  transform: scaleX(-1) rotate(-27deg);
+}
+
+/* Vinger */
+.dragon-wing {
+  position: absolute;
+  top: 27%;
+
+  width: 48%;
+  height: 54%;
+
+  z-index: -1;
+
+  border: 5px solid rgba(14, 33, 59, 0.9);
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(44, 150, 255, 0.86),
+      rgba(8, 53, 112, 0.96) 65%,
+      rgba(2, 15, 40, 0.98)
+    );
+
+  box-shadow:
+    inset 0 0 28px rgba(89, 190, 255, 0.34),
+    0 0 28px rgba(0, 104, 255, 0.25);
+
+  transform-origin: 85% 42%;
+}
+
+.dragon-wing.left {
+  left: -16%;
+
+  clip-path: polygon(
+    100% 38%,
+    56% 0,
+    12% 8%,
+    31% 43%,
+    0 74%,
+    51% 70%,
+    79% 100%
+  );
+}
+
+.dragon-wing.right {
+  right: -16%;
+
+  clip-path: polygon(
+    0 38%,
+    44% 0,
+    88% 8%,
+    69% 43%,
+    100% 74%,
+    49% 70%,
+    21% 100%
+  );
+
+  transform-origin: 15% 42%;
+}
+
+#dragonEvent.show .dragon-wing.left {
+  animation: dragonWingLeft 520ms ease-in-out 550ms infinite alternate;
+}
+
+#dragonEvent.show .dragon-wing.right {
+  animation: dragonWingRight 520ms ease-in-out 550ms infinite alternate;
+}
+
+/* Hale */
+.dragon-tail {
+  position: absolute;
+  left: 60%;
+  top: 65%;
+
+  width: 53%;
+  height: 17%;
+
+  z-index: -2;
+
+  border-radius: 50%;
+
+  border-bottom:
+    34px solid #a82d09;
+
+  transform:
+    rotate(19deg)
+    skewX(-18deg);
+
+  transform-origin: left center;
+}
+
+#dragonEvent.show .dragon-tail {
+  animation: dragonTailMove 650ms ease-in-out 1s infinite alternate;
+}
+
+/* Ild på halen */
+.dragon-tail-fire {
+  position: absolute;
+  right: -8%;
+  top: 54%;
+
+  width: 92px;
+  height: 126px;
+
+  transform:
+    translate(50%, -50%)
+    rotate(24deg);
+
+  border-radius:
+    48% 52% 52% 48% /
+    69% 69% 31% 31%;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 72%,
+      #fff9a4 0%,
+      #ffd129 23%,
+      #ff7200 49%,
+      #e52300 69%,
+      transparent 72%
+    );
+
+  filter:
+    drop-shadow(0 0 12px #ffcf29)
+    drop-shadow(0 0 27px #ff5a00);
+}
+
+#dragonEvent.show .dragon-tail-fire {
+  animation: dragonFireFlicker 140ms ease-in-out infinite alternate;
+}
+
+/* ------------------------------------------------------
+   SKILTET
+------------------------------------------------------ */
+
+.dragon-sign-wrap {
+  position: absolute;
+  left: 50%;
+  top: 68%;
+
+  z-index: 20;
+
+  width: min(820px, 70vw);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(-12deg)
+    scale(0.15);
+
+  transform-origin: center;
+}
+
+#dragonEvent.show .dragon-sign-wrap {
+  animation:
+    dragonSignAppear 5.4s cubic-bezier(.17, .88, .3, 1.2) both;
+}
+
+.dragon-sign {
+  position: relative;
+
+  min-height: 210px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 28px 46px;
+
+  border: 9px solid #4a2108;
+  border-radius: 25px;
+
+  background:
+    repeating-linear-gradient(
+      4deg,
+      rgba(255, 255, 255, 0.035) 0 3px,
+      rgba(0, 0, 0, 0.04) 3px 9px
+    ),
+    linear-gradient(
+      180deg,
+      #96541d,
+      #62300d 48%,
+      #3d1906
+    );
+
+  box-shadow:
+    0 0 0 5px #d7972d,
+    0 0 0 10px #3f1b05,
+    inset 0 7px 14px rgba(255, 210, 105, 0.16),
+    inset 0 -15px 22px rgba(26, 7, 0, 0.6),
+    0 25px 50px rgba(0, 0, 0, 0.72);
+}
+
+/* Brennende hovedtekst */
+.dragon-sign-title {
+  display: block;
+
+  font-family:
+    Impact,
+    Haettenschweiler,
+    "Arial Black",
+    sans-serif;
+
+  font-size: clamp(52px, 6vw, 112px);
+  line-height: 0.95;
+  font-weight: 950;
+  letter-spacing: 0.055em;
+  text-align: center;
+  white-space: nowrap;
+
+  color: #ffec84;
+
+  opacity: 0;
+
+  text-shadow:
+    0 2px 0 #ff9a00,
+    0 5px 0 #9c3100,
+    0 0 10px #fff38e,
+    0 0 23px #ff9800,
+    0 0 46px #ef3d00;
+}
+
+#dragonEvent.show .dragon-sign-title {
+  animation: dragonBurnTitle 5.4s ease both;
+}
+
+/* Twitch-navn */
+#dragonName {
+  display: block;
+  position: relative;
+
+  margin-top: 15px;
+
+  max-width: 92%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #ffffff;
+
+  font-size: clamp(28px, 3vw, 54px);
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: 0.025em;
+  text-align: center;
+
+  opacity: 0;
+
+  text-shadow:
+    0 3px 0 #7c2600,
+    0 0 8px #ffffff,
+    0 0 19px #ffae21,
+    0 0 37px #f04100;
+}
+
+#dragonEvent.show #dragonName {
+  animation: dragonBurnName 5.4s ease both;
+}
+
+/* ------------------------------------------------------
+   GLØR
+------------------------------------------------------ */
+
+.dragon-embers {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+
+  overflow: hidden;
+}
+
+.dragon-ember {
+  position: absolute;
+  left: var(--x);
+  top: 105%;
+
+  width: var(--size);
+  height: var(--size);
+
+  border-radius: 50%;
+
+  opacity: 0;
+
+  background: #ffd43b;
+
+  box-shadow:
+    0 0 8px #ffd43b,
+    0 0 17px #ff6600;
+}
+
+#dragonEvent.show .dragon-ember {
+  animation:
+    dragonEmberRise
+    var(--duration)
+    linear
+    var(--delay)
+    both;
+}
+
+/* ------------------------------------------------------
+   LYSGLIMT OG SHOCKWAVE
+------------------------------------------------------ */
+
+.dragon-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+
+  opacity: 0;
+
+  background: #fff7d0;
+}
+
+#dragonEvent.show .dragon-flash {
+  animation: dragonFlash 5.4s linear both;
+}
+
+.dragon-shockwave {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 12;
+
+  width: 160px;
+  height: 160px;
+
+  opacity: 0;
+
+  border: 10px solid rgba(255, 183, 45, 0.9);
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.1);
+
+  box-shadow:
+    0 0 30px #ffae00,
+    inset 0 0 26px #ff6a00;
+}
+
+#dragonEvent.show .dragon-shockwave {
+  animation: dragonShockwave 5.4s ease-out both;
+}
+
+/* ======================================================
+   KEYFRAMES
+====================================================== */
+
+@keyframes dragonBackdrop {
+  0% {
+    opacity: 0;
+  }
+
+  8%,
+  82% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes dragonFlyIn {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-180vw, -46%)
+      rotate(-21deg)
+      scale(0.34);
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  25% {
+    transform:
+      translate(-46%, -55%)
+      rotate(7deg)
+      scale(1.16);
+  }
+
+  34% {
+    transform:
+      translate(-50%, -50%)
+      rotate(-2deg)
+      scale(0.98);
+  }
+
+  42%,
+  76% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0deg)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(150vw, -67%)
+      rotate(16deg)
+      scale(0.7);
+  }
+}
+
+@keyframes dragonWingLeft {
+  from {
+    transform: rotate(-14deg) scaleY(0.82);
+  }
+
+  to {
+    transform: rotate(11deg) scaleY(1.08);
+  }
+}
+
+@keyframes dragonWingRight {
+  from {
+    transform: rotate(14deg) scaleY(0.82);
+  }
+
+  to {
+    transform: rotate(-11deg) scaleY(1.08);
+  }
+}
+
+@keyframes dragonTailMove {
+  from {
+    transform:
+      rotate(12deg)
+      skewX(-18deg);
+  }
+
+  to {
+    transform:
+      rotate(27deg)
+      skewX(-9deg);
+  }
+}
+
+@keyframes dragonFireFlicker {
+  from {
+    transform:
+      translate(50%, -50%)
+      rotate(19deg)
+      scale(0.88);
+  }
+
+  to {
+    transform:
+      translate(50%, -50%)
+      rotate(29deg)
+      scale(1.12);
+  }
+}
+
+@keyframes dragonSignAppear {
+  0%,
+  28% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-14deg)
+      scale(0.12);
+  }
+
+  36% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(5deg)
+      scale(1.15);
+  }
+
+  43% {
+    transform:
+      translate(-50%, -50%)
+      rotate(-2deg)
+      scale(0.96);
+  }
+
+  49%,
+  78% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0deg)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -68%)
+      rotate(7deg)
+      scale(0.74);
+  }
+}
+
+@keyframes dragonBurnTitle {
+  0%,
+  39% {
+    opacity: 0;
+    filter: blur(13px);
+    letter-spacing: 0.18em;
+  }
+
+  46% {
+    opacity: 1;
+    filter: blur(0);
+    letter-spacing: 0.055em;
+  }
+
+  79% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes dragonBurnName {
+  0%,
+  49% {
+    opacity: 0;
+    filter: blur(11px);
+    transform: translateY(12px) scale(0.85);
+  }
+
+  57% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+
+  79% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes dragonShockwave {
+  0%,
+  23% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.1);
+  }
+
+  27% {
+    opacity: 1;
+  }
+
+  45%,
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(10);
+  }
+}
+
+@keyframes dragonFlash {
+  0%,
+  22% {
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.82;
+  }
+
+  28% {
+    opacity: 0;
+  }
+
+  36% {
+    opacity: 0.25;
+  }
+
+  39%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes dragonCameraShake {
+  0%,
+  21%,
+  38%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  23% {
+    transform: translate(-9px, 5px);
+  }
+
+  24% {
+    transform: translate(8px, -6px);
+  }
+
+  25% {
+    transform: translate(-5px, -3px);
+  }
+
+  26% {
+    transform: translate(5px, 4px);
+  }
+
+  27% {
+    transform: translate(0, 0);
+  }
+
+  35% {
+    transform: translate(-4px, 3px);
+  }
+
+  36% {
+    transform: translate(5px, -2px);
+  }
+
+  37% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes dragonEmberRise {
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(0)
+      translateX(0)
+      scale(0.35);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translateY(-120vh)
+      translateX(var(--drift))
+      scale(1.15);
+  }
+}
