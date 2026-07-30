@@ -161,15 +161,7 @@
 
           <div class="items">${itemRows}</div>
 
-          <div class="timer-wrap">
-            <div class="clock">◷</div>
-            <div class="timer-copy">
-              <div class="timer-label">Åpnet i</div>
-              <div id="activeTimer" class="timer">00:00</div>
-            </div>
-            ${badge}
-          </div>
-        `;
+${badge}
 
         restartTimer(entry);
       }
