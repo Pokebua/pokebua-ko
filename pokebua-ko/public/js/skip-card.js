@@ -151,10 +151,7 @@
       Midlertidig automatisk test.
       Animajsonen starter 2 sekunder etter at overlayet åpnes.
     */
-    setTimeout(() => {
-      console.log("Starter Skip the Line-test");
-      play("TESTBRUKER");
-    }, 2000);
+ 
   }
 
   if (document.readyState === "loading") {
