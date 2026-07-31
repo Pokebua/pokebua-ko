@@ -774,18 +774,12 @@
   });
 
   socket.on("skip:alert", payload => {
-  showAlert("skip", payload);
-
-  if (window.PokebuaSkipCard) {
-    window.PokebuaSkipCard.play(
+  if (window.PokebuaSkipScene) {
+    window.PokebuaSkipScene.play(
       displayName(payload)
     );
   }
 });
-
-  socket.on("giveaway:alert", payload => {
-    showAlert("giveaway", payload);
-  });
 
 
 
