@@ -189,21 +189,27 @@
 
   z-index: 20;
 
-  width: min(650px, 48vw);
+  width: min(720px, 52vw);
 
   opacity: 0;
 
   transform:
     translate(-50%, -50%)
-    translate(110px, -60px)
-    rotate(-11deg)
-    scale(0.025);
+    translate(85px, -35px)
+    rotate(-14deg)
+    scale(0.02);
 
-  transform-origin: center;
+  transform-origin: 58% 48%;
 
   filter:
-    drop-shadow(0 28px 23px rgba(0, 0, 0, 0.7))
-    drop-shadow(0 0 24px rgba(255, 105, 0, 0.65));
+    drop-shadow(0 30px 28px rgba(0, 0, 0, 0.8))
+    drop-shadow(0 0 18px rgba(255, 119, 0, 0.7))
+    drop-shadow(0 0 42px rgba(255, 55, 0, 0.35));
+
+  will-change:
+    transform,
+    opacity,
+    filter;
 }
 
 .skipfx-event.show .skipfx-character {
@@ -219,6 +225,14 @@
 
   width: 100%;
   height: auto;
+
+  transform-origin: center;
+
+  filter:
+    saturate(1.14)
+    contrast(1.06);
+
+  backface-visibility: hidden;
 }
 
 /*
@@ -232,30 +246,47 @@
 
 .skipfx-character-fire {
   position: absolute;
-  left: -5%;
+  left: 4%;
   top: 58%;
 
-  width: 260px;
-  height: 90px;
+  width: 320px;
+  height: 105px;
 
-  opacity: 0.8;
+  opacity: 0;
 
   transform:
-    translate(-50%, -50%)
-    rotate(-8deg);
+    translate(-70%, -50%)
+    rotate(-7deg)
+    scaleX(0.2);
+
+  transform-origin: right center;
+
+  border-radius: 50%;
 
   background:
     linear-gradient(
       90deg,
-      transparent,
-      rgba(255, 55, 0, 0.5),
-      rgba(255, 150, 0, 0.9),
-      rgba(255, 244, 140, 0.95)
+      transparent 0%,
+      rgba(255, 55, 0, 0.2) 18%,
+      rgba(255, 68, 0, 0.82) 46%,
+      rgba(255, 166, 0, 0.96) 72%,
+      rgba(255, 250, 176, 1) 100%
     );
 
   filter:
-    blur(13px)
-    drop-shadow(0 0 20px #ff5a00);
+    blur(12px)
+    drop-shadow(0 0 15px #ff4d00)
+    drop-shadow(0 0 32px #ff9d00);
+
+  mix-blend-mode: screen;
+}
+
+.skipfx-event.show .skipfx-character-fire {
+  animation:
+    skipfxCharacterFire
+    6.5s
+    ease
+    both;
 }
 
 /* ------------------------------------------------------
@@ -604,13 +635,34 @@
 
     transform:
       translate(-50%, -50%)
-      translate(110px, -60px)
-      rotate(-11deg)
-      scale(0.025);
+      translate(85px, -35px)
+      rotate(-14deg)
+      scale(0.02);
+
+    filter:
+      brightness(2)
+      drop-shadow(0 0 12px #ffffff)
+      drop-shadow(0 0 34px #ff7300);
   }
 
-  35% {
+  34% {
     opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(75px, -45px)
+      rotate(-11deg)
+      scale(0.08);
+  }
+
+  40% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(45px, -70px)
+      rotate(-5deg)
+      scale(0.32);
   }
 
   49% {
@@ -618,20 +670,54 @@
 
     transform:
       translate(-50%, -50%)
-      translate(25px, -45px)
-      rotate(5deg)
-      scale(0.7);
+      translate(5px, -110px)
+      rotate(4deg)
+      scale(0.78);
   }
 
-  59%,
-  80% {
+  58% {
     opacity: 1;
 
     transform:
       translate(-50%, -50%)
-      translate(0, -85px)
-      rotate(0)
-      scale(1);
+      translate(-40px, -135px)
+      rotate(-2deg)
+      scale(1.25);
+
+    filter:
+      brightness(1.2)
+      drop-shadow(0 34px 25px rgba(0, 0, 0, 0.72))
+      drop-shadow(0 0 28px rgba(255, 108, 0, 0.85));
+  }
+
+  68% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(-90px, -105px)
+      rotate(3deg)
+      scale(1.62);
+  }
+
+  78% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(-145px, -70px)
+      rotate(7deg)
+      scale(1.95);
+  }
+
+  87% {
+    opacity: 0.92;
+
+    transform:
+      translate(-50%, -50%)
+      translate(20vw, -12vh)
+      rotate(10deg)
+      scale(2.2);
   }
 
   100% {
@@ -639,9 +725,66 @@
 
     transform:
       translate(-50%, -50%)
-      translate(130vw, -45vh)
+      translate(110vw, -42vh)
       rotate(18deg)
-      scale(0.65);
+      scale(1.25);
+  }
+}
+
+@keyframes skipfxCharacterFire {
+  0%,
+  32% {
+    opacity: 0;
+
+    transform:
+      translate(-70%, -50%)
+      rotate(-7deg)
+      scaleX(0.15);
+  }
+
+  38% {
+    opacity: 0.9;
+
+    transform:
+      translate(-70%, -50%)
+      rotate(-7deg)
+      scaleX(0.65);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform:
+      translate(-70%, -50%)
+      rotate(-5deg)
+      scaleX(1);
+  }
+
+  62% {
+    opacity: 0.9;
+
+    transform:
+      translate(-78%, -50%)
+      rotate(-8deg)
+      scaleX(1.35);
+  }
+
+  76% {
+    opacity: 0.75;
+
+    transform:
+      translate(-82%, -50%)
+      rotate(-5deg)
+      scaleX(1.7);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-95%, -50%)
+      rotate(-3deg)
+      scaleX(2.2);
   }
 }
 
