@@ -774,15 +774,20 @@
   });
 
   socket.on("skip:alert", payload => {
-    showAlert("skip", payload);
-    playDragonAnimation(payload);
-  });
+  showAlert("skip", payload);
+
+  if (window.PokebuaSkipCard) {
+    window.PokebuaSkipCard.play(
+      displayName(payload)
+    );
+  }
+});
 
   socket.on("giveaway:alert", payload => {
     showAlert("giveaway", payload);
   });
 
-  buildDragonScene();
+
 
   fetch("/api/queue")
     .then(response => {
