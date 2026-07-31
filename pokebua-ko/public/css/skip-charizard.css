@@ -1,0 +1,316 @@
+.skip-charizard {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    pointer-events: none;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+.skip-charizard-frame {
+    position: absolute;
+
+    left: 32.5%;
+    top: 8.5%;
+
+    width: 56%;
+    max-width: 820px;
+
+    aspect-ratio: 16 / 9;
+
+    padding: 9px;
+
+    box-sizing: border-box;
+
+    border: 3px solid #ffc400;
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #082845,
+            #020a13 55%,
+            #08233d
+        );
+
+    box-shadow:
+        0 0 0 3px #087ee7,
+        0 0 28px rgba(0, 132, 255, 0.72),
+        0 0 65px rgba(0, 82, 255, 0.35),
+        0 24px 70px rgba(0, 0, 0, 0.85);
+
+    opacity: 0;
+
+    transform:
+        translateX(120px)
+        scale(0.88);
+
+    transition:
+        opacity 0.35s ease,
+        transform 0.55s
+            cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.skip-charizard-video-area {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    border-radius: 14px;
+
+    background: #000;
+}
+
+.skip-charizard-video {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    transform: scale(1.01);
+
+    filter:
+        saturate(1.06)
+        contrast(1.03);
+}
+
+.skip-charizard-top {
+    position: absolute;
+
+    left: 50%;
+    top: 0;
+
+    z-index: 30;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    transform: translate(-50%, -52%);
+
+    padding: 7px 20px;
+
+    border: 2px solid #ffc400;
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #0a477e,
+            #041523
+        );
+
+    box-shadow:
+        0 0 15px rgba(0, 145, 255, 0.75);
+
+    color: #fff;
+
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+
+    white-space: nowrap;
+}
+
+.skip-charizard-top span {
+    color: #ffc400;
+}
+
+.skip-charizard-bottom {
+    position: absolute;
+
+    left: 50%;
+    bottom: 0;
+
+    z-index: 30;
+
+    transform: translate(-50%, 55%);
+
+    padding: 5px 15px;
+
+    border: 1px solid #087ee7;
+    border-radius: 999px;
+
+    background: #03111e;
+
+    color: rgba(255, 255, 255, 0.65);
+
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+
+    white-space: nowrap;
+}
+
+/*
+ * Navnefeltet over den hvite ruten i videoen.
+ *
+ * Disse fire verdiene kan finjusteres:
+ * left, top, width og height.
+ */
+.skip-charizard-name-box {
+    position: absolute;
+
+    left: 76.5%;
+    top: 59.8%;
+
+    width: 27%;
+    height: 13%;
+
+    z-index: 20;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform:
+        translate(-50%, -50%)
+        scale(0.55);
+
+    opacity: 0;
+}
+
+.skip-charizard-name {
+    width: 100%;
+
+    overflow: hidden;
+
+    color: #16100b;
+
+    font-family:
+        "Arial Black",
+        Impact,
+        Arial,
+        sans-serif;
+
+    font-size: clamp(18px, 2.3vw, 39px);
+    font-weight: 900;
+    line-height: 1;
+
+    text-align: center;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    transform: rotate(-0.5deg);
+
+    text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.35),
+        0 2px 2px rgba(75, 40, 15, 0.22);
+}
+
+.skip-charizard-flash {
+    position: absolute;
+    inset: 0;
+
+    z-index: 15;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    background:
+        radial-gradient(
+            circle at 76% 60%,
+            rgba(255, 255, 255, 0.8),
+            rgba(255, 222, 130, 0.25) 20%,
+            transparent 48%
+        );
+
+    mix-blend-mode: screen;
+}
+
+.skip-charizard.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.skip-charizard.visible .skip-charizard-frame {
+    opacity: 1;
+
+    transform:
+        translateX(0)
+        scale(1);
+}
+
+.skip-charizard.show-name .skip-charizard-name-box {
+    animation:
+        charizardNamePop 0.48s
+        cubic-bezier(0.16, 1.35, 0.3, 1)
+        forwards;
+}
+
+.skip-charizard.show-name .skip-charizard-flash {
+    animation:
+        charizardFlash 0.55s ease-out forwards;
+}
+
+.skip-charizard.closing {
+    opacity: 0;
+}
+
+.skip-charizard.closing .skip-charizard-frame {
+    opacity: 0;
+
+    transform:
+        translateX(110px)
+        scale(0.92);
+
+    transition:
+        opacity 0.35s ease,
+        transform 0.45s ease;
+}
+
+@keyframes charizardNamePop {
+    0% {
+        opacity: 0;
+
+        transform:
+            translate(-50%, -50%)
+            scale(0.5);
+    }
+
+    65% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1.1);
+    }
+
+    100% {
+        opacity: 1;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+    }
+}
+
+@keyframes charizardFlash {
+    0% {
+        opacity: 0;
+    }
+
+    25% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
