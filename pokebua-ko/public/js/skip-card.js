@@ -124,10 +124,6 @@
       nameElement.textContent = cleanName(name);
     }
 
-    /*
-      Fjerner klassen og tvinger en reflow.
-      Da kan animasjonen starte på nytt hver gang.
-    */
     event.classList.remove("show");
     event.setAttribute("aria-hidden", "true");
 
@@ -141,10 +137,29 @@
     }, ANIMATION_DURATION + 200);
   }
 
-  buildEvent();
+  function init() {
+    buildEvent();
 
-  window.PokebuaSkipCard = {
-    play,
-    stop
-  };
+    window.PokebuaSkipCard = {
+      play,
+      stop
+    };
+
+    console.log("PokebuaSkipCard lastet inn");
+
+    /*
+      Midlertidig automatisk test.
+      Animajsonen starter 2 sekunder etter at overlayet åpnes.
+    */
+    setTimeout(() => {
+      console.log("Starter Skip the Line-test");
+      play("TESTBRUKER");
+    }, 2000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();
