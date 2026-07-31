@@ -1,0 +1,808 @@
+/* ======================================================
+   POKEBUA – SKIP THE LINE CARD EVENT
+====================================================== */
+
+.skipfx-event {
+  position: fixed;
+  inset: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  z-index: 999999;
+  overflow: hidden;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+}
+
+.skipfx-event.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.skipfx-stage {
+  position: absolute;
+  inset: 0;
+
+  transform-origin: center;
+}
+
+.skipfx-event.show .skipfx-stage {
+  animation: skipfxCameraShake 6.5s ease both;
+}
+
+/* ------------------------------------------------------
+   BAKGRUNN
+------------------------------------------------------ */
+
+.skipfx-backdrop {
+  position: absolute;
+  inset: 0;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(255, 146, 32, 0.28),
+      rgba(71, 19, 23, 0.42) 38%,
+      rgba(4, 7, 18, 0.88) 78%
+    );
+}
+
+.skipfx-event.show .skipfx-backdrop {
+  animation: skipfxBackdrop 6.5s ease both;
+}
+
+.skipfx-speed-lines {
+  position: absolute;
+  inset: -30%;
+
+  opacity: 0;
+
+  background:
+    repeating-conic-gradient(
+      from 0deg at center,
+      transparent 0deg 7deg,
+      rgba(255, 197, 55, 0.18) 8deg,
+      transparent 10deg
+    );
+}
+
+.skipfx-event.show .skipfx-speed-lines {
+  animation: skipfxSpeedLines 6.5s ease-out both;
+}
+
+/* ------------------------------------------------------
+   KORTET
+------------------------------------------------------ */
+
+.skipfx-card {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+
+  width: min(430px, 31vw);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    translateX(-120vw)
+    rotate(-19deg)
+    scale(0.45);
+
+  transform-origin: center;
+
+  filter:
+    drop-shadow(0 30px 35px rgba(0, 0, 0, 0.72))
+    drop-shadow(0 0 28px rgba(255, 134, 20, 0.5));
+}
+
+.skipfx-event.show .skipfx-card {
+  animation:
+    skipfxCardEntrance
+    6.5s
+    cubic-bezier(.17, .82, .2, 1)
+    both;
+}
+
+.skipfx-card-image {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  border-radius: 5.5%;
+}
+
+.skipfx-card-glow {
+  position: absolute;
+  left: 65%;
+  top: 30%;
+
+  width: 46%;
+  aspect-ratio: 1;
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.1);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      #ffffff 0%,
+      #fff5a4 18%,
+      rgba(255, 155, 28, 0.9) 40%,
+      rgba(255, 48, 0, 0.45) 62%,
+      transparent 74%
+    );
+
+  mix-blend-mode: screen;
+
+  filter:
+    blur(5px)
+    drop-shadow(0 0 30px #ff6a00);
+}
+
+.skipfx-event.show .skipfx-card-glow {
+  animation: skipfxCardGlow 6.5s ease both;
+}
+
+.skipfx-card-crack {
+  position: absolute;
+  inset: -8%;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      circle at 64% 31%,
+      transparent 0 10%,
+      rgba(255, 245, 172, 0.85) 10.5% 11%,
+      transparent 11.5%
+    );
+
+  filter:
+    drop-shadow(0 0 8px #fff3a1)
+    drop-shadow(0 0 20px #ff6a00);
+}
+
+.skipfx-event.show .skipfx-card-crack {
+  animation: skipfxCardCrack 6.5s ease both;
+}
+
+/* ------------------------------------------------------
+   FIGUREN SOM FLYR UT
+------------------------------------------------------ */
+
+.skipfx-character {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+
+  z-index: 20;
+
+  width: min(650px, 48vw);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    translate(110px, -60px)
+    rotate(-11deg)
+    scale(0.025);
+
+  transform-origin: center;
+
+  filter:
+    drop-shadow(0 28px 23px rgba(0, 0, 0, 0.7))
+    drop-shadow(0 0 24px rgba(255, 105, 0, 0.65));
+}
+
+.skipfx-event.show .skipfx-character {
+  animation:
+    skipfxCharacterEscape
+    6.5s
+    cubic-bezier(.12, .78, .17, 1)
+    both;
+}
+
+.skipfx-character-image {
+  display: block;
+
+  width: 100%;
+  height: auto;
+}
+
+/*
+  Figuren skjules dersom skip-character.png
+  ikke er lastet opp ennå.
+*/
+
+.skipfx-character.missing-image {
+  display: none;
+}
+
+.skipfx-character-fire {
+  position: absolute;
+  left: -5%;
+  top: 58%;
+
+  width: 260px;
+  height: 90px;
+
+  opacity: 0.8;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(-8deg);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 55, 0, 0.5),
+      rgba(255, 150, 0, 0.9),
+      rgba(255, 244, 140, 0.95)
+    );
+
+  filter:
+    blur(13px)
+    drop-shadow(0 0 20px #ff5a00);
+}
+
+/* ------------------------------------------------------
+   SKILT
+------------------------------------------------------ */
+
+.skipfx-sign-wrap {
+  position: absolute;
+  left: 50%;
+  top: 72%;
+
+  z-index: 30;
+
+  width: min(820px, 70vw);
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(-12deg)
+    scale(0.08);
+}
+
+.skipfx-event.show .skipfx-sign-wrap {
+  animation:
+    skipfxSignEntrance
+    6.5s
+    cubic-bezier(.17, .88, .3, 1.2)
+    both;
+}
+
+.skipfx-sign {
+  min-height: 210px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 28px 46px;
+
+  border: 9px solid #3d1704;
+  border-radius: 24px;
+
+  background:
+    repeating-linear-gradient(
+      4deg,
+      rgba(255, 255, 255, 0.035) 0 3px,
+      rgba(0, 0, 0, 0.05) 3px 10px
+    ),
+    linear-gradient(
+      180deg,
+      #a45b1e,
+      #66300d 48%,
+      #371304
+    );
+
+  box-shadow:
+    0 0 0 5px #d99d32,
+    0 0 0 10px #361304,
+    inset 0 8px 14px rgba(255, 218, 124, 0.18),
+    inset 0 -18px 26px rgba(22, 4, 0, 0.7),
+    0 28px 52px rgba(0, 0, 0, 0.75);
+}
+
+.skipfx-sign-title {
+  color: #ffef8d;
+
+  font-family:
+    Impact,
+    Haettenschweiler,
+    "Arial Black",
+    sans-serif;
+
+  font-size: clamp(50px, 6vw, 110px);
+  line-height: 0.95;
+  letter-spacing: 0.05em;
+  text-align: center;
+  white-space: nowrap;
+
+  text-shadow:
+    0 3px 0 #ff8b00,
+    0 7px 0 #762100,
+    0 0 12px #fff4a0,
+    0 0 26px #ff9400,
+    0 0 50px #ed3b00;
+}
+
+.skipfx-sign-name {
+  margin-top: 17px;
+
+  max-width: 94%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #ffffff;
+
+  font-size: clamp(29px, 3vw, 56px);
+  line-height: 1;
+  font-weight: 950;
+  text-align: center;
+
+  text-shadow:
+    0 3px 0 #741f00,
+    0 0 8px #ffffff,
+    0 0 20px #ffad20,
+    0 0 38px #ef3c00;
+}
+
+/* ------------------------------------------------------
+   FLASH OG SHOCKWAVE
+------------------------------------------------------ */
+
+.skipfx-flash {
+  position: absolute;
+  inset: 0;
+
+  z-index: 80;
+
+  opacity: 0;
+
+  background: #fff9dc;
+}
+
+.skipfx-event.show .skipfx-flash {
+  animation: skipfxFlash 6.5s linear both;
+}
+
+.skipfx-shockwave {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+
+  z-index: 15;
+
+  width: 150px;
+  height: 150px;
+
+  opacity: 0;
+
+  border: 10px solid rgba(255, 196, 67, 0.9);
+  border-radius: 50%;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.1);
+
+  box-shadow:
+    0 0 32px #ffb000,
+    inset 0 0 27px #ff6900;
+}
+
+.skipfx-event.show .skipfx-shockwave {
+  animation: skipfxShockwave 6.5s ease-out both;
+}
+
+/* ------------------------------------------------------
+   PARTIKLER
+------------------------------------------------------ */
+
+.skipfx-particles {
+  position: absolute;
+  inset: 0;
+
+  z-index: 25;
+}
+
+.skipfx-particle {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+
+  width: var(--size);
+  height: var(--size);
+
+  opacity: 0;
+
+  border-radius: 50%;
+
+  background: #ffdc4d;
+
+  box-shadow:
+    0 0 9px #ffd03d,
+    0 0 20px #ff6200;
+}
+
+.skipfx-event.show .skipfx-particle {
+  animation:
+    skipfxParticle
+    var(--duration)
+    ease-out
+    var(--delay)
+    both;
+}
+
+/* ======================================================
+   KEYFRAMES
+====================================================== */
+
+@keyframes skipfxBackdrop {
+  0% {
+    opacity: 0;
+  }
+
+  7%,
+  88% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes skipfxSpeedLines {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.4);
+  }
+
+  15% {
+    opacity: 0.85;
+  }
+
+  65% {
+    opacity: 0.55;
+    transform: rotate(25deg) scale(1.15);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotate(44deg) scale(1.4);
+  }
+}
+
+@keyframes skipfxCardEntrance {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translateX(-120vw)
+      rotate(-19deg)
+      scale(0.45);
+  }
+
+  9% {
+    opacity: 1;
+  }
+
+  23% {
+    transform:
+      translate(-50%, -50%)
+      translateX(4vw)
+      rotate(6deg)
+      scale(1.1);
+  }
+
+  31%,
+  64% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translateX(0)
+      rotate(0)
+      scale(1);
+  }
+
+  76% {
+    opacity: 0.45;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-8deg)
+      scale(0.8);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-15deg)
+      scale(0.5);
+  }
+}
+
+@keyframes skipfxCardGlow {
+  0%,
+  24% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.1);
+  }
+
+  32% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.9);
+  }
+
+  44% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(1.6);
+  }
+
+  54%,
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(2.4);
+  }
+}
+
+@keyframes skipfxCardCrack {
+  0%,
+  31% {
+    opacity: 0;
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  47%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes skipfxCharacterEscape {
+  0%,
+  31% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translate(110px, -60px)
+      rotate(-11deg)
+      scale(0.025);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  49% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(25px, -45px)
+      rotate(5deg)
+      scale(0.7);
+  }
+
+  59%,
+  80% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      translate(0, -85px)
+      rotate(0)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      translate(130vw, -45vh)
+      rotate(18deg)
+      scale(0.65);
+  }
+}
+
+@keyframes skipfxSignEntrance {
+  0%,
+  49% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(-12deg)
+      scale(0.08);
+  }
+
+  58% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(5deg)
+      scale(1.16);
+  }
+
+  65% {
+    transform:
+      translate(-50%, -50%)
+      rotate(-2deg)
+      scale(0.96);
+  }
+
+  71%,
+  85% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(0)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -66%)
+      rotate(8deg)
+      scale(0.7);
+  }
+}
+
+@keyframes skipfxFlash {
+  0%,
+  31% {
+    opacity: 0;
+  }
+
+  35% {
+    opacity: 0.9;
+  }
+
+  38% {
+    opacity: 0;
+  }
+
+  54% {
+    opacity: 0.3;
+  }
+
+  57%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes skipfxShockwave {
+  0%,
+  32% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0.1);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(11);
+  }
+}
+
+@keyframes skipfxParticle {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(var(--angle))
+      translateX(20px)
+      scale(0.25);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      rotate(var(--angle))
+      translateX(var(--distance))
+      scale(0.7);
+  }
+}
+
+@keyframes skipfxCameraShake {
+  0%,
+  31%,
+  58%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(-10px, 6px);
+  }
+
+  34% {
+    transform: translate(9px, -7px);
+  }
+
+  35% {
+    transform: translate(-7px, -4px);
+  }
+
+  36% {
+    transform: translate(6px, 5px);
+  }
+
+  37% {
+    transform: translate(0, 0);
+  }
+
+  54% {
+    transform: translate(-4px, 3px);
+  }
+
+  55% {
+    transform: translate(5px, -3px);
+  }
+
+  56% {
+    transform: translate(0, 0);
+  }
+}
