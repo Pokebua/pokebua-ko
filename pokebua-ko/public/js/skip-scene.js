@@ -29,11 +29,14 @@
 
     rootElement.innerHTML = `
       <div class="skipscene-media">
-        <img
-          class="skipscene-gif"
-          src="/assets/skip-scene.gif"
-          alt=""
-        />
+        <video
+  class="skipscene-video"
+  src="/assets/skip-scene.mp4"
+  muted
+  playsinline
+  preload="auto"
+></video>
+         
       </div>
 
       <div class="skipscene-sign-wrap">
