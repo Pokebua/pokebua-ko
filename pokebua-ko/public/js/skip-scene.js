@@ -1,11 +1,8 @@
 (() => {
-  const SCENE_DURATION = 5200;
-  const SIGN_DELAY = 3600;
   const SIGN_DURATION = 1400;
 
   let rootElement = null;
   let hideTimer = null;
-  let signTimer = null;
 
   function cleanName(value) {
     const name = String(value ?? "").trim();
@@ -30,13 +27,13 @@
     rootElement.innerHTML = `
       <div class="skipscene-media">
         <video
-  class="skipscene-video"
-  src="/assets/skip-scene.mp4"
-  muted
-  playsinline
-  preload="auto"
-></video>
-         
+          class="skipscene-video"
+          src="/assets/skip-scene.mp4"
+          muted
+          autoplay
+          playsinline
+          preload="auto"
+        ></video>
       </div>
 
       <div class="skipscene-sign-wrap">
@@ -60,64 +57,87 @@
     return rootElement;
   }
 
-  function restartGif(scene) {
-    const image = scene.querySelector(".skipscene-gif");
-
-    if (!image) {
-      return;
-    }
-
-    const source = image.getAttribute("src").split("?")[0];
-
-    image.setAttribute(
-      "src",
-      `${source}?restart=${Date.now()}`
-    );
+  function clearTimers() {
+    clearTimeout(hideTimer);
+    hideTimer = null;
   }
 
   function stop() {
-    clearTimeout(hideTimer);
-    clearTimeout(signTimer);
-
-    hideTimer = null;
-    signTimer = null;
+    clearTimers();
 
     const scene = buildScene();
+    const video = scene.querySelector(".skipscene-video");
+
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
 
     scene.classList.remove("show", "show-sign");
     scene.setAttribute("aria-hidden", "true");
   }
 
-  function play(name) {
+  async function play(name) {
     const scene = buildScene();
+    const video = scene.querySelector(".skipscene-video");
+    const nameElement = scene.querySelector("#skipSceneName");
 
-    clearTimeout(hideTimer);
-    clearTimeout(signTimer);
+    clearTimers();
 
     scene.classList.remove("show", "show-sign");
     scene.setAttribute("aria-hidden", "true");
-
-    const nameElement =
-      scene.querySelector("#skipSceneName");
 
     if (nameElement) {
       nameElement.textContent = cleanName(name);
     }
 
-    restartGif(scene);
+    if (!video) {
+      console.error("Fant ikke Skip the Line-videoen.");
+      return;
+    }
+
+    video.pause();
+    video.currentTime = 0;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+
+    video.onended = () => {
+      scene.classList.add("show-sign");
+
+      hideTimer = setTimeout(() => {
+        stop();
+      }, SIGN_DURATION);
+    };
+
+    video.onerror = () => {
+      console.error(
+        "Kunne ikke laste /assets/skip-scene.mp4"
+      );
+    };
 
     void scene.offsetWidth;
 
     scene.setAttribute("aria-hidden", "false");
     scene.classList.add("show");
 
-    signTimer = setTimeout(() => {
-      scene.classList.add("show-sign");
-    }, SIGN_DELAY);
+    try {
+      await video.play();
+    } catch (error) {
+      console.warn(
+        "Første avspillingsforsøk feilet. Prøver igjen:",
+        error
+      );
 
-    hideTimer = setTimeout(() => {
-      stop();
-    }, SCENE_DURATION + SIGN_DURATION);
+      setTimeout(() => {
+        video.play().catch(secondError => {
+          console.error(
+            "Videoen kunne ikke startes automatisk:",
+            secondError
+          );
+        });
+      }, 100);
+    }
   }
 
   buildScene();
