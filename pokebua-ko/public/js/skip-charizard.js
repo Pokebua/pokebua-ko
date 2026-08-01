@@ -44,9 +44,9 @@
             preload="auto"
           >
             <source
-              src="/assets/skip-charizard.mp4?v=1"
-              type="video/mp4"
-            >
+    src="/assets/skip-charizard.mp4.mp4?v=1"
+    type="video/mp4"
+>
           </video>
 
           <div class="skip-charizard-name-box">
