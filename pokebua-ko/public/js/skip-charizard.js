@@ -40,7 +40,6 @@
           <video
     class="skip-charizard-video"
     src="/assets/skip-charizard.mp4.mp4?v=1"
-    muted
     autoplay
     playsinline
     preload="auto"
@@ -168,9 +167,10 @@
     nameElement.textContent = formatName(name);
 
     video.pause();
-    video.muted = true;
-    video.defaultMuted = true;
-    video.playsInline = true;
+video.muted = false;
+video.defaultMuted = false;
+video.volume = 0.75;
+video.playsInline = true;
 
     try {
       video.currentTime = 0;
