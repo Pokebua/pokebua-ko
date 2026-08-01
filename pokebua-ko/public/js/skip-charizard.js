@@ -1,5 +1,5 @@
 (() => {
-  const NAME_SHOW_AT = 6.1;
+  const NAME_SHOW_AT = 5.6;
   const END_HOLD_MS = 1100;
   const CLOSE_ANIMATION_MS = 450;
 
