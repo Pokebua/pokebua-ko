@@ -38,16 +38,13 @@
 
         <div class="skip-charizard-video-area">
           <video
-            class="skip-charizard-video"
-            muted
-            playsinline
-            preload="auto"
-          >
-            <source
+    class="skip-charizard-video"
     src="/assets/skip-charizard.mp4.mp4?v=1"
-    type="video/mp4"
->
-          </video>
+    muted
+    autoplay
+    playsinline
+    preload="auto"
+></video>
 
           <div class="skip-charizard-name-box">
             <span class="skip-charizard-name">
