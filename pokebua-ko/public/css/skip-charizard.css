@@ -167,7 +167,7 @@
     left: 76.5%;
     top: 59.8%;
 
-    width: 27%;
+    width: 32%;
     height: 13%;
 
     z-index: 20;
@@ -184,33 +184,30 @@
 }
 
 .skip-charizard-name {
-    width: 100%;
+  width: 100%;
 
-    overflow: hidden;
+  color: #16100b;
 
-    color: #16100b;
+  font-family:
+    "Arial Black",
+    Impact,
+    Arial,
+    sans-serif;
 
-    font-family:
-        "Arial Black",
-        Impact,
-        Arial,
-        sans-serif;
+  font-size: clamp(16px, 2vw, 34px);
+  font-weight: 900;
+  line-height: 1;
 
-    font-size: clamp(18px, 2.3vw, 39px);
-    font-weight: 900;
-    line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
 
-    text-align: center;
-    text-transform: uppercase;
+  white-space: nowrap;
 
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  transform: rotate(-0.5deg);
 
-    transform: rotate(-0.5deg);
-
-    text-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.35),
-        0 2px 2px rgba(75, 40, 15, 0.22);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 2px rgba(75, 40, 15, 0.22);
 }
 
 .skip-charizard-flash {
