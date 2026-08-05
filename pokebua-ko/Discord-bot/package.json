@@ -1,0 +1,17 @@
+{
+  "name": "buabot-cgc-timer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Discord-bot som viser nedtelling til CGC-frist i kanalnavnet.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "discord.js": "^14.22.1",
+    "luxon": "^3.7.2"
+  }
+}
