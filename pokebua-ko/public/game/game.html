@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Pokebua Game Control</title>
+  <title>Pokebua – Last Trainer Standing</title>
 
   <script src="/socket.io/socket.io.js"></script>
 
@@ -13,418 +13,551 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       font-family: Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top, #17315f 0%, #0d1628 45%, #070b12 100%);
+      background: #07101d;
       color: white;
-      min-height: 100vh;
     }
 
-    .page {
-      width: min(1500px, 96%);
-      margin: auto;
-      padding: 28px 0 60px;
+    body {
+      background:
+        radial-gradient(circle at 50% 10%, rgba(40, 86, 150, 0.35), transparent 35%),
+        linear-gradient(180deg, #0c1930 0%, #07101d 70%);
+    }
+
+    .game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .background-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.14;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 55px 55px;
+      pointer-events: none;
     }
 
     .topbar {
+      position: absolute;
+      z-index: 20;
+      top: 22px;
+      left: 28px;
+      right: 28px;
+      height: 92px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 24px;
+      padding: 0 26px;
+      border-radius: 18px;
+      background: rgba(7, 15, 28, 0.88);
+      border: 1px solid rgba(99, 144, 210, 0.45);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
     }
 
     .logo {
-      width: 90px;
-      max-height: 80px;
+      width: 110px;
+      max-height: 70px;
       object-fit: contain;
     }
 
-    .brand h1 {
+    .title-wrap h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.4px;
     }
 
-    .brand p {
-      margin: 6px 0 0;
-      color: #9eb0ca;
-    }
-
-    .server-status {
-      padding: 10px 16px;
-      border-radius: 999px;
-      background: #182338;
-      border: 1px solid #2a3d5f;
-      font-weight: bold;
-    }
-
-    .server-status.online {
-      background: #123c2b;
-      border-color: #1f8d60;
-    }
-
-    .server-status.offline {
-      background: #4a1919;
-      border-color: #ad3b3b;
+    .title-wrap p {
+      margin: 8px 0 0;
+      color: #91a9ca;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
     .stats {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .stat {
-      background: rgba(17, 28, 48, 0.95);
-      border: 1px solid #263957;
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      min-width: 118px;
+      padding: 11px 16px;
+      text-align: center;
+      border-radius: 12px;
+      background: #101f36;
+      border: 1px solid #29466d;
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 10px;
+      color: #8da5c5;
       text-transform: uppercase;
-      color: #92a5c0;
-      letter-spacing: 1px;
+      letter-spacing: 1.1px;
+      font-weight: 800;
     }
 
     .stat-value {
-      margin-top: 8px;
-      font-size: 28px;
-      font-weight: 800;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 20px;
-      align-items: start;
-    }
-
-    .card {
-      background: rgba(14, 23, 40, 0.96);
-      border: 1px solid #263957;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.24);
-    }
-
-    .card h2 {
-      margin-top: 0;
-      font-size: 20px;
-    }
-
-    .card-subtitle {
-      margin-top: -8px;
-      margin-bottom: 18px;
-      color: #93a4bd;
-      font-size: 14px;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 14px;
-      font-weight: 800;
-      font-size: 14px;
-      cursor: pointer;
-      transition: 0.15s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.07);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    .primary {
-      background: #facc15;
-      color: #101010;
-    }
-
-    .blue {
-      background: #2f80ed;
-      color: white;
-    }
-
-    .green {
-      background: #23a566;
-      color: white;
-    }
-
-    .orange {
-      background: #f28a2b;
-      color: white;
-    }
-
-    .red {
-      background: #d94b4b;
-      color: white;
-    }
-
-    .purple {
-      background: #7c5ce5;
-      color: white;
-    }
-
-    .dark {
-      background: #25344f;
-      color: white;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      padding: 12px 13px;
-      border-radius: 9px;
-      border: 1px solid #334765;
-      background: #0c1423;
-      color: white;
-      outline: none;
-      font-size: 14px;
-    }
-
-    input:focus,
-    textarea:focus,
-    select:focus {
-      border-color: #facc15;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: #a9b7ca;
-      font-size: 13px;
-      font-weight: bold;
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    .two {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .answer-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .answer-box {
-      border-radius: 12px;
-      padding: 12px;
-      background: #111c2f;
-      border: 1px solid #293b59;
-    }
-
-    .answer-letter {
-      display: inline-flex;
-      width: 28px;
-      height: 28px;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
+      margin-top: 3px;
+      font-size: 23px;
       font-weight: 900;
-      margin-bottom: 8px;
-      background: #facc15;
-      color: #111;
     }
 
-    .question-preview {
-      background: #0c1423;
-      border: 1px solid #293b59;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 14px;
+    .arena {
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      top: 132px;
+      bottom: 24px;
+      border-radius: 24px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at center, rgba(37, 85, 141, 0.18), transparent 50%),
+        #0a1526;
+      border: 1px solid rgba(87, 132, 197, 0.45);
+      box-shadow: inset 0 0 70px rgba(0,0,0,0.4);
     }
 
-    .question-title {
-      font-weight: 800;
-      font-size: 17px;
-      margin-bottom: 12px;
+    .arena::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.32) 100%);
     }
 
-    .question-preview .answers {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .question-panel {
+      position: absolute;
+      z-index: 12;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(920px, 72%);
+      min-height: 122px;
+      padding: 20px 28px;
+      text-align: center;
+      border-radius: 18px;
+      background: rgba(8, 17, 31, 0.95);
+      border: 1px solid #385d8f;
+      box-shadow: 0 16px 45px rgba(0,0,0,0.4);
+      transition: 0.25s ease;
     }
 
-    .answer-preview {
-      padding: 10px;
-      border-radius: 8px;
-      background: #18263d;
-      color: #d9e2ef;
+    .question-panel.hidden {
+      opacity: 0;
+      transform: translate(-50%, -15px);
+      pointer-events: none;
     }
 
-    .answer-preview.correct {
-      outline: 2px solid #45d483;
-      background: #163a2a;
+    .round-label {
+      color: #facc15;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
     }
 
-    .players {
-      max-height: 650px;
-      overflow-y: auto;
-      padding-right: 5px;
+    .question {
+      margin-top: 7px;
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 900;
     }
 
-    .player {
-      display: grid;
-      grid-template-columns: 40px 1fr auto auto;
-      gap: 10px;
-      align-items: center;
-      padding: 10px;
-      border-radius: 10px;
-      background: #111c2f;
-      border: 1px solid #273a57;
-      margin-bottom: 8px;
-    }
-
-    .player.dead {
-      opacity: 0.5;
-    }
-
-    .player-number {
-      width: 34px;
-      height: 34px;
+    .timer {
+      position: absolute;
+      z-index: 16;
+      top: 23px;
+      right: 24px;
+      width: 78px;
+      height: 78px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 9px;
-      background: #1e2c45;
-      font-weight: bold;
+      border-radius: 50%;
+      background: #0c1728;
+      border: 4px solid #facc15;
+      color: #facc15;
+      font-size: 31px;
+      font-weight: 900;
+      box-shadow: 0 0 26px rgba(250, 204, 21, 0.2);
+    }
+
+    .timer.hidden {
+      display: none;
+    }
+
+    .zones {
+      position: absolute;
+      z-index: 5;
+      left: 3%;
+      right: 3%;
+      bottom: 3%;
+      height: 52%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      pointer-events: none;
+    }
+
+    .zone {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      border: 2px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.035);
+      transition:
+        background 0.25s ease,
+        border 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .zone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.16;
+      background:
+        radial-gradient(circle at center, currentColor 0%, transparent 70%);
+    }
+
+    .zone-a {
+      color: #d94c4c;
+    }
+
+    .zone-b {
+      color: #3f83e4;
+    }
+
+    .zone-c {
+      color: #e5bc24;
+    }
+
+    .zone-d {
+      color: #35af6b;
+    }
+
+    .zone-letter {
+      position: absolute;
+      top: 14px;
+      left: 17px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 23px;
+      font-weight: 900;
+      color: white;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .zone-answer {
+      position: absolute;
+      top: 20px;
+      left: 75px;
+      right: 15px;
+      min-height: 32px;
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.65);
+    }
+
+    .zone.correct {
+      border-color: #64f59e;
+      background: rgba(41, 174, 96, 0.25);
+      box-shadow:
+        inset 0 0 45px rgba(57, 255, 132, 0.2),
+        0 0 40px rgba(57, 255, 132, 0.22);
+      transform: scale(1.01);
+    }
+
+    .zone.wrong {
+      border-color: #d84a4a;
+      background: rgba(164, 33, 33, 0.14);
+      opacity: 0.5;
+    }
+
+    .players-layer {
+      position: absolute;
+      z-index: 9;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .player {
+      position: absolute;
+      width: 62px;
+      height: 80px;
+      transform: translate(-50%, -50%);
+      transition:
+        left 0.75s cubic-bezier(.17,.84,.44,1),
+        top 0.75s cubic-bezier(.17,.84,.44,1),
+        opacity 0.5s ease,
+        transform 0.45s ease,
+        filter 0.4s ease;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto;
+      position: relative;
+      border-radius: 14px 14px 11px 11px;
+      background:
+        linear-gradient(180deg, #f0c7a5 0 36%, #34557c 36% 100%);
+      border: 2px solid rgba(255,255,255,0.8);
+      box-shadow:
+        0 4px 8px rgba(0,0,0,0.45),
+        inset 0 -8px 0 rgba(0,0,0,0.12);
+    }
+
+    .avatar::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: 6px;
+      right: 6px;
+      height: 15px;
+      border-radius: 10px 10px 5px 5px;
+      background: #202b3b;
+      border-bottom: 4px solid #e74a4a;
+    }
+
+    .avatar::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -15px;
+      width: 34px;
+      height: 18px;
+      transform: translateX(-50%);
+      border-radius: 0 0 8px 8px;
+      background: #274160;
     }
 
     .player-name {
-      font-weight: 700;
+      width: 130px;
+      margin-left: -34px;
+      margin-top: 13px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: white;
+      text-shadow:
+        0 2px 3px black,
+        0 0 6px black;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .badge {
-      display: inline-flex;
+    .player.dead {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.1) rotate(25deg);
+      filter: grayscale(1);
+    }
+
+    .player.no-answer .avatar {
+      opacity: 0.72;
+    }
+
+    .waiting-message {
+      position: absolute;
+      z-index: 8;
+      left: 50%;
+      top: 43%;
+      transform: translate(-50%, -50%);
+      width: min(900px, 85%);
+      text-align: center;
+      transition: 0.3s ease;
+    }
+
+    .waiting-message.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .waiting-title {
+      font-size: 56px;
+      font-weight: 1000;
+      letter-spacing: -1px;
+    }
+
+    .waiting-subtitle {
+      margin-top: 12px;
+      color: #99acc8;
+      font-size: 21px;
+      font-weight: 700;
+    }
+
+    .join-code {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 14px 27px;
+      border-radius: 14px;
+      color: #111;
+      background: #facc15;
+      font-size: 25px;
+      font-weight: 900;
+      box-shadow: 0 0 32px rgba(250, 204, 21, 0.16);
+    }
+
+    .event-overlay {
+      position: absolute;
+      z-index: 40;
+      inset: 0;
+      display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 38px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 12px;
-      background: #263750;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background: rgba(3,7,13,0.2);
     }
 
-    .badge.answer {
-      background: #294f86;
+    .event-overlay.show {
+      opacity: 1;
     }
 
-    .badge.alive {
-      background: #185c3d;
-    }
-
-    .badge.dead {
-      background: #652d2d;
-    }
-
-    .small-button {
-      padding: 7px 9px;
-      font-size: 11px;
-      border-radius: 7px;
-    }
-
-    .status-message {
-      margin-bottom: 16px;
-      padding: 12px;
-      border-radius: 10px;
-      background: #111c2f;
-      border: 1px solid #273a57;
-      color: #c8d3e4;
-      min-height: 44px;
-    }
-
-    .status-message.error {
-      background: #461c1c;
-      border-color: #803535;
-    }
-
-    .status-message.success {
-      background: #153827;
-      border-color: #276a48;
-    }
-
-    .winner {
+    .event-card {
+      min-width: 460px;
+      max-width: 75%;
+      padding: 35px 48px;
       text-align: center;
-      padding: 20px;
-      background: linear-gradient(
-        135deg,
-        rgba(250, 204, 21, 0.22),
-        rgba(255,255,255,0.04)
-      );
-      border: 1px solid rgba(250, 204, 21, 0.6);
-      border-radius: 14px;
+      border-radius: 24px;
+      background: rgba(7, 15, 28, 0.96);
+      border: 2px solid #facc15;
+      box-shadow: 0 25px 90px rgba(0,0,0,0.65);
+      transform: scale(0.86);
+      transition: transform 0.3s ease;
     }
 
-    .winner-name {
-      margin-top: 8px;
-      font-size: 32px;
-      color: #facc15;
+    .event-overlay.show .event-card {
+      transform: scale(1);
+    }
+
+    .event-small {
+      color: #9fb3d0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
       font-weight: 900;
     }
 
-    .hidden {
-      display: none !important;
+    .event-big {
+      margin-top: 7px;
+      font-size: 48px;
+      font-weight: 1000;
+      color: white;
     }
 
-    @media (max-width: 1000px) {
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .layout {
-        grid-template-columns: 1fr;
-      }
+    .event-big.yellow {
+      color: #facc15;
     }
 
-    @media (max-width: 650px) {
-      .stats,
-      .buttons,
-      .two,
-      .answer-grid,
-      .question-preview .answers {
-        grid-template-columns: 1fr;
+    .winner-screen {
+      position: absolute;
+      z-index: 50;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, rgba(250,204,21,0.24), rgba(4,9,16,0.94) 62%);
+      transition: opacity 0.5s ease;
+    }
+
+    .winner-screen.show {
+      opacity: 1;
+    }
+
+    .trophy {
+      font-size: 88px;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+    }
+
+    .winner-label {
+      margin-top: 10px;
+      color: #facc15;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 4px;
+    }
+
+    .winner-name {
+      margin-top: 12px;
+      font-size: 70px;
+      font-weight: 1000;
+      text-align: center;
+      text-shadow: 0 6px 18px rgba(0,0,0,0.55);
+    }
+
+    .winner-subtitle {
+      margin-top: 12px;
+      color: #a8b8ce;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .connection {
+      position: absolute;
+      z-index: 99;
+      right: 26px;
+      bottom: 19px;
+      font-size: 11px;
+      color: #7890ae;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1200px) {
+      .title-wrap h1 {
+        font-size: 26px;
       }
 
-      .topbar {
-        align-items: flex-start;
-        flex-direction: column;
+      .stat {
+        min-width: 90px;
+      }
+
+      .stat-value {
+        font-size: 20px;
+      }
+
+      .question {
+        font-size: 23px;
+      }
+
+      .waiting-title {
+        font-size: 42px;
       }
     }
   </style>
@@ -432,50 +565,33 @@
 
 <body>
 
-  <div class="page">
+<div class="game">
 
-    <div class="topbar">
+  <div class="background-grid"></div>
 
-      <div class="brand">
-        <img
-          src="/pokebua-logo.png"
-          class="logo"
-          alt="Pokebua"
-        />
+  <div class="topbar">
 
-        <div>
-          <h1>Pokebua Game Control</h1>
-          <p>Last Trainer Standing</p>
-        </div>
-      </div>
+    <div class="brand">
 
-      <div
-        id="serverStatus"
-        class="server-status offline"
-      >
-        Kobler til...
+      <img
+        src="/pokebua-logo.png"
+        class="logo"
+        alt="Pokebua"
+      />
+
+      <div class="title-wrap">
+        <h1>LAST TRAINER STANDING</h1>
+        <p>Pokebua Live Game</p>
       </div>
 
     </div>
 
-
     <div class="stats">
-
-      <div class="stat">
-        <div class="stat-label">Fase</div>
-        <div
-          id="phase"
-          class="stat-value"
-        >
-          WAITING
-        </div>
-      </div>
 
       <div class="stat">
         <div class="stat-label">
           Spillere
         </div>
-
         <div
           id="playerCount"
           class="stat-value"
@@ -488,7 +604,6 @@
         <div class="stat-label">
           Igjen
         </div>
-
         <div
           id="aliveCount"
           class="stat-value"
@@ -501,383 +616,12 @@
         <div class="stat-label">
           Runde
         </div>
-
         <div
-          id="round"
+          id="roundCount"
           class="stat-value"
         >
           0
         </div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">
-          Lobby
-        </div>
-
-        <div
-          id="lobbyStatus"
-          class="stat-value"
-        >
-          STENGT
-        </div>
-      </div>
-
-    </div>
-
-
-    <div
-      id="statusMessage"
-      class="status-message"
-    >
-      Klar.
-    </div>
-
-
-    <div class="layout">
-
-      <div>
-
-        <div class="card">
-
-          <h2>Lobby</h2>
-
-          <div class="card-subtitle">
-            Åpne lobbyen og legg til spillere.
-          </div>
-
-          <div class="field">
-            <label>
-              Maks antall spillere
-            </label>
-
-            <input
-              id="maxPlayers"
-              type="number"
-              min="1"
-              max="100"
-              value="100"
-            />
-          </div>
-
-          <div class="buttons">
-
-            <button
-              class="green"
-              onclick="openLobby()"
-            >
-              OPEN LOBBY
-            </button>
-
-            <button
-              class="dark"
-              onclick="closeLobby()"
-            >
-              CLOSE LOBBY
-            </button>
-
-            <button
-              class="blue"
-              onclick="addTestPlayers(10)"
-            >
-              +10 TEST PLAYERS
-            </button>
-
-            <button
-              class="blue"
-              onclick="addTestPlayers(100)"
-            >
-              100 TEST PLAYERS
-            </button>
-
-            <button
-              class="primary full"
-              onclick="startGame()"
-            >
-              START GAME
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2>Round Control</h2>
-
-          <div class="card-subtitle">
-            Styr runden som vises på stream.
-          </div>
-
-          <div class="field">
-            <label>
-              Tid per spørsmål
-            </label>
-
-            <input
-              id="questionTime"
-              type="number"
-              min="3"
-              max="120"
-              value="12"
-            />
-          </div>
-
-          <div class="buttons">
-
-            <button
-              class="blue"
-              onclick="nextQuestion()"
-            >
-              NEXT QUESTION
-            </button>
-
-            <button
-              class="orange"
-              onclick="lockAnswers()"
-            >
-              LOCK ANSWERS
-            </button>
-
-            <button
-              class="purple"
-              onclick="revealAnswer()"
-            >
-              REVEAL ANSWER
-            </button>
-
-            <button
-              class="red"
-              onclick="eliminateWrong()"
-            >
-              ELIMINATE WRONG
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2>Eget spørsmål</h2>
-
-          <div class="card-subtitle">
-            Du kan sende ditt eget spørsmål i stedet for neste standardspørsmål.
-          </div>
-
-          <div class="field">
-
-            <label>Spørsmål</label>
-
-            <textarea
-              id="customQuestion"
-              rows="3"
-              placeholder="Skriv spørsmålet her..."
-            ></textarea>
-
-          </div>
-
-
-          <div class="answer-grid">
-
-            <div class="answer-box">
-              <div class="answer-letter">
-                A
-              </div>
-
-              <input
-                id="answerA"
-                placeholder="Svar A"
-              />
-            </div>
-
-            <div class="answer-box">
-              <div class="answer-letter">
-                B
-              </div>
-
-              <input
-                id="answerB"
-                placeholder="Svar B"
-              />
-            </div>
-
-            <div class="answer-box">
-              <div class="answer-letter">
-                C
-              </div>
-
-              <input
-                id="answerC"
-                placeholder="Svar C"
-              />
-            </div>
-
-            <div class="answer-box">
-              <div class="answer-letter">
-                D
-              </div>
-
-              <input
-                id="answerD"
-                placeholder="Svar D"
-              />
-            </div>
-
-          </div>
-
-
-          <div class="field" style="margin-top:14px;">
-
-            <label>Riktig svar</label>
-
-            <select id="correctAnswer">
-
-              <option value="A">
-                A
-              </option>
-
-              <option value="B">
-                B
-              </option>
-
-              <option value="C">
-                C
-              </option>
-
-              <option value="D">
-                D
-              </option>
-
-            </select>
-
-          </div>
-
-          <button
-            class="primary"
-            style="width:100%;"
-            onclick="sendCustomQuestion()"
-          >
-            START CUSTOM QUESTION
-          </button>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2>Aktivt spørsmål</h2>
-
-          <div
-            id="noQuestion"
-            class="card-subtitle"
-          >
-            Ingen spørsmål aktivt.
-          </div>
-
-          <div
-            id="questionPreview"
-            class="question-preview hidden"
-          >
-
-            <div
-              id="questionPreviewTitle"
-              class="question-title"
-            ></div>
-
-            <div class="answers">
-
-              <div
-                id="previewA"
-                class="answer-preview"
-              ></div>
-
-              <div
-                id="previewB"
-                class="answer-preview"
-              ></div>
-
-              <div
-                id="previewC"
-                class="answer-preview"
-              ></div>
-
-              <div
-                id="previewD"
-                class="answer-preview"
-              ></div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div
-          id="winnerCard"
-          class="card hidden"
-        >
-
-          <div class="winner">
-
-            <div>
-              🏆 WINNER
-            </div>
-
-            <div
-              id="winnerName"
-              class="winner-name"
-            ></div>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2>Game Reset</h2>
-
-          <div class="card-subtitle">
-            Dette tømmer hele spillet og alle spillerne.
-          </div>
-
-          <button
-            class="red"
-            style="width:100%;"
-            onclick="resetGame()"
-          >
-            RESET GAME
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div>
-
-        <div class="card">
-
-          <h2>Spillere</h2>
-
-          <div
-            id="playerSubtitle"
-            class="card-subtitle"
-          >
-            0 spillere
-          </div>
-
-          <div
-            id="players"
-            class="players"
-          ></div>
-
-        </div>
-
       </div>
 
     </div>
@@ -885,295 +629,575 @@
   </div>
 
 
-  <script>
+  <div class="arena">
 
-    const socket = io();
+    <div
+      id="questionPanel"
+      class="question-panel hidden"
+    >
 
-    let state = null;
+      <div
+        id="roundLabel"
+        class="round-label"
+      >
+        RUNDE 1
+      </div>
 
+      <div
+        id="questionText"
+        class="question"
+      >
+        Spørsmål
+      </div>
 
-    const $ =
-      id =>
-        document.getElementById(id);
-
-
-    socket.on(
-      "connect",
-      () => {
-
-        $("serverStatus")
-          .textContent =
-          "SERVER ONLINE";
-
-        $("serverStatus")
-          .className =
-          "server-status online";
-
-      }
-    );
+    </div>
 
 
-    socket.on(
-      "disconnect",
-      () => {
-
-        $("serverStatus")
-          .textContent =
-          "SERVER OFFLINE";
-
-        $("serverStatus")
-          .className =
-          "server-status offline";
-
-      }
-    );
+    <div
+      id="timer"
+      class="timer hidden"
+    >
+      12
+    </div>
 
 
-    socket.on(
-      "game:update",
-      newState => {
+    <div
+      id="waitingMessage"
+      class="waiting-message"
+    >
 
-        state =
-          newState;
+      <div
+        id="waitingTitle"
+        class="waiting-title"
+      >
+        POKEBUA GAME
+      </div>
 
-        render();
+      <div
+        id="waitingSubtitle"
+        class="waiting-subtitle"
+      >
+        Venter på at spillet skal starte...
+      </div>
 
-      }
-    );
+      <div
+        id="joinCode"
+        class="join-code"
+      >
+        !JOIN
+      </div>
 
-
-    socket.on(
-      "game:winner",
-      winner => {
-
-        showMessage(
-          `🏆 ${winner.name} vant spillet!`,
-          "success"
-        );
-
-      }
-    );
-
-
-    socket.on(
-      "game:elimination",
-      data => {
-
-        showMessage(
-          `${data.eliminated.length} spillere eliminert. ${data.aliveCount} igjen.`,
-          "success"
-        );
-
-      }
-    );
+    </div>
 
 
-    function render() {
+    <div class="zones">
 
-      if (!state) {
-        return;
-      }
+      <div
+        id="zoneA"
+        class="zone zone-a"
+      >
+        <div class="zone-letter">
+          A
+        </div>
+
+        <div
+          id="zoneAnswerA"
+          class="zone-answer"
+        ></div>
+      </div>
 
 
-      $("phase")
+      <div
+        id="zoneB"
+        class="zone zone-b"
+      >
+        <div class="zone-letter">
+          B
+        </div>
+
+        <div
+          id="zoneAnswerB"
+          class="zone-answer"
+        ></div>
+      </div>
+
+
+      <div
+        id="zoneC"
+        class="zone zone-c"
+      >
+        <div class="zone-letter">
+          C
+        </div>
+
+        <div
+          id="zoneAnswerC"
+          class="zone-answer"
+        ></div>
+      </div>
+
+
+      <div
+        id="zoneD"
+        class="zone zone-d"
+      >
+        <div class="zone-letter">
+          D
+        </div>
+
+        <div
+          id="zoneAnswerD"
+          class="zone-answer"
+        ></div>
+      </div>
+
+    </div>
+
+
+    <div
+      id="playersLayer"
+      class="players-layer"
+    ></div>
+
+  </div>
+
+
+  <div
+    id="eventOverlay"
+    class="event-overlay"
+  >
+
+    <div class="event-card">
+
+      <div
+        id="eventSmall"
+        class="event-small"
+      ></div>
+
+      <div
+        id="eventBig"
+        class="event-big"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="winnerScreen"
+    class="winner-screen"
+  >
+
+    <div class="trophy">
+      🏆
+    </div>
+
+    <div class="winner-label">
+      LAST TRAINER STANDING
+    </div>
+
+    <div
+      id="winnerName"
+      class="winner-name"
+    >
+      Winner
+    </div>
+
+    <div class="winner-subtitle">
+      Vinneren av Pokebua Game!
+    </div>
+
+  </div>
+
+
+  <div
+    id="connection"
+    class="connection"
+  >
+    CONNECTING...
+  </div>
+
+</div>
+
+
+<script>
+
+  const socket = io();
+
+  let state = null;
+  let timerInterval = null;
+
+  const playerElements =
+    new Map();
+
+
+  const $ =
+    id =>
+      document.getElementById(id);
+
+
+  socket.on(
+    "connect",
+    () => {
+
+      $("connection")
         .textContent =
-        String(
-          state.phase ||
-          "waiting"
-        ).toUpperCase();
-
-
-      $("playerCount")
-        .textContent =
-        state.playerCount ?? 0;
-
-
-      $("aliveCount")
-        .textContent =
-        state.aliveCount ?? 0;
-
-
-      $("round")
-        .textContent =
-        state.round ?? 0;
-
-
-      $("lobbyStatus")
-        .textContent =
-        state.lobbyOpen
-          ? "ÅPEN"
-          : "STENGT";
-
-
-      $("maxPlayers")
-        .value =
-        state.maxPlayers || 100;
-
-
-      renderPlayers();
-
-      renderQuestion();
-
-      renderWinner();
+        "SERVER ONLINE";
 
     }
+  );
 
 
-    function renderPlayers() {
+  socket.on(
+    "disconnect",
+    () => {
 
-      const container =
-        $("players");
-
-      const players =
-        state.players || [];
-
-      $("playerSubtitle")
+      $("connection")
         .textContent =
-        `${players.length} spillere`;
+        "SERVER OFFLINE";
 
-      container.innerHTML =
-        "";
-
-
-      if (!players.length) {
-
-        container.innerHTML =
-          `
-            <div
-              style="
-                color:#8698b4;
-                text-align:center;
-                padding:30px;
-              "
-            >
-              Ingen spillere enda.
-            </div>
-          `;
-
-        return;
-      }
+    }
+  );
 
 
-      players.forEach(
-        (player, index) => {
+  socket.on(
+    "game:update",
+    newState => {
 
-          const row =
-            document.createElement(
-              "div"
-            );
+      state =
+        newState;
 
-          row.className =
-            `player ${
-              player.alive
-                ? ""
-                : "dead"
-            }`;
+      renderState();
+
+    }
+  );
 
 
-          const answer =
-            player.answer
-              ? player.answer
-              : "-";
+  socket.on(
+    "game:player-joined",
+    player => {
 
-
-          row.innerHTML =
-            `
-              <div
-                class="player-number"
-              >
-                ${index + 1}
-              </div>
-
-              <div
-                class="player-name"
-              >
-                ${escapeHtml(
-                  player.name
-                )}
-              </div>
-
-              <div
-                class="badge answer"
-              >
-                ${answer}
-              </div>
-
-              <div>
-                ${
-                  player.alive
-
-                    ? `
-                      <span
-                        class="badge alive"
-                      >
-                        ALIVE
-                      </span>
-                    `
-
-                    : `
-                      <button
-                        class="green small-button"
-                        onclick="revivePlayer(${player.id})"
-                      >
-                        REVIVE
-                      </button>
-                    `
-                }
-              </div>
-            `;
-
-          container.appendChild(
-            row
-          );
-
-        }
+      showEvent(
+        "NY TRAINER",
+        player.name,
+        1300
       );
 
     }
+  );
 
 
-    function renderQuestion() {
+  socket.on(
+    "game:started",
+    data => {
 
-      const q =
-        state.currentQuestion;
+      showEvent(
+        "GAME START",
+        `${data.playerCount} TRAINERS`,
+        1600
+      );
 
-
-      if (!q) {
-
-        $("noQuestion")
-          .classList
-          .remove(
-            "hidden"
-          );
-
-        $("questionPreview")
-          .classList
-          .add(
-            "hidden"
-          );
-
-        return;
-      }
+    }
+  );
 
 
-      $("noQuestion")
-        .classList
-        .add(
-          "hidden"
-        );
+  socket.on(
+    "game:question",
+    () => {
+
+      showEvent(
+        "RUNDE STARTER",
+        "VELG A / B / C / D",
+        1100
+      );
+
+    }
+  );
 
 
-      $("questionPreview")
+  socket.on(
+    "game:locked",
+    () => {
+
+      showEvent(
+        "SVAR LÅST",
+        "INGEN FLERE SVAR",
+        1200
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "game:reveal",
+    data => {
+
+      showEvent(
+        "RIKTIG SVAR",
+        data.correct,
+        1500,
+        true
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "game:elimination",
+    data => {
+
+      showEvent(
+        "ELIMINERT",
+        `${data.eliminated.length} TRAINERS`,
+        1700
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "game:winner",
+    winner => {
+
+      showWinner(
+        winner.name
+      );
+
+    }
+  );
+
+
+  function renderState() {
+
+    if (!state) {
+      return;
+    }
+
+
+    $("playerCount")
+      .textContent =
+      state.playerCount ?? 0;
+
+
+    $("aliveCount")
+      .textContent =
+      state.aliveCount ?? 0;
+
+
+    $("roundCount")
+      .textContent =
+      state.round ?? 0;
+
+
+    renderWaiting();
+
+    renderQuestion();
+
+    renderPlayers();
+
+    renderWinner();
+
+    updateTimer();
+
+  }
+
+
+  function renderWaiting() {
+
+    const phase =
+      state.phase;
+
+
+    if (
+      phase === "waiting"
+    ) {
+
+      $("waitingMessage")
         .classList
         .remove(
           "hidden"
         );
 
-
-      $("questionPreviewTitle")
+      $("waitingTitle")
         .textContent =
-        q.question;
+        "POKEBUA GAME";
 
+      $("waitingSubtitle")
+        .textContent =
+        "Venter på at lobbyen skal åpne...";
+
+      $("joinCode")
+        .style
+        .display =
+        "none";
+
+      return;
+
+    }
+
+
+    if (
+      phase === "lobby"
+    ) {
+
+      $("waitingMessage")
+        .classList
+        .remove(
+          "hidden"
+        );
+
+      $("waitingTitle")
+        .textContent =
+        "LOBBY OPEN";
+
+      $("waitingSubtitle")
+        .textContent =
+        `${state.playerCount} / ${state.maxPlayers} trainers er med`;
+
+      $("joinCode")
+        .style
+        .display =
+        "inline-block";
+
+      return;
+
+    }
+
+
+    if (
+      phase === "ready"
+    ) {
+
+      $("waitingMessage")
+        .classList
+        .remove(
+          "hidden"
+        );
+
+      $("waitingTitle")
+        .textContent =
+        "READY?";
+
+      $("waitingSubtitle")
+        .textContent =
+        `${state.aliveCount} trainers klare`;
+
+      $("joinCode")
+        .style
+        .display =
+        "none";
+
+      return;
+
+    }
+
+
+    if (
+      phase === "finished" &&
+      !state.winner
+    ) {
+
+      $("waitingMessage")
+        .classList
+        .remove(
+          "hidden"
+        );
+
+      $("waitingTitle")
+        .textContent =
+        "ALLE BLE ELIMINERT";
+
+      $("waitingSubtitle")
+        .textContent =
+        "Ingen vinner denne runden";
+
+      $("joinCode")
+        .style
+        .display =
+        "none";
+
+      return;
+
+    }
+
+
+    $("waitingMessage")
+      .classList
+      .add(
+        "hidden"
+      );
+
+  }
+
+
+  function renderQuestion() {
+
+    const q =
+      state.currentQuestion;
+
+
+    if (!q) {
+
+      $("questionPanel")
+        .classList
+        .add(
+          "hidden"
+        );
+
+      clearZones();
+
+      return;
+    }
+
+
+    $("questionPanel")
+      .classList
+      .remove(
+        "hidden"
+      );
+
+
+    $("roundLabel")
+      .textContent =
+      `RUNDE ${state.round}`;
+
+
+    $("questionText")
+      .textContent =
+      q.question;
+
+
+    $("zoneAnswerA")
+      .textContent =
+      q.answers?.A || "";
+
+
+    $("zoneAnswerB")
+      .textContent =
+      q.answers?.B || "";
+
+
+    $("zoneAnswerC")
+      .textContent =
+      q.answers?.C || "";
+
+
+    $("zoneAnswerD")
+      .textContent =
+      q.answers?.D || "";
+
+
+    clearZoneStates();
+
+
+    if (
+      state.revealCorrectAnswer &&
+      q.correct
+    ) {
 
       const letters =
         ["A", "B", "C", "D"];
@@ -1182,32 +1206,27 @@
       letters.forEach(
         letter => {
 
-          const element =
-            $(
-              `preview${letter}`
-            );
-
-
-          element.textContent =
-            `${letter}: ${
-              q.answers?.[letter] || ""
-            }`;
-
-
-          element.classList
-            .remove(
-              "correct"
-            );
+          const zone =
+            $(`zone${letter}`);
 
 
           if (
-            q.correct ===
-            letter
+            letter ===
+            q.correct
           ) {
-            element.classList
+
+            zone.classList
               .add(
                 "correct"
               );
+
+          } else {
+
+            zone.classList
+              .add(
+                "wrong"
+              );
+
           }
 
         }
@@ -1215,435 +1234,671 @@
 
     }
 
+  }
 
-    function renderWinner() {
 
-      if (
-        state.winner &&
-        state.winner.name
-      ) {
+  function clearZones() {
 
-        $("winnerCard")
+    $("zoneAnswerA")
+      .textContent = "";
+
+    $("zoneAnswerB")
+      .textContent = "";
+
+    $("zoneAnswerC")
+      .textContent = "";
+
+    $("zoneAnswerD")
+      .textContent = "";
+
+    clearZoneStates();
+
+  }
+
+
+  function clearZoneStates() {
+
+    [
+      "A",
+      "B",
+      "C",
+      "D"
+    ].forEach(
+      letter => {
+
+        $(`zone${letter}`)
           .classList
           .remove(
-            "hidden"
-          );
-
-
-        $("winnerName")
-          .textContent =
-          state.winner.name;
-
-      } else {
-
-        $("winnerCard")
-          .classList
-          .add(
-            "hidden"
+            "correct",
+            "wrong"
           );
 
       }
+    );
+
+  }
+
+
+  function renderPlayers() {
+
+    const players =
+      state.players || [];
+
+
+    const liveIds =
+      new Set(
+        players.map(
+          player =>
+            String(player.id)
+        )
+      );
+
+
+    playerElements.forEach(
+      (element, id) => {
+
+        if (
+          !liveIds.has(
+            String(id)
+          )
+        ) {
+
+          element.remove();
+
+          playerElements
+            .delete(id);
+
+        }
+
+      }
+    );
+
+
+    players.forEach(
+      (player, index) => {
+
+        let element =
+          playerElements.get(
+            player.id
+          );
+
+
+        if (!element) {
+
+          element =
+            createPlayerElement(
+              player
+            );
+
+          playerElements.set(
+            player.id,
+            element
+          );
+
+
+          $("playersLayer")
+            .appendChild(
+              element
+            );
+
+        }
+
+
+        updatePlayerElement(
+          element,
+          player,
+          index,
+          players.length
+        );
+
+      }
+    );
+
+  }
+
+
+  function createPlayerElement(
+    player
+  ) {
+
+    const element =
+      document.createElement(
+        "div"
+      );
+
+
+    element.className =
+      "player";
+
+
+    element.innerHTML =
+      `
+        <div class="avatar"></div>
+
+        <div class="player-name">
+          ${escapeHtml(player.name)}
+        </div>
+      `;
+
+
+    return element;
+
+  }
+
+
+  function updatePlayerElement(
+    element,
+    player,
+    index,
+    totalPlayers
+  ) {
+
+    const position =
+      getPlayerPosition(
+        player,
+        index,
+        totalPlayers
+      );
+
+
+    element.style.left =
+      `${position.x}%`;
+
+
+    element.style.top =
+      `${position.y}%`;
+
+
+    element.classList
+      .toggle(
+        "dead",
+        !player.alive
+      );
+
+
+    element.classList
+      .toggle(
+        "no-answer",
+        player.alive &&
+        state.phase === "question" &&
+        !player.answer
+      );
+
+
+    const name =
+      element.querySelector(
+        ".player-name"
+      );
+
+
+    if (name) {
+
+      name.textContent =
+        player.name;
+
+    }
+
+  }
+
+
+  function getPlayerPosition(
+    player,
+    index,
+    totalPlayers
+  ) {
+
+    if (
+      player.alive &&
+      player.answer &&
+      ["A", "B", "C", "D"]
+        .includes(
+          player.answer
+        )
+    ) {
+
+      return getZonePosition(
+        player.answer,
+        player.id
+      );
 
     }
 
 
-    async function api(
-      url,
-      method = "POST",
-      body = {}
+    return getLobbyPosition(
+      index,
+      totalPlayers,
+      player.id
+    );
+
+  }
+
+
+  function getLobbyPosition(
+    index,
+    total,
+    id
+  ) {
+
+    const cols =
+      Math.max(
+        8,
+        Math.ceil(
+          Math.sqrt(
+            Math.min(
+              total,
+              100
+            ) * 1.6
+          )
+        )
+      );
+
+
+    const row =
+      Math.floor(
+        index / cols
+      );
+
+
+    const col =
+      index % cols;
+
+
+    const rows =
+      Math.ceil(
+        Math.max(
+          total,
+          1
+        ) /
+        cols
+      );
+
+
+    const width =
+      62;
+
+
+    const startX =
+      50 -
+      width / 2;
+
+
+    const x =
+      total === 1
+        ? 50
+        : startX +
+          (
+            col /
+            Math.max(
+              cols - 1,
+              1
+            )
+          ) *
+          width;
+
+
+    const startY =
+      26;
+
+
+    const height =
+      23;
+
+
+    const y =
+      rows <= 1
+        ? 34
+        : startY +
+          (
+            row /
+            Math.max(
+              rows - 1,
+              1
+            )
+          ) *
+          height;
+
+
+    const jitterX =
+      seededRandom(
+        id * 91
+      ) *
+      1.5 -
+      0.75;
+
+
+    const jitterY =
+      seededRandom(
+        id * 153
+      ) *
+      1.5 -
+      0.75;
+
+
+    return {
+      x: x + jitterX,
+      y: y + jitterY
+    };
+
+  }
+
+
+  function getZonePosition(
+    answer,
+    id
+  ) {
+
+    const ranges = {
+
+      A: {
+        x1: 9,
+        x2: 46,
+        y1: 58,
+        y2: 73
+      },
+
+      B: {
+        x1: 54,
+        x2: 91,
+        y1: 58,
+        y2: 73
+      },
+
+      C: {
+        x1: 9,
+        x2: 46,
+        y1: 79,
+        y2: 94
+      },
+
+      D: {
+        x1: 54,
+        x2: 91,
+        y1: 79,
+        y2: 94
+      }
+
+    };
+
+
+    const r =
+      ranges[answer];
+
+
+    const rx =
+      seededRandom(
+        id * 301
+      );
+
+
+    const ry =
+      seededRandom(
+        id * 727
+      );
+
+
+    return {
+      x:
+        r.x1 +
+        rx *
+        (
+          r.x2 -
+          r.x1
+        ),
+
+      y:
+        r.y1 +
+        ry *
+        (
+          r.y2 -
+          r.y1
+        )
+    };
+
+  }
+
+
+  function seededRandom(
+    seed
+  ) {
+
+    const x =
+      Math.sin(seed) *
+      10000;
+
+
+    return (
+      x -
+      Math.floor(x)
+    );
+
+  }
+
+
+  function updateTimer() {
+
+    clearInterval(
+      timerInterval
+    );
+
+
+    timerInterval =
+      null;
+
+
+    if (
+      !state.questionEndsAt ||
+      state.phase !== "question"
     ) {
 
-      try {
+      $("timer")
+        .classList
+        .add(
+          "hidden"
+        );
 
-        const options = {
-          method,
-          headers: {
-            "Content-Type":
-              "application/json"
-          }
-        };
+      return;
+
+    }
+
+
+    $("timer")
+      .classList
+      .remove(
+        "hidden"
+      );
+
+
+    const tick =
+      () => {
+
+        if (
+          !state ||
+          !state.questionEndsAt
+        ) {
+          return;
+        }
+
+
+        const remaining =
+          Math.max(
+            0,
+            Math.ceil(
+              (
+                new Date(
+                  state.questionEndsAt
+                ).getTime() -
+                Date.now()
+              ) /
+              1000
+            )
+          );
+
+
+        $("timer")
+          .textContent =
+          remaining;
 
 
         if (
-          method !==
-          "GET"
+          remaining <= 0
         ) {
-          options.body =
-            JSON.stringify(
-              body
+
+          clearInterval(
+            timerInterval
+          );
+
+          timerInterval =
+            null;
+
+        }
+
+      };
+
+
+    tick();
+
+
+    timerInterval =
+      setInterval(
+        tick,
+        250
+      );
+
+  }
+
+
+  function renderWinner() {
+
+    if (
+      state.winner &&
+      state.winner.name
+    ) {
+
+      showWinner(
+        state.winner.name
+      );
+
+      return;
+
+    }
+
+
+    $("winnerScreen")
+      .classList
+      .remove(
+        "show"
+      );
+
+  }
+
+
+  function showWinner(
+    name
+  ) {
+
+    $("winnerName")
+      .textContent =
+      name;
+
+
+    $("winnerScreen")
+      .classList
+      .add(
+        "show"
+      );
+
+  }
+
+
+  let eventTimeout =
+    null;
+
+
+  function showEvent(
+    small,
+    big,
+    duration = 1400,
+    yellow = false
+  ) {
+
+    clearTimeout(
+      eventTimeout
+    );
+
+
+    $("eventSmall")
+      .textContent =
+      small;
+
+
+    $("eventBig")
+      .textContent =
+      big;
+
+
+    $("eventBig")
+      .classList
+      .toggle(
+        "yellow",
+        yellow
+      );
+
+
+    $("eventOverlay")
+      .classList
+      .add(
+        "show"
+      );
+
+
+    eventTimeout =
+      setTimeout(
+        () => {
+
+          $("eventOverlay")
+            .classList
+            .remove(
+              "show"
             );
-        }
 
-
-        const response =
-          await fetch(
-            url,
-            options
-          );
-
-
-        const data =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.error ||
-            "Noe gikk galt"
-          );
-
-        }
-
-
-        return data;
-
-      } catch (error) {
-
-        showMessage(
-          error.message,
-          "error"
-        );
-
-        throw error;
-
-      }
-
-    }
-
-
-    async function openLobby() {
-
-      const max =
-        Number(
-          $("maxPlayers").value
-        ) || 100;
-
-
-      await api(
-        "/api/game/lobby/open",
-        "POST",
-        {
-          maxPlayers: max
-        }
+        },
+        duration
       );
 
-
-      showMessage(
-        "Lobby åpnet.",
-        "success"
-      );
-
-    }
-
-
-    async function closeLobby() {
-
-      await api(
-        "/api/game/lobby/close"
-      );
-
-
-      showMessage(
-        "Lobby stengt.",
-        "success"
-      );
-
-    }
-
-
-    async function addTestPlayers(
-      count
-    ) {
-
-      await api(
-        "/api/game/test-players",
-        "POST",
-        {
-          count
-        }
-      );
-
-
-      showMessage(
-        `${count} testspillere lagt til.`,
-        "success"
-      );
-
-    }
-
-
-    async function startGame() {
-
-      await api(
-        "/api/game/start"
-      );
-
-
-      showMessage(
-        "Spillet er startet.",
-        "success"
-      );
-
-    }
-
-
-    async function nextQuestion() {
-
-      const duration =
-        Number(
-          $("questionTime").value
-        ) || 12;
-
-
-      await api(
-        "/api/game/question/next",
-        "POST",
-        {
-          durationSeconds:
-            duration
-        }
-      );
-
-
-      showMessage(
-        "Neste spørsmål startet.",
-        "success"
-      );
-
-    }
-
-
-    async function lockAnswers() {
-
-      await api(
-        "/api/game/lock"
-      );
-
-
-      showMessage(
-        "Svar låst.",
-        "success"
-      );
-
-    }
-
-
-    async function revealAnswer() {
-
-      await api(
-        "/api/game/reveal"
-      );
-
-
-      showMessage(
-        "Riktig svar vises.",
-        "success"
-      );
-
-    }
-
-
-    async function eliminateWrong() {
-
-      await api(
-        "/api/game/eliminate"
-      );
-
-    }
-
-
-    async function sendCustomQuestion() {
-
-      const question =
-        $("customQuestion")
-          .value
-          .trim();
-
-
-      const A =
-        $("answerA")
-          .value
-          .trim();
-
-
-      const B =
-        $("answerB")
-          .value
-          .trim();
-
-
-      const C =
-        $("answerC")
-          .value
-          .trim();
-
-
-      const D =
-        $("answerD")
-          .value
-          .trim();
-
-
-      const correct =
-        $("correctAnswer")
-          .value;
-
-
-      const duration =
-        Number(
-          $("questionTime")
-            .value
-        ) || 12;
-
-
-      if (
-        !question ||
-        !A ||
-        !B ||
-        !C ||
-        !D
-      ) {
-
-        showMessage(
-          "Fyll ut spørsmål og alle fire svaralternativer.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      await api(
-        "/api/game/question",
-        "POST",
-        {
-          question,
-
-          answers: {
-            A,
-            B,
-            C,
-            D
-          },
-
-          correct,
-
-          durationSeconds:
-            duration
-        }
-      );
-
-
-      showMessage(
-        "Custom spørsmål startet.",
-        "success"
-      );
-
-    }
-
-
-    async function revivePlayer(
-      id
-    ) {
-
-      await api(
-        `/api/game/player/${id}/revive`
-      );
-
-
-      showMessage(
-        "Spilleren er tilbake.",
-        "success"
-      );
-
-    }
-
-
-    async function resetGame() {
-
-      const confirmed =
-        confirm(
-          "Vil du resette hele spillet? Alle spillere forsvinner."
-        );
-
-
-      if (!confirmed) {
-        return;
-      }
-
-
-      await api(
-        "/api/game/reset"
-      );
-
-
-      showMessage(
-        "Spillet er resatt.",
-        "success"
-      );
-
-    }
-
-
-    function showMessage(
-      text,
-      type = ""
-    ) {
-
-      const element =
-        $("statusMessage");
-
-
-      element.textContent =
-        text;
-
-
-      element.className =
-        "status-message";
-
-
-      if (type) {
-
-        element.classList
-          .add(type);
-
-      }
-
-    }
-
-
-    function escapeHtml(
-      value
-    ) {
-
-      return String(
-        value ?? ""
+  }
+
+
+  function escapeHtml(
+    value
+  ) {
+
+    return String(
+      value ?? ""
+    )
+      .replace(
+        /&/g,
+        "&amp;"
       )
-        .replace(
-          /&/g,
-          "&amp;"
-        )
-        .replace(
-          /</g,
-          "&lt;"
-        )
-        .replace(
-          />/g,
-          "&gt;"
-        )
-        .replace(
-          /"/g,
-          "&quot;"
-        )
-        .replace(
-          /'/g,
-          "&#039;"
-        );
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
 
-    }
+  }
 
-  </script>
+</script>
 
 </body>
 </html>
