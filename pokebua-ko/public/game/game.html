@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="no">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>Pokebua – Last Trainer Standing</title>
 
   <script src="/socket.io/socket.io.js"></script>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -19,427 +25,1023 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #07101d;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #06101d;
       color: white;
     }
 
     body {
       background:
-        radial-gradient(circle at 50% 10%, rgba(40, 86, 150, 0.35), transparent 35%),
-        linear-gradient(180deg, #0c1930 0%, #07101d 70%);
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(42, 98, 172, 0.32),
+          transparent 38%
+        ),
+        linear-gradient(
+          180deg,
+          #0b1930 0%,
+          #06101d 72%
+        );
     }
 
     .game {
       position: relative;
+
       width: 100vw;
       height: 100vh;
+
       overflow: hidden;
     }
 
     .background-grid {
       position: absolute;
       inset: 0;
-      opacity: 0.14;
+
+      opacity: 0.09;
+
       background-image:
-        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
-      background-size: 55px 55px;
+        linear-gradient(
+          rgba(255,255,255,0.08) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,0.08) 1px,
+          transparent 1px
+        );
+
+      background-size:
+        55px 55px;
+
       pointer-events: none;
     }
 
+    /* =====================================================
+       TOP BAR
+    ===================================================== */
+
     .topbar {
       position: absolute;
-      z-index: 20;
-      top: 22px;
+
+      z-index: 30;
+
+      top: 20px;
       left: 28px;
       right: 28px;
+
       height: 92px;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       padding: 0 26px;
+
       border-radius: 18px;
-      background: rgba(7, 15, 28, 0.88);
-      border: 1px solid rgba(99, 144, 210, 0.45);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+
+      background:
+        rgba(
+          7,
+          15,
+          28,
+          0.91
+        );
+
+      border:
+        1px solid
+        rgba(
+          91,
+          140,
+          206,
+          0.45
+        );
+
+      box-shadow:
+        0 14px 45px
+        rgba(
+          0,
+          0,
+          0,
+          0.35
+        );
+
+      backdrop-filter:
+        blur(15px);
     }
 
     .brand {
       display: flex;
+
       align-items: center;
+
       gap: 18px;
     }
 
     .logo {
-      width: 110px;
-      max-height: 70px;
+      width: 112px;
+
+      max-height: 68px;
+
       object-fit: contain;
     }
 
     .title-wrap h1 {
       margin: 0;
-      font-size: 34px;
+
+      font-size: 33px;
+
       line-height: 1;
+
       font-weight: 900;
-      letter-spacing: 0.4px;
     }
 
     .title-wrap p {
-      margin: 8px 0 0;
-      color: #91a9ca;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1px;
+      margin:
+        8px 0 0;
+
+      font-size: 14px;
+
+      font-weight: 800;
+
+      color: #8fa8cb;
+
+      letter-spacing: 1.5px;
+
       text-transform: uppercase;
     }
 
     .stats {
       display: flex;
-      align-items: center;
+
       gap: 12px;
     }
 
     .stat {
-      min-width: 118px;
-      padding: 11px 16px;
+      min-width: 112px;
+
+      padding:
+        10px 15px;
+
       text-align: center;
+
       border-radius: 12px;
+
       background: #101f36;
-      border: 1px solid #29466d;
+
+      border:
+        1px solid #29466d;
     }
 
     .stat-label {
       font-size: 10px;
-      color: #8da5c5;
-      text-transform: uppercase;
-      letter-spacing: 1.1px;
+
       font-weight: 800;
+
+      letter-spacing: 1px;
+
+      text-transform: uppercase;
+
+      color: #8da5c5;
     }
 
     .stat-value {
-      margin-top: 3px;
-      font-size: 23px;
+      margin-top: 4px;
+
+      font-size: 24px;
+
       font-weight: 900;
     }
 
+    /* =====================================================
+       ARENA
+    ===================================================== */
+
     .arena {
       position: absolute;
+
+      top: 130px;
       left: 28px;
       right: 28px;
-      top: 132px;
       bottom: 24px;
-      border-radius: 24px;
+
       overflow: hidden;
+
+      border-radius: 24px;
+
       background:
-        radial-gradient(circle at center, rgba(37, 85, 141, 0.18), transparent 50%),
-        #0a1526;
-      border: 1px solid rgba(87, 132, 197, 0.45);
-      box-shadow: inset 0 0 70px rgba(0,0,0,0.4);
+        radial-gradient(
+          circle at center,
+          rgba(
+            41,
+            89,
+            151,
+            0.15
+          ),
+          transparent 54%
+        ),
+        #091525;
+
+      border:
+        1px solid
+        rgba(
+          86,
+          132,
+          196,
+          0.43
+        );
+
+      box-shadow:
+        inset
+        0
+        0
+        80px
+        rgba(
+          0,
+          0,
+          0,
+          0.37
+        );
     }
 
     .arena::after {
       content: "";
+
       position: absolute;
+
       inset: 0;
+
       pointer-events: none;
+
       background:
-        radial-gradient(circle at 50% 50%, transparent 40%, rgba(0,0,0,0.32) 100%);
+        radial-gradient(
+          circle at center,
+          transparent 47%,
+          rgba(
+            0,
+            0,
+            0,
+            0.27
+          )
+          100%
+        );
     }
+
+    /* =====================================================
+       QUESTION
+    ===================================================== */
 
     .question-panel {
       position: absolute;
-      z-index: 12;
-      top: 28px;
+
+      z-index: 18;
+
+      top: 24px;
       left: 50%;
-      transform: translateX(-50%);
-      width: min(920px, 72%);
-      min-height: 122px;
-      padding: 20px 28px;
+
+      transform:
+        translateX(-50%);
+
+      width:
+        min(
+          960px,
+          70%
+        );
+
+      min-height: 105px;
+
+      padding:
+        17px
+        110px
+        17px
+        28px;
+
       text-align: center;
-      border-radius: 18px;
-      background: rgba(8, 17, 31, 0.95);
-      border: 1px solid #385d8f;
-      box-shadow: 0 16px 45px rgba(0,0,0,0.4);
-      transition: 0.25s ease;
+
+      border-radius: 17px;
+
+      background:
+        rgba(
+          7,
+          16,
+          30,
+          0.95
+        );
+
+      border:
+        1px solid #375d91;
+
+      box-shadow:
+        0
+        15px
+        44px
+        rgba(
+          0,
+          0,
+          0,
+          0.4
+        );
+
+      transition:
+        0.3s ease;
     }
 
     .question-panel.hidden {
       opacity: 0;
-      transform: translate(-50%, -15px);
+
+      transform:
+        translate(
+          -50%,
+          -18px
+        );
+
       pointer-events: none;
     }
 
     .round-label {
       color: #facc15;
+
       font-size: 12px;
+
       font-weight: 900;
+
       letter-spacing: 2px;
-      text-transform: uppercase;
     }
 
     .question {
       margin-top: 7px;
-      font-size: 28px;
-      line-height: 1.15;
+
+      font-size: 27px;
+
       font-weight: 900;
+
+      line-height: 1.15;
     }
 
     .timer {
       position: absolute;
-      z-index: 16;
-      top: 23px;
-      right: 24px;
-      width: 78px;
-      height: 78px;
+
+      z-index: 22;
+
+      top: 36px;
+      left:
+        calc(
+          50% +
+          365px
+        );
+
+      width: 67px;
+      height: 67px;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
+
       border-radius: 50%;
-      background: #0c1728;
-      border: 4px solid #facc15;
+
+      background: #0a1628;
+
+      border:
+        4px solid #facc15;
+
       color: #facc15;
-      font-size: 31px;
+
+      font-size: 28px;
+
       font-weight: 900;
-      box-shadow: 0 0 26px rgba(250, 204, 21, 0.2);
+
+      box-shadow:
+        0
+        0
+        27px
+        rgba(
+          250,
+          204,
+          21,
+          0.18
+        );
     }
 
     .timer.hidden {
       display: none;
     }
 
+    /* =====================================================
+       ANSWER ZONES
+    ===================================================== */
+
     .zones {
       position: absolute;
-      z-index: 5;
-      left: 3%;
-      right: 3%;
-      bottom: 3%;
-      height: 52%;
+
+      z-index: 4;
+
+      left: 2.5%;
+      right: 2.5%;
+
+      bottom: 2.5%;
+
+      height: 51%;
+
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      grid-template-rows:
+        1fr 1fr;
+
+      gap: 15px;
+
       pointer-events: none;
     }
 
     .zone {
       position: relative;
+
       overflow: hidden;
+
       border-radius: 22px;
-      border: 2px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.035);
+
+      border:
+        2px solid
+        rgba(
+          255,
+          255,
+          255,
+          0.08
+        );
+
+      background:
+        rgba(
+          255,
+          255,
+          255,
+          0.025
+        );
+
       transition:
-        background 0.25s ease,
-        border 0.25s ease,
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
+        background
+        0.3s ease,
+        border
+        0.3s ease,
+        opacity
+        0.3s ease,
+        transform
+        0.3s ease,
+        box-shadow
+        0.3s ease;
     }
 
     .zone::before {
       content: "";
+
       position: absolute;
+
       inset: 0;
-      opacity: 0.16;
+
+      opacity: 0.14;
+
       background:
-        radial-gradient(circle at center, currentColor 0%, transparent 70%);
+        radial-gradient(
+          circle at center,
+          currentColor,
+          transparent 68%
+        );
     }
 
     .zone-a {
-      color: #d94c4c;
+      color: #d64e4e;
     }
 
     .zone-b {
-      color: #3f83e4;
+      color: #3983e7;
     }
 
     .zone-c {
-      color: #e5bc24;
+      color: #d9b925;
     }
 
     .zone-d {
-      color: #35af6b;
+      color: #39ae6c;
     }
 
     .zone-letter {
       position: absolute;
-      top: 14px;
-      left: 17px;
-      width: 44px;
-      height: 44px;
+
+      top: 13px;
+      left: 14px;
+
+      width: 42px;
+      height: 42px;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
-      border-radius: 12px;
-      font-size: 23px;
-      font-weight: 900;
+
+      border-radius: 11px;
+
+      background:
+        rgba(
+          0,
+          0,
+          0,
+          0.32
+        );
+
+      border:
+        1px solid
+        rgba(
+          255,
+          255,
+          255,
+          0.12
+        );
+
       color: white;
-      background: rgba(0,0,0,0.28);
-      border: 1px solid rgba(255,255,255,0.16);
+
+      font-size: 22px;
+
+      font-weight: 900;
     }
 
     .zone-answer {
       position: absolute;
-      top: 20px;
-      left: 75px;
-      right: 15px;
-      min-height: 32px;
+
+      top: 21px;
+      left: 68px;
+      right: 16px;
+
       font-size: 18px;
-      font-weight: 800;
+
+      font-weight: 900;
+
       color: white;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.65);
+
+      text-shadow:
+        0
+        2px
+        5px
+        rgba(
+          0,
+          0,
+          0,
+          0.7
+        );
     }
 
     .zone.correct {
-      border-color: #64f59e;
-      background: rgba(41, 174, 96, 0.25);
+      opacity: 1;
+
+      border-color:
+        #60f598;
+
+      background:
+        rgba(
+          29,
+          166,
+          84,
+          0.24
+        );
+
       box-shadow:
-        inset 0 0 45px rgba(57, 255, 132, 0.2),
-        0 0 40px rgba(57, 255, 132, 0.22);
-      transform: scale(1.01);
+        inset
+        0
+        0
+        55px
+        rgba(
+          54,
+          255,
+          130,
+          0.18
+        ),
+        0
+        0
+        35px
+        rgba(
+          54,
+          255,
+          130,
+          0.15
+        );
+
+      transform:
+        scale(1.012);
     }
 
     .zone.wrong {
-      border-color: #d84a4a;
-      background: rgba(164, 33, 33, 0.14);
-      opacity: 0.5;
+      border-color:
+        rgba(
+          210,
+          62,
+          62,
+          0.55
+        );
+
+      background:
+        rgba(
+          151,
+          29,
+          29,
+          0.11
+        );
+
+      opacity: 0.4;
     }
+
+    /* =====================================================
+       PLAYERS
+    ===================================================== */
 
     .players-layer {
       position: absolute;
-      z-index: 9;
+
+      z-index: 10;
+
       inset: 0;
+
       pointer-events: none;
     }
 
     .player {
       position: absolute;
-      width: 62px;
-      height: 80px;
-      transform: translate(-50%, -50%);
+
+      width: 44px;
+      height: 58px;
+
+      transform:
+        translate(
+          -50%,
+          -50%
+        );
+
       transition:
-        left 0.75s cubic-bezier(.17,.84,.44,1),
-        top 0.75s cubic-bezier(.17,.84,.44,1),
-        opacity 0.5s ease,
-        transform 0.45s ease,
-        filter 0.4s ease;
+        left
+        0.7s
+        cubic-bezier(
+          .17,
+          .84,
+          .44,
+          1
+        ),
+        top
+        0.7s
+        cubic-bezier(
+          .17,
+          .84,
+          .44,
+          1
+        ),
+        opacity
+        0.55s ease,
+        transform
+        0.55s ease,
+        filter
+        0.45s ease;
     }
 
     .avatar {
-      width: 48px;
-      height: 48px;
-      margin: 0 auto;
       position: relative;
-      border-radius: 14px 14px 11px 11px;
+
+      width: 34px;
+      height: 34px;
+
+      margin:
+        0 auto;
+
+      border-radius:
+        10px
+        10px
+        8px
+        8px;
+
       background:
-        linear-gradient(180deg, #f0c7a5 0 36%, #34557c 36% 100%);
-      border: 2px solid rgba(255,255,255,0.8);
+        linear-gradient(
+          180deg,
+          #efc8a7
+          0 36%,
+          #34567c
+          36% 100%
+        );
+
+      border:
+        1px solid
+        rgba(
+          255,
+          255,
+          255,
+          0.78
+        );
+
       box-shadow:
-        0 4px 8px rgba(0,0,0,0.45),
-        inset 0 -8px 0 rgba(0,0,0,0.12);
+        0
+        4px
+        7px
+        rgba(
+          0,
+          0,
+          0,
+          0.45
+        ),
+        inset
+        0
+        -6px
+        0
+        rgba(
+          0,
+          0,
+          0,
+          0.12
+        );
     }
 
     .avatar::before {
       content: "";
+
       position: absolute;
-      top: -7px;
-      left: 6px;
-      right: 6px;
-      height: 15px;
-      border-radius: 10px 10px 5px 5px;
-      background: #202b3b;
-      border-bottom: 4px solid #e74a4a;
+
+      top: -5px;
+      left: 4px;
+      right: 4px;
+
+      height: 10px;
+
+      border-radius:
+        7px
+        7px
+        4px
+        4px;
+
+      background: #202a3a;
+
+      border-bottom:
+        3px solid #e34646;
     }
 
     .avatar::after {
       content: "";
+
       position: absolute;
+
       left: 50%;
-      bottom: -15px;
-      width: 34px;
-      height: 18px;
-      transform: translateX(-50%);
-      border-radius: 0 0 8px 8px;
-      background: #274160;
+      bottom: -10px;
+
+      width: 23px;
+      height: 12px;
+
+      transform:
+        translateX(-50%);
+
+      border-radius:
+        0
+        0
+        6px
+        6px;
+
+      background: #27415f;
     }
 
     .player-name {
-      width: 130px;
-      margin-left: -34px;
-      margin-top: 13px;
+      width: 92px;
+
+      margin-left: -24px;
+      margin-top: 8px;
+
       text-align: center;
-      font-size: 11px;
+
+      font-size: 9px;
+
       font-weight: 900;
+
       color: white;
-      text-shadow:
-        0 2px 3px black,
-        0 0 6px black;
+
       white-space: nowrap;
+
       overflow: hidden;
+
       text-overflow: ellipsis;
+
+      text-shadow:
+        0
+        2px
+        3px
+        #000,
+        0
+        0
+        5px
+        #000;
+
+      transition:
+        opacity
+        0.25s ease;
     }
+
+    /*
+      Over 40 spillere:
+      skjul navnene.
+    */
+
+    .hide-player-names
+    .player-name {
+      opacity: 0;
+    }
+
+    /*
+      Top 20
+    */
+
+    .top20
+    .player {
+      width: 52px;
+      height: 67px;
+    }
+
+    .top20
+    .avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    .top20
+    .player-name {
+      opacity: 1;
+
+      width: 110px;
+
+      margin-left: -29px;
+
+      font-size: 10px;
+    }
+
+    /*
+      Top 10
+    */
+
+    .top10
+    .player {
+      width: 60px;
+      height: 77px;
+    }
+
+    .top10
+    .avatar {
+      width: 48px;
+      height: 48px;
+    }
+
+    .top10
+    .player-name {
+      width: 130px;
+
+      margin-left: -35px;
+
+      font-size: 12px;
+    }
+
+    /*
+      Eliminering
+    */
 
     .player.dead {
       opacity: 0;
-      transform: translate(-50%, -50%) scale(0.1) rotate(25deg);
-      filter: grayscale(1);
+
+      filter:
+        grayscale(1)
+        brightness(0.55);
+
+      transform:
+        translate(
+          -50%,
+          -50%
+        )
+        scale(0.05)
+        rotate(28deg);
     }
 
-    .player.no-answer .avatar {
-      opacity: 0.72;
+    .player.no-answer
+    .avatar {
+      opacity: 0.58;
     }
+
+    /* =====================================================
+       WAITING SCREEN
+    ===================================================== */
 
     .waiting-message {
       position: absolute;
+
       z-index: 8;
+
+      top: 34%;
       left: 50%;
-      top: 43%;
-      transform: translate(-50%, -50%);
-      width: min(900px, 85%);
+
+      transform:
+        translate(
+          -50%,
+          -50%
+        );
+
+      width:
+        min(
+          900px,
+          85%
+        );
+
       text-align: center;
-      transition: 0.3s ease;
+
+      transition:
+        0.3s ease;
     }
 
     .waiting-message.hidden {
       opacity: 0;
+
       pointer-events: none;
     }
 
     .waiting-title {
-      font-size: 56px;
+      font-size: 55px;
+
       font-weight: 1000;
-      letter-spacing: -1px;
     }
 
     .waiting-subtitle {
-      margin-top: 12px;
-      color: #99acc8;
-      font-size: 21px;
+      margin-top: 11px;
+
+      font-size: 20px;
+
       font-weight: 700;
+
+      color: #99acc8;
     }
 
     .join-code {
       display: inline-block;
-      margin-top: 25px;
-      padding: 14px 27px;
+
+      margin-top: 24px;
+
+      padding:
+        14px
+        28px;
+
       border-radius: 14px;
+
       color: #111;
+
       background: #facc15;
+
       font-size: 25px;
+
       font-weight: 900;
-      box-shadow: 0 0 32px rgba(250, 204, 21, 0.16);
+
+      box-shadow:
+        0
+        0
+        28px
+        rgba(
+          250,
+          204,
+          21,
+          0.17
+        );
     }
+
+    /* =====================================================
+       EVENT OVERLAY
+    ===================================================== */
 
     .event-overlay {
       position: absolute;
-      z-index: 40;
+
+      z-index: 50;
+
       inset: 0;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
-      pointer-events: none;
+
       opacity: 0;
-      transition: opacity 0.25s ease;
-      background: rgba(3,7,13,0.2);
+
+      pointer-events: none;
+
+      transition:
+        opacity
+        0.25s ease;
+
+      background:
+        rgba(
+          3,
+          7,
+          13,
+          0.18
+        );
     }
 
     .event-overlay.show {
@@ -447,54 +1049,165 @@
     }
 
     .event-card {
-      min-width: 460px;
+      min-width: 440px;
+
       max-width: 75%;
-      padding: 35px 48px;
+
+      padding:
+        33px
+        48px;
+
       text-align: center;
-      border-radius: 24px;
-      background: rgba(7, 15, 28, 0.96);
-      border: 2px solid #facc15;
-      box-shadow: 0 25px 90px rgba(0,0,0,0.65);
-      transform: scale(0.86);
-      transition: transform 0.3s ease;
+
+      border-radius: 22px;
+
+      background:
+        rgba(
+          7,
+          15,
+          28,
+          0.96
+        );
+
+      border:
+        2px solid #facc15;
+
+      box-shadow:
+        0
+        25px
+        90px
+        rgba(
+          0,
+          0,
+          0,
+          0.65
+        );
+
+      transform:
+        scale(0.86);
+
+      transition:
+        transform
+        0.3s ease;
     }
 
-    .event-overlay.show .event-card {
-      transform: scale(1);
+    .event-overlay.show
+    .event-card {
+      transform:
+        scale(1);
     }
 
     .event-small {
       color: #9fb3d0;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+
+      font-size: 13px;
+
       font-weight: 900;
+
+      letter-spacing: 2px;
     }
 
     .event-big {
-      margin-top: 7px;
-      font-size: 48px;
+      margin-top: 8px;
+
+      font-size: 46px;
+
       font-weight: 1000;
-      color: white;
     }
 
     .event-big.yellow {
       color: #facc15;
     }
 
+    /* =====================================================
+       TOP TEN MESSAGE
+    ===================================================== */
+
+    .topten-banner {
+      position: absolute;
+
+      z-index: 35;
+
+      left: 50%;
+      bottom: 30px;
+
+      transform:
+        translateX(-50%);
+
+      padding:
+        10px
+        22px;
+
+      border-radius: 999px;
+
+      background:
+        rgba(
+          250,
+          204,
+          21,
+          0.94
+        );
+
+      color: #131313;
+
+      font-size: 16px;
+
+      font-weight: 1000;
+
+      opacity: 0;
+
+      transition:
+        opacity
+        0.3s ease;
+    }
+
+    .topten-banner.show {
+      opacity: 1;
+    }
+
+    /* =====================================================
+       WINNER
+    ===================================================== */
+
     .winner-screen {
       position: absolute;
-      z-index: 50;
+
+      z-index: 80;
+
       inset: 0;
+
       display: flex;
+
       flex-direction: column;
+
       align-items: center;
       justify-content: center;
+
       opacity: 0;
+
       pointer-events: none;
+
       background:
-        radial-gradient(circle at center, rgba(250,204,21,0.24), rgba(4,9,16,0.94) 62%);
-      transition: opacity 0.5s ease;
+        radial-gradient(
+          circle at center,
+          rgba(
+            250,
+            204,
+            21,
+            0.26
+          ),
+          rgba(
+            4,
+            9,
+            16,
+            0.96
+          )
+          62%
+        );
+
+      transition:
+        opacity
+        0.5s ease;
     }
 
     .winner-screen.show {
@@ -502,72 +1215,84 @@
     }
 
     .trophy {
-      font-size: 88px;
-      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+      font-size: 92px;
     }
 
     .winner-label {
-      margin-top: 10px;
+      margin-top: 9px;
+
       color: #facc15;
-      font-size: 20px;
+
+      font-size: 19px;
+
       font-weight: 900;
+
       letter-spacing: 4px;
     }
 
     .winner-name {
       margin-top: 12px;
+
       font-size: 70px;
+
       font-weight: 1000;
+
       text-align: center;
-      text-shadow: 0 6px 18px rgba(0,0,0,0.55);
+
+      text-shadow:
+        0
+        7px
+        20px
+        rgba(
+          0,
+          0,
+          0,
+          0.58
+        );
     }
 
     .winner-subtitle {
-      margin-top: 12px;
+      margin-top: 10px;
+
       color: #a8b8ce;
-      font-size: 22px;
+
+      font-size: 21px;
+
       font-weight: 700;
     }
 
     .connection {
       position: absolute;
-      z-index: 99;
-      right: 26px;
-      bottom: 19px;
-      font-size: 11px;
-      color: #7890ae;
-      font-weight: 700;
+
+      z-index: 100;
+
+      right: 25px;
+      bottom: 15px;
+
+      color: #7187a5;
+
+      font-size: 10px;
+
+      font-weight: 800;
     }
 
-    @media (max-width: 1200px) {
-      .title-wrap h1 {
-        font-size: 26px;
-      }
-
-      .stat {
-        min-width: 90px;
-      }
-
-      .stat-value {
-        font-size: 20px;
-      }
-
-      .question {
-        font-size: 23px;
-      }
-
-      .waiting-title {
-        font-size: 42px;
-      }
-    }
   </style>
 </head>
 
+
 <body>
 
-<div class="game">
+<div
+  id="game"
+  class="game"
+>
 
   <div class="background-grid"></div>
+
+
+  <!-- ==================================================
+       TOP BAR
+  =================================================== -->
 
   <div class="topbar">
 
@@ -580,48 +1305,67 @@
       />
 
       <div class="title-wrap">
-        <h1>LAST TRAINER STANDING</h1>
-        <p>Pokebua Live Game</p>
+
+        <h1>
+          LAST TRAINER STANDING
+        </h1>
+
+        <p>
+          Pokebua Live Game
+        </p>
+
       </div>
 
     </div>
 
+
     <div class="stats">
 
       <div class="stat">
+
         <div class="stat-label">
           Spillere
         </div>
+
         <div
           id="playerCount"
           class="stat-value"
         >
           0
         </div>
+
       </div>
 
+
       <div class="stat">
+
         <div class="stat-label">
           Igjen
         </div>
+
         <div
           id="aliveCount"
           class="stat-value"
         >
           0
         </div>
+
       </div>
 
+
       <div class="stat">
+
         <div class="stat-label">
           Runde
         </div>
+
         <div
           id="roundCount"
           class="stat-value"
         >
           0
         </div>
+
       </div>
 
     </div>
@@ -629,7 +1373,14 @@
   </div>
 
 
+  <!-- ==================================================
+       ARENA
+  =================================================== -->
+
   <div class="arena">
+
+
+    <!-- QUESTION -->
 
     <div
       id="questionPanel"
@@ -661,6 +1412,8 @@
     </div>
 
 
+    <!-- WAITING -->
+
     <div
       id="waitingMessage"
       class="waiting-message"
@@ -690,12 +1443,15 @@
     </div>
 
 
+    <!-- ANSWER ZONES -->
+
     <div class="zones">
 
       <div
         id="zoneA"
         class="zone zone-a"
       >
+
         <div class="zone-letter">
           A
         </div>
@@ -704,6 +1460,7 @@
           id="zoneAnswerA"
           class="zone-answer"
         ></div>
+
       </div>
 
 
@@ -711,6 +1468,7 @@
         id="zoneB"
         class="zone zone-b"
       >
+
         <div class="zone-letter">
           B
         </div>
@@ -719,6 +1477,7 @@
           id="zoneAnswerB"
           class="zone-answer"
         ></div>
+
       </div>
 
 
@@ -726,6 +1485,7 @@
         id="zoneC"
         class="zone zone-c"
       >
+
         <div class="zone-letter">
           C
         </div>
@@ -734,6 +1494,7 @@
           id="zoneAnswerC"
           class="zone-answer"
         ></div>
+
       </div>
 
 
@@ -741,6 +1502,7 @@
         id="zoneD"
         class="zone zone-d"
       >
+
         <div class="zone-letter">
           D
         </div>
@@ -749,10 +1511,13 @@
           id="zoneAnswerD"
           class="zone-answer"
         ></div>
+
       </div>
 
     </div>
 
+
+    <!-- PLAYERS -->
 
     <div
       id="playersLayer"
@@ -761,6 +1526,18 @@
 
   </div>
 
+
+  <!-- TOP 10 -->
+
+  <div
+    id="topTenBanner"
+    class="topten-banner"
+  >
+    🔥 TOP 10 🔥
+  </div>
+
+
+  <!-- EVENT -->
 
   <div
     id="eventOverlay"
@@ -783,6 +1560,8 @@
 
   </div>
 
+
+  <!-- WINNER -->
 
   <div
     id="winnerScreen"
@@ -823,10 +1602,25 @@
 
 <script>
 
-  const socket = io();
+  const socket =
+    io();
 
-  let state = null;
-  let timerInterval = null;
+
+  let state =
+    null;
+
+
+  let timerInterval =
+    null;
+
+
+  let eventTimeout =
+    null;
+
+
+  let lastAliveCount =
+    null;
+
 
   const playerElements =
     new Map();
@@ -834,7 +1628,14 @@
 
   const $ =
     id =>
-      document.getElementById(id);
+      document.getElementById(
+        id
+      );
+
+
+  /* =====================================================
+     SOCKET
+  ===================================================== */
 
 
   socket.on(
@@ -878,11 +1679,18 @@
     "game:player-joined",
     player => {
 
-      showEvent(
-        "NY TRAINER",
-        player.name,
-        1300
-      );
+      if (
+        state &&
+        state.playerCount <= 20
+      ) {
+
+        showEvent(
+          "NY TRAINER",
+          player.name,
+          900
+        );
+
+      }
 
     }
   );
@@ -895,7 +1703,7 @@
       showEvent(
         "GAME START",
         `${data.playerCount} TRAINERS`,
-        1600
+        1500
       );
 
     }
@@ -909,7 +1717,7 @@
       showEvent(
         "RUNDE STARTER",
         "VELG A / B / C / D",
-        1100
+        1000
       );
 
     }
@@ -923,7 +1731,7 @@
       showEvent(
         "SVAR LÅST",
         "INGEN FLERE SVAR",
-        1200
+        1100
       );
 
     }
@@ -937,7 +1745,7 @@
       showEvent(
         "RIKTIG SVAR",
         data.correct,
-        1500,
+        1400,
         true
       );
 
@@ -952,7 +1760,7 @@
       showEvent(
         "ELIMINERT",
         `${data.eliminated.length} TRAINERS`,
-        1700
+        1500
       );
 
     }
@@ -969,6 +1777,11 @@
 
     }
   );
+
+
+  /* =====================================================
+     MAIN RENDER
+  ===================================================== */
 
 
   function renderState() {
@@ -993,17 +1806,112 @@
       state.round ?? 0;
 
 
+    updatePlayerScaleMode();
+
+
     renderWaiting();
+
 
     renderQuestion();
 
+
     renderPlayers();
+
 
     renderWinner();
 
+
     updateTimer();
 
+
+    detectTopTen();
+
   }
+
+
+  /* =====================================================
+     PLAYER SCALE / NAMES
+  ===================================================== */
+
+
+  function updatePlayerScaleMode() {
+
+    const game =
+      $("game");
+
+
+    game.classList
+      .remove(
+        "hide-player-names",
+        "top20",
+        "top10"
+      );
+
+
+    const alive =
+      state.aliveCount ?? 0;
+
+
+    /*
+      Mer enn 40:
+      ingen navn.
+    */
+
+    if (
+      alive > 40
+    ) {
+
+      game.classList
+        .add(
+          "hide-player-names"
+        );
+
+      return;
+    }
+
+
+    /*
+      11-20:
+      litt større figurer.
+    */
+
+    if (
+      alive <= 20 &&
+      alive > 10
+    ) {
+
+      game.classList
+        .add(
+          "top20"
+        );
+
+      return;
+    }
+
+
+    /*
+      Top 10:
+      enda større.
+    */
+
+    if (
+      alive <= 10 &&
+      alive > 0
+    ) {
+
+      game.classList
+        .add(
+          "top10"
+        );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     WAITING / LOBBY
+  ===================================================== */
 
 
   function renderWaiting() {
@@ -1022,18 +1930,22 @@
           "hidden"
         );
 
+
       $("waitingTitle")
         .textContent =
         "POKEBUA GAME";
+
 
       $("waitingSubtitle")
         .textContent =
         "Venter på at lobbyen skal åpne...";
 
+
       $("joinCode")
         .style
         .display =
         "none";
+
 
       return;
 
@@ -1050,18 +1962,22 @@
           "hidden"
         );
 
+
       $("waitingTitle")
         .textContent =
         "LOBBY OPEN";
+
 
       $("waitingSubtitle")
         .textContent =
         `${state.playerCount} / ${state.maxPlayers} trainers er med`;
 
+
       $("joinCode")
         .style
         .display =
         "inline-block";
+
 
       return;
 
@@ -1078,18 +1994,22 @@
           "hidden"
         );
 
+
       $("waitingTitle")
         .textContent =
         "READY?";
+
 
       $("waitingSubtitle")
         .textContent =
         `${state.aliveCount} trainers klare`;
 
+
       $("joinCode")
         .style
         .display =
         "none";
+
 
       return;
 
@@ -1107,18 +2027,22 @@
           "hidden"
         );
 
+
       $("waitingTitle")
         .textContent =
         "ALLE BLE ELIMINERT";
+
 
       $("waitingSubtitle")
         .textContent =
         "Ingen vinner denne runden";
 
+
       $("joinCode")
         .style
         .display =
         "none";
+
 
       return;
 
@@ -1132,6 +2056,11 @@
       );
 
   }
+
+
+  /* =====================================================
+     QUESTION
+  ===================================================== */
 
 
   function renderQuestion() {
@@ -1148,9 +2077,12 @@
           "hidden"
         );
 
+
       clearZones();
 
+
       return;
+
     }
 
 
@@ -1199,15 +2131,18 @@
       q.correct
     ) {
 
-      const letters =
-        ["A", "B", "C", "D"];
-
-
-      letters.forEach(
+      [
+        "A",
+        "B",
+        "C",
+        "D"
+      ].forEach(
         letter => {
 
           const zone =
-            $(`zone${letter}`);
+            $(
+              `zone${letter}`
+            );
 
 
           if (
@@ -1242,14 +2177,18 @@
     $("zoneAnswerA")
       .textContent = "";
 
+
     $("zoneAnswerB")
       .textContent = "";
+
 
     $("zoneAnswerC")
       .textContent = "";
 
+
     $("zoneAnswerD")
       .textContent = "";
+
 
     clearZoneStates();
 
@@ -1266,7 +2205,9 @@
     ].forEach(
       letter => {
 
-        $(`zone${letter}`)
+        $(
+          `zone${letter}`
+        )
           .classList
           .remove(
             "correct",
@@ -1279,43 +2220,90 @@
   }
 
 
+  /* =====================================================
+     PLAYERS
+  ===================================================== */
+
+
   function renderPlayers() {
 
     const players =
       state.players || [];
 
 
-    const liveIds =
-      new Set(
-        players.map(
-          player =>
-            String(player.id)
-        )
+    const alivePlayers =
+      players.filter(
+        player =>
+          player.alive
       );
 
 
-    playerElements.forEach(
-      (element, id) => {
+    /*
+      Bruk kun alive players
+      for posisjonsberegningen.
+    */
 
-        if (
-          !liveIds.has(
-            String(id)
-          )
-        ) {
+    const aliveIndexes =
+      new Map();
 
-          element.remove();
 
-          playerElements
-            .delete(id);
+    alivePlayers.forEach(
+      (
+        player,
+        index
+      ) => {
 
-        }
+        aliveIndexes.set(
+          player.id,
+          index
+        );
 
       }
     );
 
 
+    const liveIds =
+      new Set(
+        players.map(
+          player =>
+            String(
+              player.id
+            )
+        )
+      );
+
+
+    /*
+      Fjern spillere som faktisk
+      ikke finnes i server state.
+    */
+
+    playerElements
+      .forEach(
+        (
+          element,
+          id
+        ) => {
+
+          if (
+            !liveIds.has(
+              String(id)
+            )
+          ) {
+
+            element.remove();
+
+            playerElements
+              .delete(id);
+
+          }
+
+        }
+      );
+
+
     players.forEach(
-      (player, index) => {
+      player => {
 
         let element =
           playerElements.get(
@@ -1329,6 +2317,7 @@
             createPlayerElement(
               player
             );
+
 
           playerElements.set(
             player.id,
@@ -1344,11 +2333,21 @@
         }
 
 
+        const aliveIndex =
+          aliveIndexes.has(
+            player.id
+          )
+            ? aliveIndexes.get(
+                player.id
+              )
+            : 0;
+
+
         updatePlayerElement(
           element,
           player,
-          index,
-          players.length
+          aliveIndex,
+          alivePlayers.length
         );
 
       }
@@ -1376,7 +2375,9 @@
         <div class="avatar"></div>
 
         <div class="player-name">
-          ${escapeHtml(player.name)}
+          ${escapeHtml(
+            player.name
+          )}
         </div>
       `;
 
@@ -1389,15 +2390,15 @@
   function updatePlayerElement(
     element,
     player,
-    index,
-    totalPlayers
+    aliveIndex,
+    aliveTotal
   ) {
 
     const position =
       getPlayerPosition(
         player,
-        index,
-        totalPlayers
+        aliveIndex,
+        aliveTotal
       );
 
 
@@ -1420,20 +2421,23 @@
       .toggle(
         "no-answer",
         player.alive &&
-        state.phase === "question" &&
+        state.phase ===
+          "question" &&
         !player.answer
       );
 
 
-    const name =
+    const nameElement =
       element.querySelector(
         ".player-name"
       );
 
 
-    if (name) {
+    if (
+      nameElement
+    ) {
 
-      name.textContent =
+      nameElement.textContent =
         player.name;
 
     }
@@ -1441,36 +2445,61 @@
   }
 
 
+  /* =====================================================
+     PLAYER POSITION
+  ===================================================== */
+
+
   function getPlayerPosition(
     player,
     index,
-    totalPlayers
+    total
   ) {
+
+    /*
+      Når spilleren har svart:
+      flytt til A/B/C/D.
+    */
 
     if (
       player.alive &&
       player.answer &&
-      ["A", "B", "C", "D"]
-        .includes(
-          player.answer
-        )
+      [
+        "A",
+        "B",
+        "C",
+        "D"
+      ].includes(
+        player.answer
+      )
     ) {
 
       return getZonePosition(
         player.answer,
-        player.id
+        player.id,
+        index
       );
 
     }
 
 
+    /*
+      Ellers står spilleren
+      i hovedområdet.
+    */
+
     return getLobbyPosition(
       index,
-      totalPlayers,
+      total,
       player.id
     );
 
   }
+
+
+  /* =====================================================
+     LOBBY GRID
+  ===================================================== */
 
 
   function getLobbyPosition(
@@ -1479,28 +2508,43 @@
     id
   ) {
 
-    const cols =
-      Math.max(
-        8,
-        Math.ceil(
-          Math.sqrt(
-            Math.min(
-              total,
-              100
-            ) * 1.6
-          )
-        )
-      );
+    /*
+      Hvor mange kolonner vi bruker
+      avhenger av antall spillere.
+    */
+
+    let cols;
 
 
-    const row =
-      Math.floor(
-        index / cols
-      );
+    if (
+      total <= 10
+    ) {
 
+      cols = 5;
 
-    const col =
-      index % cols;
+    } else if (
+      total <= 20
+    ) {
+
+      cols = 8;
+
+    } else if (
+      total <= 40
+    ) {
+
+      cols = 10;
+
+    } else if (
+      total <= 70
+    ) {
+
+      cols = 14;
+
+    } else {
+
+      cols = 17;
+
+    }
 
 
     const rows =
@@ -1513,41 +2557,103 @@
       );
 
 
-    const width =
-      62;
+    /*
+      Vi bruker nesten hele bredden.
+    */
+
+    const minX = 6;
+    const maxX = 94;
 
 
-    const startX =
-      50 -
-      width / 2;
+    /*
+      Området over A/B/C/D.
+    */
+
+    let minY = 18;
+    let maxY = 46;
+
+
+    /*
+      Ved 70-100 spillere får vi
+      litt mer høyde.
+    */
+
+    if (
+      total > 70
+    ) {
+
+      minY = 16;
+      maxY = 48;
+
+    }
+
+
+    const row =
+      Math.floor(
+        index / cols
+      );
+
+
+    const col =
+      index % cols;
+
+
+    /*
+      Antall spillere i aktuell rad.
+    */
+
+    const playersInRow =
+      Math.min(
+        cols,
+        total -
+        row * cols
+      );
+
+
+    /*
+      Sentrerer siste rad.
+    */
+
+    const rowOffset =
+      (
+        cols -
+        playersInRow
+      ) / 2;
+
+
+    const adjustedCol =
+      col +
+      rowOffset;
 
 
     const x =
-      total === 1
+      cols <= 1
+
         ? 50
-        : startX +
+
+        : minX +
           (
-            col /
+            adjustedCol /
             Math.max(
               cols - 1,
               1
             )
           ) *
-          width;
-
-
-    const startY =
-      26;
-
-
-    const height =
-      23;
+          (
+            maxX -
+            minX
+          );
 
 
     const y =
       rows <= 1
-        ? 34
-        : startY +
+
+        ? (
+            minY +
+            maxY
+          ) / 2
+
+        : minY +
           (
             row /
             Math.max(
@@ -1555,64 +2661,100 @@
               1
             )
           ) *
-          height;
+          (
+            maxY -
+            minY
+          );
+
+
+    /*
+      Liten variasjon.
+      Ikke så mye at de kolliderer.
+    */
+
+    const amount =
+      total > 40
+        ? 0.35
+        : 0.65;
 
 
     const jitterX =
-      seededRandom(
-        id * 91
+      (
+        seededRandom(
+          id * 91
+        ) -
+        0.5
       ) *
-      1.5 -
-      0.75;
+      amount;
 
 
     const jitterY =
-      seededRandom(
-        id * 153
+      (
+        seededRandom(
+          id * 153
+        ) -
+        0.5
       ) *
-      1.5 -
-      0.75;
+      amount;
 
 
     return {
-      x: x + jitterX,
-      y: y + jitterY
+
+      x:
+        x +
+        jitterX,
+
+      y:
+        y +
+        jitterY
+
     };
 
   }
 
 
+  /* =====================================================
+     ANSWER ZONE POSITION
+  ===================================================== */
+
+
   function getZonePosition(
     answer,
-    id
+    id,
+    index
   ) {
+
+    /*
+      Vi fordeler hver spiller
+      stabilt over hele svarfeltet.
+    */
 
     const ranges = {
 
       A: {
-        x1: 9,
-        x2: 46,
+        x1: 5,
+        x2: 48,
         y1: 58,
-        y2: 73
+        y2: 72
       },
 
       B: {
-        x1: 54,
-        x2: 91,
+        x1: 52,
+        x2: 95,
         y1: 58,
-        y2: 73
+        y2: 72
       },
 
       C: {
-        x1: 9,
-        x2: 46,
+        x1: 5,
+        x2: 48,
         y1: 79,
         y2: 94
       },
 
       D: {
-        x1: 54,
-        x2: 91,
+        x1: 52,
+        x2: 95,
         y1: 79,
         y2: 94
       }
@@ -1620,38 +2762,48 @@
     };
 
 
-    const r =
-      ranges[answer];
+    const range =
+      ranges[
+        answer
+      ];
 
+
+    /*
+      Stable pseudo randomness.
+    */
 
     const rx =
       seededRandom(
-        id * 301
+        id * 301 +
+        index * 17
       );
 
 
     const ry =
       seededRandom(
-        id * 727
+        id * 727 +
+        index * 31
       );
 
 
     return {
+
       x:
-        r.x1 +
+        range.x1 +
         rx *
         (
-          r.x2 -
-          r.x1
+          range.x2 -
+          range.x1
         ),
 
       y:
-        r.y1 +
+        range.y1 +
         ry *
         (
-          r.y2 -
-          r.y1
+          range.y2 -
+          range.y1
         )
+
     };
 
   }
@@ -1662,7 +2814,9 @@
   ) {
 
     const x =
-      Math.sin(seed) *
+      Math.sin(
+        seed
+      ) *
       10000;
 
 
@@ -1672,6 +2826,11 @@
     );
 
   }
+
+
+  /* =====================================================
+     TIMER
+  ===================================================== */
 
 
   function updateTimer() {
@@ -1687,7 +2846,8 @@
 
     if (
       !state.questionEndsAt ||
-      state.phase !== "question"
+      state.phase !==
+        "question"
     ) {
 
       $("timer")
@@ -1695,6 +2855,7 @@
         .add(
           "hidden"
         );
+
 
       return;
 
@@ -1719,14 +2880,18 @@
         }
 
 
+        const end =
+          new Date(
+            state.questionEndsAt
+          ).getTime();
+
+
         const remaining =
           Math.max(
             0,
             Math.ceil(
               (
-                new Date(
-                  state.questionEndsAt
-                ).getTime() -
+                end -
                 Date.now()
               ) /
               1000
@@ -1747,6 +2912,7 @@
             timerInterval
           );
 
+
           timerInterval =
             null;
 
@@ -1761,10 +2927,70 @@
     timerInterval =
       setInterval(
         tick,
-        250
+        200
       );
 
   }
+
+
+  /* =====================================================
+     TOP 10
+  ===================================================== */
+
+
+  function detectTopTen() {
+
+    const alive =
+      state.aliveCount ?? 0;
+
+
+    if (
+      lastAliveCount !== null &&
+      lastAliveCount > 10 &&
+      alive <= 10 &&
+      alive > 1
+    ) {
+
+      showEvent(
+        "FINALEN NÆRMER SEG",
+        "TOP 10",
+        2200,
+        true
+      );
+
+
+      $("topTenBanner")
+        .classList
+        .add(
+          "show"
+        );
+
+
+      setTimeout(
+        () => {
+
+          $("topTenBanner")
+            .classList
+            .remove(
+              "show"
+            );
+
+        },
+        4000
+      );
+
+    }
+
+
+    lastAliveCount =
+      alive;
+
+  }
+
+
+  /* =====================================================
+     WINNER
+  ===================================================== */
 
 
   function renderWinner() {
@@ -1777,6 +3003,7 @@
       showWinner(
         state.winner.name
       );
+
 
       return;
 
@@ -1810,14 +3037,15 @@
   }
 
 
-  let eventTimeout =
-    null;
+  /* =====================================================
+     EVENTS
+  ===================================================== */
 
 
   function showEvent(
     small,
     big,
-    duration = 1400,
+    duration = 1300,
     yellow = false
   ) {
 
@@ -1866,6 +3094,11 @@
       );
 
   }
+
+
+  /* =====================================================
+     ESCAPE HTML
+  ===================================================== */
 
 
   function escapeHtml(
