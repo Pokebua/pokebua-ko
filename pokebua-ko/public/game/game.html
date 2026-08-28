@@ -1,1 +1,1291 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokebua - Last Trainer Standing</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #06131f;
+      color: white;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 45%, rgba(72, 150, 88, 0.55), transparent 34%),
+        linear-gradient(180deg, #173a32 0%, #0f2b25 45%, #071817 100%);
+    }
+
+    /* ---------- TOP BAR ---------- */
+
+    .topbar {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      right: 30px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    .logo-box {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(6, 14, 24, 0.86);
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 14px 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo-title {
+      font-weight: 900;
+      font-size: 30px;
+      color: #ffd21f;
+      letter-spacing: 1px;
+    }
+
+    .logo-sub {
+      font-size: 13px;
+      color: #cad5df;
+      margin-top: 2px;
+      letter-spacing: 2px;
+    }
+
+    .status-wrap {
+      display: flex;
+      gap: 12px;
+    }
+
+    .status-card {
+      min-width: 150px;
+      background: rgba(6, 14, 24, 0.88);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 12px 18px;
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.26);
+    }
+
+    .status-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .status-label {
+      font-size: 11px;
+      color: #aebdca;
+      text-transform: uppercase;
+      margin-top: 4px;
+      letter-spacing: 1.2px;
+    }
+
+    /* ---------- ARENA ---------- */
+
+    #arena {
+      position: absolute;
+      left: 3%;
+      right: 3%;
+      top: 125px;
+      bottom: 155px;
+      border-radius: 30px;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.13);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(151, 181, 95, 0.34), transparent 30%),
+        linear-gradient(135deg, #39743d 0%, #4d8748 48%, #2e6936 100%);
+      box-shadow:
+        inset 0 0 100px rgba(0, 0, 0, 0.3),
+        0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    #arena::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.28;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 20% 20%, white 0 2px, transparent 3px),
+        radial-gradient(circle at 60% 70%, white 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 35%, white 0 2px, transparent 3px);
+      background-size: 150px 150px, 180px 180px, 210px 210px;
+    }
+
+    .center-circle {
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border: 4px solid rgba(255, 255, 255, 0.18);
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .center-circle::before {
+      content: "";
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.16);
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* ---------- ANSWER ZONES ---------- */
+
+    .answer-zone {
+      position: absolute;
+      width: 34%;
+      height: 34%;
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.85);
+      transition:
+        opacity 0.45s ease,
+        transform 0.45s ease,
+        filter 0.3s ease;
+      border: 4px solid rgba(255, 255, 255, 0.22);
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .answer-zone.show {
+      opacity: 0.88;
+      transform: scale(1);
+    }
+
+    .answer-zone.correct {
+      animation: correctPulse 0.7s ease infinite alternate;
+      filter: brightness(1.5);
+      border-color: #ffffff;
+    }
+
+    .answer-zone.wrong {
+      animation: wrongFlash 0.25s ease 4;
+      filter: grayscale(0.5) brightness(0.55);
+    }
+
+    .zone-letter {
+      font-size: 78px;
+      font-weight: 1000;
+      text-shadow: 0 7px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .zone-text {
+      font-size: 18px;
+      font-weight: 900;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #zoneA {
+      left: 4%;
+      top: 7%;
+      background: rgba(216, 61, 61, 0.78);
+    }
+
+    #zoneB {
+      right: 4%;
+      top: 7%;
+      background: rgba(48, 119, 212, 0.82);
+    }
+
+    #zoneC {
+      left: 4%;
+      bottom: 7%;
+      background: rgba(235, 179, 32, 0.82);
+    }
+
+    #zoneD {
+      right: 4%;
+      bottom: 7%;
+      background: rgba(49, 160, 75, 0.82);
+    }
+
+    @keyframes correctPulse {
+      from {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      }
+      to {
+        box-shadow: 0 0 45px rgba(255, 255, 255, 0.9);
+      }
+    }
+
+    @keyframes wrongFlash {
+      0%, 100% {
+        opacity: 0.8;
+      }
+      50% {
+        opacity: 0.2;
+      }
+    }
+
+    /* ---------- PLAYERS ---------- */
+
+    #playersLayer {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+    }
+
+    .player {
+      position: absolute;
+      width: 54px;
+      height: 70px;
+      transform: translate(-50%, -50%);
+      transition:
+        left 1.2s cubic-bezier(.2,.8,.2,1),
+        top 1.2s cubic-bezier(.2,.8,.2,1),
+        opacity 0.5s ease,
+        transform 0.5s ease,
+        filter 0.5s ease;
+    }
+
+    .player.eliminated {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.1) rotate(180deg);
+      filter: grayscale(1);
+    }
+
+    .player-avatar {
+      width: 38px;
+      height: 38px;
+      margin: 0 auto;
+      border-radius: 13px 13px 10px 10px;
+      border: 3px solid rgba(255,255,255,0.8);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      position: relative;
+    }
+
+    .player-avatar::before {
+      content: "";
+      position: absolute;
+      width: 26px;
+      height: 12px;
+      left: 3px;
+      top: -8px;
+      border-radius: 10px 10px 3px 3px;
+      background: rgba(0,0,0,0.55);
+    }
+
+    .player-avatar::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 22px;
+      left: 6px;
+      bottom: -21px;
+      border-radius: 0 0 8px 8px;
+      background: inherit;
+    }
+
+    .player-name {
+      margin-top: 22px;
+      white-space: nowrap;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 900;
+      color: white;
+      text-shadow:
+        0 1px 2px #000,
+        0 0 5px #000;
+      max-width: 92px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transform: translateX(-18px);
+      width: 92px;
+    }
+
+    /* ---------- QUESTION PANEL ---------- */
+
+    #questionPanel {
+      position: absolute;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%);
+      width: min(1000px, 92vw);
+      min-height: 110px;
+      z-index: 120;
+      background: rgba(5, 13, 23, 0.95);
+      border: 3px solid rgba(255, 255, 255, 0.13);
+      border-radius: 24px;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    #questionText {
+      flex: 1;
+    }
+
+    #phaseTitle {
+      color: #ffd21f;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    #question {
+      font-size: 25px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    #answerHint {
+      margin-top: 7px;
+      font-size: 13px;
+      color: #9fb1c1;
+    }
+
+    #timer {
+      width: 96px;
+      height: 70px;
+      border-radius: 18px;
+      background: #101f31;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 1000;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    /* ---------- CENTER MESSAGES ---------- */
+
+    #centerMessage {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      z-index: 200;
+      font-size: 64px;
+      font-weight: 1000;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      text-shadow:
+        0 6px 0 rgba(0,0,0,0.4),
+        0 0 30px rgba(0,0,0,0.5);
+      transition: 0.3s ease;
+    }
+
+    #centerMessage.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    #winnerScreen {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgba(255, 211, 31, 0.23), transparent 35%),
+        rgba(4, 11, 20, 0.94);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    #winnerScreen.show {
+      display: flex;
+    }
+
+    .winner-card {
+      padding: 50px 80px;
+      border: 3px solid rgba(255,255,255,0.16);
+      background: rgba(8, 19, 31, 0.93);
+      border-radius: 35px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+
+    .winner-small {
+      color: #ffd21f;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    .winner-name {
+      font-size: 78px;
+      font-weight: 1000;
+      margin-top: 10px;
+    }
+
+    .winner-sub {
+      margin-top: 8px;
+      font-size: 25px;
+      color: #cfd8df;
+    }
+
+    /* ---------- CONTROLS FOR TEST ---------- */
+
+    #testControls {
+      position: absolute;
+      right: 28px;
+      bottom: 28px;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .test-btn {
+      border: 0;
+      padding: 11px 16px;
+      border-radius: 12px;
+      background: #182c42;
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    }
+
+    .test-btn:hover {
+      filter: brightness(1.18);
+    }
+
+    @media (max-width: 900px) {
+      .logo-title {
+        font-size: 20px;
+      }
+
+      .status-card {
+        min-width: 105px;
+      }
+
+      .status-value {
+        font-size: 22px;
+      }
+
+      #question {
+        font-size: 19px;
+      }
+
+      #centerMessage {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="game">
+
+  <div class="topbar">
+
+    <div class="logo-box">
+      <div>
+        <div class="logo-title">POKEBUA</div>
+        <div class="logo-sub">LAST TRAINER STANDING</div>
+      </div>
+    </div>
+
+    <div class="status-wrap">
+
+      <div class="status-card">
+        <div class="status-value" id="roundNumber">1</div>
+        <div class="status-label">Round</div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-value" id="aliveCount">0</div>
+        <div class="status-label">Trainers remain</div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-value" id="answeredCount">0</div>
+        <div class="status-label">Answered</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="arena">
+
+    <div class="center-circle"></div>
+
+    <div class="answer-zone" id="zoneA">
+      <div class="zone-letter">A</div>
+      <div class="zone-text" id="zoneTextA">Svar A</div>
+    </div>
+
+    <div class="answer-zone" id="zoneB">
+      <div class="zone-letter">B</div>
+      <div class="zone-text" id="zoneTextB">Svar B</div>
+    </div>
+
+    <div class="answer-zone" id="zoneC">
+      <div class="zone-letter">C</div>
+      <div class="zone-text" id="zoneTextC">Svar C</div>
+    </div>
+
+    <div class="answer-zone" id="zoneD">
+      <div class="zone-letter">D</div>
+      <div class="zone-text" id="zoneTextD">Svar D</div>
+    </div>
+
+    <div id="playersLayer"></div>
+
+  </div>
+
+  <div id="questionPanel">
+
+    <div id="questionText">
+      <div id="phaseTitle">Waiting</div>
+      <div id="question">Trykk "Start test" for å starte.</div>
+      <div id="answerHint">Spillerne svarer A / B / C / D</div>
+    </div>
+
+    <div id="timer">--</div>
+
+  </div>
+
+  <div id="centerMessage"></div>
+
+  <div id="winnerScreen">
+    <div class="winner-card">
+      <div class="winner-small">🏆 POKEBUA CHAMPION 🏆</div>
+      <div class="winner-name" id="winnerName">PLAYER</div>
+      <div class="winner-sub">LAST TRAINER STANDING</div>
+    </div>
+  </div>
+
+  <div id="testControls">
+    <button class="test-btn" onclick="createTestPlayers(100)">
+      Lag 100 testspillere
+    </button>
+
+    <button class="test-btn" onclick="startGame()">
+      Start test
+    </button>
+
+    <button class="test-btn" onclick="resetGame()">
+      Reset
+    </button>
+  </div>
+
+</div>
+
+<script>
+
+const MAX_PLAYERS = 100;
+
+let players = [];
+
+let currentRound = 0;
+
+let timerInterval = null;
+
+let currentQuestion = null;
+
+let gameRunning = false;
+
+
+
+const questions = [
+
+  {
+    question: "Hvilken type er Pikachu?",
+    answers: {
+      A: "Fire",
+      B: "Water",
+      C: "Electric",
+      D: "Grass"
+    },
+    correct: "C"
+  },
+
+  {
+    question: "Hvilken Pokémon er nummer #001?",
+    answers: {
+      A: "Bulbasaur",
+      B: "Charmander",
+      C: "Squirtle",
+      D: "Pikachu"
+    },
+    correct: "A"
+  },
+
+  {
+    question: "Hvilken type er super effective mot Fire?",
+    answers: {
+      A: "Grass",
+      B: "Water",
+      C: "Bug",
+      D: "Steel"
+    },
+    correct: "B"
+  },
+
+  {
+    question: "Hva utvikler Eevee seg til med en Thunder Stone?",
+    answers: {
+      A: "Flareon",
+      B: "Vaporeon",
+      C: "Espeon",
+      D: "Jolteon"
+    },
+    correct: "D"
+  },
+
+  {
+    question: "Hvilken Pokémon er kjent som Mewtwos genetiske opphav?",
+    answers: {
+      A: "Mew",
+      B: "Ditto",
+      C: "Arceus",
+      D: "Celebi"
+    },
+    correct: "A"
+  },
+
+  {
+    question: "Hvilken type er Charizard?",
+    answers: {
+      A: "Fire / Flying",
+      B: "Fire / Dragon",
+      C: "Dragon",
+      D: "Fire"
+    },
+    correct: "A"
+  },
+
+  {
+    question: "Hvilken Pokémon utvikler seg til Raichu?",
+    answers: {
+      A: "Pichu",
+      B: "Pikachu",
+      C: "Plusle",
+      D: "Pachirisu"
+    },
+    correct: "B"
+  },
+
+  {
+    question: "Hvem er en Water-type starter?",
+    answers: {
+      A: "Torchic",
+      B: "Treecko",
+      C: "Mudkip",
+      D: "Chikorita"
+    },
+    correct: "C"
+  }
+
+];
+
+
+
+const colors = [
+  "#ff5964",
+  "#56a7ff",
+  "#ffc857",
+  "#6bd66b",
+  "#c678dd",
+  "#ff934f",
+  "#3accc9",
+  "#ff6fb5",
+  "#83d26f",
+  "#8c8cff"
+];
+
+
+
+function createTestPlayers(amount = 100) {
+
+  players = [];
+
+  document.getElementById("playersLayer").innerHTML = "";
+
+  const count = Math.min(amount, MAX_PLAYERS);
+
+  for (let i = 1; i <= count; i++) {
+
+    const player = {
+      id: i,
+      name: "Trainer" + i,
+      alive: true,
+      answer: null,
+      x: randomBetween(10, 90),
+      y: randomBetween(12, 88),
+      color: colors[i % colors.length],
+      element: null
+    };
+
+    players.push(player);
+
+    createPlayerElement(player);
+
+  }
+
+  updateStats();
+
+}
+
+
+
+function createPlayerElement(player) {
+
+  const el = document.createElement("div");
+
+  el.className = "player";
+
+  el.id = "player-" + player.id;
+
+  el.style.left = player.x + "%";
+
+  el.style.top = player.y + "%";
+
+  el.innerHTML = `
+    <div
+      class="player-avatar"
+      style="background:${player.color}"
+    ></div>
+
+    <div class="player-name">
+      ${player.name}
+    </div>
+  `;
+
+  document.getElementById("playersLayer").appendChild(el);
+
+  player.element = el;
+
+}
+
+
+
+function startGame() {
+
+  if (players.length === 0) {
+    createTestPlayers(100);
+  }
+
+  gameRunning = true;
+
+  currentRound = 0;
+
+  document.getElementById("winnerScreen").classList.remove("show");
+
+  showCenterMessage("100 TRAINERS");
+
+  setTimeout(() => {
+    nextRound();
+  }, 1600);
+
+}
+
+
+
+function nextRound() {
+
+  if (!gameRunning) return;
+
+  const alive = getAlivePlayers();
+
+  if (alive.length <= 1) {
+    finishGame();
+    return;
+  }
+
+  currentRound++;
+
+  document.getElementById("roundNumber").textContent = currentRound;
+
+  resetZones();
+
+  movePlayersToCenter();
+
+  currentQuestion =
+    questions[(currentRound - 1) % questions.length];
+
+  setTimeout(() => {
+    showQuestion();
+  }, 1300);
+
+}
+
+
+
+function showQuestion() {
+
+  document.getElementById("phaseTitle").textContent =
+    "QUESTION ATTACK!";
+
+  document.getElementById("question").textContent =
+    currentQuestion.question;
+
+  document.getElementById("zoneTextA").textContent =
+    currentQuestion.answers.A;
+
+  document.getElementById("zoneTextB").textContent =
+    currentQuestion.answers.B;
+
+  document.getElementById("zoneTextC").textContent =
+    currentQuestion.answers.C;
+
+  document.getElementById("zoneTextD").textContent =
+    currentQuestion.answers.D;
+
+  showZones();
+
+  const alive = getAlivePlayers();
+
+  alive.forEach(player => {
+    player.answer = null;
+  });
+
+  updateStats();
+
+  startTimer(10);
+
+  simulateAnswers();
+
+}
+
+
+
+function simulateAnswers() {
+
+  const alive = getAlivePlayers();
+
+  alive.forEach(player => {
+
+    const delay = randomBetween(800, 7500);
+
+    setTimeout(() => {
+
+      if (!player.alive) return;
+
+      if (player.answer !== null) return;
+
+      const choices = ["A", "B", "C", "D"];
+
+      let answer;
+
+      /*
+        Ca. 70 % sjanse for riktig svar.
+        Bare for testing.
+      */
+
+      if (Math.random() < 0.70) {
+        answer = currentQuestion.correct;
+      } else {
+        const wrongChoices =
+          choices.filter(choice =>
+            choice !== currentQuestion.correct
+          );
+
+        answer =
+          wrongChoices[
+            Math.floor(Math.random() * wrongChoices.length)
+          ];
+      }
+
+      player.answer = answer;
+
+      movePlayerToZone(player, answer);
+
+      updateStats();
+
+    }, delay);
+
+  });
+
+}
+
+
+
+function movePlayerToZone(player, answer) {
+
+  const positions = {
+
+    A: {
+      xMin: 8,
+      xMax: 34,
+      yMin: 12,
+      yMax: 38
+    },
+
+    B: {
+      xMin: 66,
+      xMax: 92,
+      yMin: 12,
+      yMax: 38
+    },
+
+    C: {
+      xMin: 8,
+      xMax: 34,
+      yMin: 62,
+      yMax: 88
+    },
+
+    D: {
+      xMin: 66,
+      xMax: 92,
+      yMin: 62,
+      yMax: 88
+    }
+
+  };
+
+  const zone = positions[answer];
+
+  player.x = randomBetween(zone.xMin, zone.xMax);
+
+  player.y = randomBetween(zone.yMin, zone.yMax);
+
+  player.element.style.left = player.x + "%";
+
+  player.element.style.top = player.y + "%";
+
+}
+
+
+
+function movePlayersToCenter() {
+
+  getAlivePlayers().forEach(player => {
+
+    player.x = randomBetween(36, 64);
+
+    player.y = randomBetween(28, 72);
+
+    player.element.style.left = player.x + "%";
+
+    player.element.style.top = player.y + "%";
+
+  });
+
+}
+
+
+
+function startTimer(seconds) {
+
+  clearInterval(timerInterval);
+
+  let remaining = seconds;
+
+  document.getElementById("timer").textContent = remaining;
+
+  timerInterval = setInterval(() => {
+
+    remaining--;
+
+    document.getElementById("timer").textContent =
+      remaining;
+
+    if (remaining <= 0) {
+
+      clearInterval(timerInterval);
+
+      lockAnswers();
+
+    }
+
+  }, 1000);
+
+}
+
+
+
+function lockAnswers() {
+
+  document.getElementById("phaseTitle").textContent =
+    "LOCKED!";
+
+  showCenterMessage("LOCKED!");
+
+  setTimeout(() => {
+
+    revealAnswer();
+
+  }, 1000);
+
+}
+
+
+
+function revealAnswer() {
+
+  const correct =
+    currentQuestion.correct;
+
+  const zoneIds = {
+    A: "zoneA",
+    B: "zoneB",
+    C: "zoneC",
+    D: "zoneD"
+  };
+
+  Object.entries(zoneIds).forEach(([letter, id]) => {
+
+    const el = document.getElementById(id);
+
+    if (letter === correct) {
+      el.classList.add("correct");
+    } else {
+      el.classList.add("wrong");
+    }
+
+  });
+
+  document.getElementById("phaseTitle").textContent =
+    "CORRECT ANSWER: " + correct;
+
+  setTimeout(() => {
+
+    eliminatePlayers();
+
+  }, 1600);
+
+}
+
+
+
+function eliminatePlayers() {
+
+  let eliminated = 0;
+
+  getAlivePlayers().forEach(player => {
+
+    if (
+      player.answer !== currentQuestion.correct
+    ) {
+
+      player.alive = false;
+
+      eliminated++;
+
+      player.element.classList.add("eliminated");
+
+    }
+
+  });
+
+  updateStats();
+
+  showCenterMessage(
+    "💀 " + eliminated + " ELIMINATED"
+  );
+
+  setTimeout(() => {
+
+    const aliveCount =
+      getAlivePlayers().length;
+
+    showCenterMessage(
+      "🔥 " +
+      aliveCount +
+      " TRAINERS REMAIN"
+    );
+
+    setTimeout(() => {
+      nextRound();
+    }, 1700);
+
+  }, 1700);
+
+}
+
+
+
+function finishGame() {
+
+  gameRunning = false;
+
+  clearInterval(timerInterval);
+
+  const alive =
+    getAlivePlayers();
+
+  if (alive.length === 0) {
+
+    document.getElementById("winnerName")
+      .textContent = "NO WINNER";
+
+  } else {
+
+    document.getElementById("winnerName")
+      .textContent = alive[0].name;
+
+  }
+
+  document.getElementById("winnerScreen")
+    .classList.add("show");
+
+}
+
+
+
+function showZones() {
+
+  document.querySelectorAll(".answer-zone")
+    .forEach(zone => {
+      zone.classList.add("show");
+    });
+
+}
+
+
+
+function resetZones() {
+
+  document.querySelectorAll(".answer-zone")
+    .forEach(zone => {
+
+      zone.classList.remove(
+        "show",
+        "correct",
+        "wrong"
+      );
+
+    });
+
+}
+
+
+
+function getAlivePlayers() {
+
+  return players.filter(
+    player => player.alive
+  );
+
+}
+
+
+
+function updateStats() {
+
+  const alive =
+    getAlivePlayers();
+
+  const answered =
+    alive.filter(
+      player => player.answer !== null
+    );
+
+  document.getElementById("aliveCount")
+    .textContent = alive.length;
+
+  document.getElementById("answeredCount")
+    .textContent =
+      answered.length + "/" + alive.length;
+
+}
+
+
+
+function showCenterMessage(text) {
+
+  const el =
+    document.getElementById("centerMessage");
+
+  el.textContent = text;
+
+  el.classList.add("show");
+
+  setTimeout(() => {
+    el.classList.remove("show");
+  }, 1200);
+
+}
+
+
+
+function resetGame() {
+
+  gameRunning = false;
+
+  clearInterval(timerInterval);
+
+  currentRound = 0;
+
+  document.getElementById("roundNumber")
+    .textContent = "1";
+
+  document.getElementById("question")
+    .textContent =
+      'Trykk "Start test" for å starte.';
+
+  document.getElementById("phaseTitle")
+    .textContent = "WAITING";
+
+  document.getElementById("timer")
+    .textContent = "--";
+
+  document.getElementById("winnerScreen")
+    .classList.remove("show");
+
+  resetZones();
+
+  createTestPlayers(100);
+
+}
+
+
+
+function randomBetween(min, max) {
+
+  return Math.random() *
+    (max - min) + min;
+
+}
+
+
+
+/*
+  Lager testspillere automatisk
+  når siden åpnes.
+*/
+
+createTestPlayers(100);
+
+</script>
+
+</body>
+</html>
